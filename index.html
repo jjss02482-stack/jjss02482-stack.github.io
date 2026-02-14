@@ -3,284 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G.R.I.M. 核心终端 v5.0</title>
+    <title>G.R.I.M. | 全球侦查与渗透海军陆战队</title>
     <style>
         :root {
-            --primary: #ff9800; 
-            --bg-deep: #0a0a0a;
-            --bg-panel: #141414;
-            --border: #333;
-            --text-dim: #666;
+            --primary: #ff9800;
+            --primary-dark: #e68a00;
+            --bg: #050505;
+            --card-bg: #111;
+            --text-main: #e0e0e0;
+            --text-dim: #999;
+            --border: rgba(255, 152, 0, 0.2);
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background-color: var(--bg-deep);
-            color: #ccc;
-            font-family: "Courier New", "Microsoft YaHei", monospace;
-            margin: 0; padding: 20px;
-            display: flex; flex-direction: column; align-items: center;
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
 
-        .terminal-container {
-            max-width: 900px; width: 100%;
-            background: var(--bg-panel);
-            border: 1px solid var(--border);
-            padding: 30px;
-            box-shadow: 0 0 50px rgba(0,0,0,1);
-            margin-bottom: 20px;
-            position: relative;
+        /* --- 导航栏 --- */
+        nav {
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10%;
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 1px solid var(--border);
+            position: fixed; width: 100%; z-index: 1000;
+            backdrop-filter: blur(10px);
         }
+        .logo { font-size: 24px; font-weight: 800; color: var(--primary); letter-spacing: 2px; }
+        .nav-links { display: flex; gap: 40px; }
+        .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 14px; transition: 0.3s; text-transform: uppercase; }
+        .nav-links a:hover { color: var(--primary); }
 
-        /* --- 顶部显示屏逻辑 --- */
-        .monitor-box {
-            width: 100%; height: 180px;
-            background: #000; border: 1px solid #444;
-            margin-bottom: 30px; position: relative; overflow: hidden;
+        /* --- Hero 主视图 --- */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle, rgba(255, 152, 0, 0.05) 0%, rgba(0,0,0,1) 70%);
+            padding: 0 20px;
         }
-        #matrix-canvas { position: absolute; top: 0; left: 0; }
-        .monitor-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.8) 100%);
-            color: var(--primary); font-size: 32px; font-weight: bold;
-            letter-spacing: 15px; opacity: 0; transition: 1.5s; pointer-events: none;
+        .hero h1 { font-size: 4rem; font-weight: 900; margin-bottom: 20px; letter-spacing: 10px; color: #fff; }
+        .hero p { font-size: 1.2rem; color: var(--text-dim); max-width: 600px; margin-bottom: 30px; }
+        .hero-btn {
+            padding: 15px 40px;
+            background: var(--primary);
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: 0.3s;
         }
-        .monitor-overlay.active { opacity: 1; }
+        .hero-btn:hover { background: #fff; transform: translateY(-3px); }
 
-        /* --- 导航 --- */
-        .nav-menu { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 15px; }
-        .nav-btn {
-            background: #1a1a1a; border: 1px solid #444;
-            color: var(--text-dim); padding: 8px 18px; cursor: pointer; transition: 0.3s;
-        }
-        .nav-btn:hover, .nav-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
+        /* --- 分区通用样式 --- */
+        section { padding: 100px 10%; }
+        .section-title { font-size: 2rem; color: var(--primary); margin-bottom: 50px; text-align: center; position: relative; }
+        .section-title::after { content: ''; display: block; width: 50px; height: 2px; background: var(--primary); margin: 10px auto; }
 
-        .page-content { display: none; line-height: 1.6; }
-        .page-content.active { display: block; }
+        /* --- 简述区 --- */
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .about-text h3 { margin-bottom: 20px; color: #fff; font-size: 1.5rem; }
+        .about-text mark { background: none; color: var(--primary); font-weight: bold; }
 
-        /* --- 军衔系统 --- */
-        .rank-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
-        .rank-item {
-            padding: 15px 10px; border: 1px solid #222; text-align: center;
-            background: #0d0d0d; position: relative; cursor: help;
+        /* --- 部门区 --- */
+        .dept-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .dept-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border: 1px solid #222;
+            transition: 0.4s;
+            text-align: center;
         }
-        .rank-item:hover { border-color: var(--primary); background: #1a1a1a; }
-        .rank-star { color: var(--primary); display: block; margin-bottom: 5px; font-size: 18px; }
-        .rank-tooltip {
-            visibility: hidden; width: 220px; background: #111; color: #eee;
-            border: 1px solid var(--primary); padding: 12px;
-            position: absolute; z-index: 100; bottom: 115%; left: 50%;
-            transform: translateX(-50%); font-size: 12px; text-align: left;
-            box-shadow: 0 0 20px rgba(255,152,0,0.2);
-        }
-        .rank-item:hover .rank-tooltip { visibility: visible; }
+        .dept-card:hover { border-color: var(--primary); transform: translateY(-10px); }
+        .dept-card h4 { color: var(--primary); margin-bottom: 15px; font-size: 1.2rem; }
 
-        /* --- 底部全球战术面板 --- */
-        .global-footer {
-            width: 100%; max-width: 900px;
-            display: grid; grid-template-columns: 180px 1fr 180px;
-            background: #080808; border: 1px solid #222;
-            padding: 20px; align-items: center; box-sizing: border-box;
-        }
+        /* --- 荣誉/战绩区 --- */
+        .history { background: #0a0a0a; }
+        .history-item { border-left: 2px solid var(--primary); padding-left: 30px; margin-bottom: 40px; position: relative; }
+        .history-item span { color: var(--primary); font-weight: bold; font-size: 1.1rem; }
 
-        /* 3D 旋转地球 */
-        .globe-wrap { position: relative; width: 100px; height: 100px; margin: auto; }
-        .globe-circle {
-            width: 80px; height: 80px; border-radius: 50%;
-            position: absolute; top: 10px; left: 10px;
-            box-shadow: inset -10px -10px 30px #000, inset 10px 10px 30px rgba(255,152,0,0.2), 0 0 15px rgba(255,152,0,0.1);
-            overflow: hidden; border: 1px solid #333;
+        /* --- 底部 --- */
+        footer {
+            padding: 60px 10%;
+            background: #000;
+            border-top: 1px solid #111;
+            text-align: center;
         }
-        .globe-map {
-            width: 200%; height: 100%;
-            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_Marble_2002.png/1024px-Blue_Marble_2002.png');
-            background-size: 50% 100%;
-            filter: sepia(100%) saturate(200%) hue-rotate(10deg) brightness(0.6);
-            animation: moveGlobe 15s linear infinite;
+        .slogan { font-size: 1.5rem; color: #fff; margin-bottom: 10px; font-style: italic; }
+        .quote { color: var(--primary); letter-spacing: 5px; margin-bottom: 30px; display: block; }
+        .copyright { font-size: 12px; color: #444; }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .about-grid, .dept-container { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 2.5rem; }
         }
-        @keyframes moveGlobe { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-        /* 巨型发光时钟 */
-        .time-center { text-align: center; }
-        #huge-clock { font-size: 56px; color: var(--primary); font-weight: bold; text-shadow: 0 0 20px rgba(255,152,0,0.5); font-family: 'Arial Black', sans-serif; }
-        .time-label { font-size: 10px; letter-spacing: 4px; color: #444; margin-top: -5px; }
-
-        /* 动态点阵地图 */
-        .dot-map-container { width: 160px; height: 90px; margin: auto; position: relative; }
-        #map-canvas { border: 1px solid #222; background: #000; }
     </style>
 </head>
 <body>
 
-<div class="terminal-container">
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:12px; color:var(--text-dim);">
-        <span>G.R.I.M. :: SECURE_NODE</span>
-        <span id="small-date"></span>
-    </div>
-
-    <div class="monitor-box">
-        <canvas id="matrix-canvas"></canvas>
-        <div id="grim-overlay" class="monitor-overlay">G.R.I.M.</div>
-    </div>
-
-    <div class="nav-menu">
-        <button class="nav-btn active" onclick="showPage('home')">概览</button>
-        <button class="nav-btn" onclick="showPage('ranks')">军衔制度</button>
-        <button class="nav-btn" onclick="showPage('news')">日常简报</button>
-        <button class="nav-btn" onclick="showPage('depts')">部门系统</button>
-    </div>
-
-    <div id="home" class="page-content active">
-        <h2>// 接入协议</h2>
-        <p>G.R.I.M. 终端已与卡莫纳电视台频道建立安全关联。</p>
-        <p style="color:var(--text-dim)">> 当前权限：二级<br>> 信号源：TV_STATION_CH04</p>
-    </div>
-
-    <div id="ranks" class="page-content">
-        <h2>// 晋升序列 (鼠标覆盖查看权限)</h2>
-        <div class="rank-grid" id="rankList"></div>
-    </div>
-
-    <div id="news" class="page-content">
-        <h2>// 暗区通报</h2>
-        <div class="news-item">
-            <strong>【电视台】区域警告</strong>
-            <p style="font-size:13px; color:#777; margin-top:5px;">电视台已经全面由白狼联队接管。</p>
+    <nav>
+        <div class="logo">G.R.I.M.</div>
+        <div class="nav-links">
+            <a href="#about">使命</a>
+            <a href="#depts">部门</a>
+            <a href="#ops">行动经历</a>
+            <a href="#equip">装备标准</a>
         </div>
+    </nav>
+
+    <div class="hero">
+        <h1>G.R.I.M.</h1>
+        <p>全球侦查与渗透海军陆战队 <br> GLOBAL RECON INFILTRATION MARINES</p>
+        <a href="#about" class="hero-btn">进入核心</a>
     </div>
 
-    <div id="depts" class="page-content">
-        <h2>// 职能模块</h2>
-        <div class="dept-btns">
-            <button class="nav-btn" onclick="showDept('intel')">1: 情报部门</button>
-            <button class="nav-btn" onclick="showDept('assault')">2: 突击组</button>
-            <button class="nav-btn" onclick="showDept('logistics')">3: 后勤部门</button>
+    <section id="about">
+        <div class="about-grid">
+            <div class="about-text">
+                <p style="color:var(--primary); margin-bottom:10px;">EST. 1994</p>
+                <h3>科伦国海军之刃</h3>
+                <p>G.R.I.M. 是科伦国在<mark>苏梅克委员会</mark>监视下产生的两栖作战部队。作为直属科伦海军的精英力量，我们拥有独立的行动决策权。</p>
+                <br>
+                <p>我们的使命在于情报层面的<mark>超限战优势</mark>，以及针对高危目标的快速毁灭打击。我们是陆军跨海支援的先锋，是战场逻辑的改写者。</p>
+            </div>
+            <div style="background: #151515; height: 300px; border: 1px solid var(--border); display:flex; align-items:center; justify-content:center;">
+                <span style="color:#333; font-size:5rem; font-weight:900;">SECURED</span>
+            </div>
         </div>
-        <div id="intel" class="dept-info"><strong>情报部门：</strong> 负责快速寻找敌人位置，并且战术支持。</div>
-        <div id="assault" class="dept-info"><strong>突击组：</strong> 负责快速突破</div>
-        <div id="logistics" class="dept-info"><strong>后勤部门：</strong> 负责保持队友的子弹数量和医疗</div>
-    </div>
-</div>
+    </section>
 
-<div class="global-footer">
-    <div class="globe-wrap">
-        <div class="globe-circle">
-            <div class="globe-map"></div>
+    <section id="depts" style="background:#080808;">
+        <h2 class="section-title">组织架构</h2>
+        <div class="dept-container">
+            <div class="dept-card">
+                <h4>情报部</h4>
+                <p>负责快速寻找敌人位置，并提供全方位的战术数据支持。</p>
+            </div>
+            <div class="dept-card">
+                <h4>突击组</h4>
+                <p>执行高烈度快速突破，负责物理层面的目标清除。</p>
+            </div>
+            <div class="dept-card">
+                <h4>后勤部</h4>
+                <p>维持战区资源循环，确保弹药基数与战伤医疗保障。</p>
+            </div>
         </div>
-        <div style="position:absolute; bottom:-10px; width:100%; text-align:center; font-size:9px; color:#444;">GEO_SYNC</div>
-    </div>
+    </section>
 
-    <div class="time-center">
-        <div id="huge-clock">00:00:00</div>
-        <div class="time-label">TACTICAL TIME SYNCHRONIZATION</div>
-    </div>
+    <section id="ops">
+        <h2 class="section-title">战区纪录</h2>
+        <div class="history-item">
+            <span>卡莫纳山谷行动</span>
+            <p>协助多斯（Doss）快速赢取敌方首级，建立区域绝对控制权。</p>
+        </div>
+        <div class="history-item">
+            <span>农场谷物交易战</span>
+            <p>在激烈冲突中，凭借精准空袭快速辅助深渊小队拿下核心战略据点。</p>
+        </div>
+    </section>
 
-    <div class="dot-map-container">
-        <canvas id="map-canvas" width="160" height="90"></canvas>
-        <div style="font-size:8px; color:#444; margin-top:5px; text-align:center;">GLOBAL_LINK ACTIVE</div>
-    </div>
-</div>
+    <section id="equip" style="background:#080808;">
+        <h2 class="section-title">装备准则</h2>
+        <div style="max-width:800px; margin:0 auto; text-align:center; color:var(--text-dim);">
+            <p>G.R.I.M. 授权干员使用卡莫纳地区可采集的所有战术装备。</p>
+            <p style="margin-top:20px;">由官方提供<mark>制式标准</mark>底座，特殊需求装备遵循<mark>自费原则</mark>。</p>
+        </div>
+    </section>
 
-<script>
-    // 1. 小屏幕代码雨逻辑
-    const mCanvas = document.getElementById('matrix-canvas');
-    const mCtx = mCanvas.getContext('2d');
-    const overlay = document.getElementById('grim-overlay');
-    mCanvas.width = 900; mCanvas.height = 180;
-    const chars = "0123456789ABCDEF";
-    const drops = Array(Math.floor(mCanvas.width/14)).fill(1);
-    let isGrim = false;
+    <footer>
+        <div class="slogan">保持冷静，继续前行！</div>
+        <span class="quote">众人之上，强者之列</span>
+        <div class="copyright">
+            © 1994-2026 G.R.I.M. GLOBAL RECON INFILTRATION MARINES. <br>
+            隶属于科伦国海军部 - 受到苏梅克委员会法律监督
+        </div>
+    </footer>
 
-    function drawMatrix() {
-        mCtx.fillStyle = isGrim ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.1)";
-        mCtx.fillRect(0,0,mCanvas.width, mCanvas.height);
-        if(!isGrim) {
-            mCtx.fillStyle = "#ff9800";
-            mCtx.font = "14px monospace";
-            drops.forEach((y, i) => {
-                const text = chars[Math.floor(Math.random()*chars.length)];
-                mCtx.fillText(text, i*14, y*14);
-                if(y*14 > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            });
-        }
-    }
-    setInterval(drawMatrix, 40);
-
-    function startGrimCycle() {
-        isGrim = false; overlay.classList.remove('active');
-        setTimeout(() => {
-            isGrim = true; overlay.classList.add('active');
-            setTimeout(startGrimCycle, 10000); // 显示10秒
-        }, 20000); // 下雨20秒
-    }
-    startGrimCycle();
-
-    // 2. 动态点阵世界地图
-    const mapCanvas = document.getElementById('map-canvas');
-    const mapCtx = mapCanvas.getContext('2d');
-    function drawDotMap() {
-        mapCtx.clearRect(0,0,160,90);
-        for(let x=4; x<160; x+=6) {
-            for(let y=4; y<90; y+=6) {
-                const opacity = Math.random() * 0.3 + 0.1;
-                mapCtx.fillStyle = `rgba(255, 152, 0, ${opacity})`;
-                mapCtx.beginPath();
-                mapCtx.arc(x, y, 1, 0, Math.PI*2);
-                mapCtx.fill();
-            }
-        }
-    }
-    setInterval(drawDotMap, 150);
-
-    // 3. 军衔数据渲染
-    const rankData = [
-        {n: "实习", s: "☆", d: "习见阶段，你要通过完成任务转正"},
-        {n: "二等兵", s: "★", d: "完成初级训练，可以接取部分任务"},
-        {n: "一等兵", s: "★★", d: "拥有标准武器申领权，允许与军校教官一起行动"},
-        {n: "上等兵", s: "★★★", d: "精英士兵，拥有每日标准装备领取权限，允许与准尉行动"},
-        {n: "军校教官", s: "◈", d: "负责新兵评估，并且对其训练和任职上的管理。"},
-        {n: "准尉", s: "✧", d: "战术顾问储备，在一定程度上帮助队伍的信息调整"},
-        {n: "下士", s: "★☆", d: "战术骨干，需要彻底熟图并且保持战术能力"},
-        {n: "中士", s: "★★☆", d: "班组核心，获得4人小队权限"},
-        {n: "上士", s: "★★★☆", d: "资深士官，拥有高级物资调动权。"},
-        {n: "军士长", s: "⚔️", d: "士兵领袖，负责管理军士长以下职位的所有职位。"},
-        {n: "中尉", s: "Ⅰ", d: "排级指挥官，允许在未经过讨论下随意做出任务改变。"},
-        {n: "上尉", s: "Ⅱ", d: "连级核心，允许使用投掷无人机等等实验装备"},
-        {n: "准将", s: "✪", d: "统筹暗区战役，拥有地图选择权"},
-        {n: "少将", s: "✪✪", d: "允许在批准的情况下，间接与上将直接交谈"},
-        {n: "中将", s: "✪✪✪", d: "允许开始布置任务"},
-        {n: "上将", s: "✪✪✪✪", d: "决策层成员，决定所有职位，可以在批准下进行裁员"},
-        {n: "五星上将", s: "✪✪✪✪✪", d: "最高权限拥有者。众人之上，强者之列。控制所有组织人员"}
-    ];
-    const rankList = document.getElementById('rankList');
-    rankData.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'rank-item';
-        div.innerHTML = `<span class="rank-star">${item.s}</span><span>${item.n}</span><div class="rank-tooltip"><strong>${item.n}</strong><br>${item.d}</div>`;
-        rankList.appendChild(div);
-    });
-
-    // 4. 实时时钟
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('huge-clock').innerText = now.toTimeString().split(' ')[0];
-        document.getElementById('small-date').innerText = now.toLocaleString();
-    }
-    setInterval(updateClock, 1000); updateClock();
-
-    // 5. 导航逻辑
-    function showPage(pId) {
-        document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(pId).classList.add('active');
-        event.target.classList.add('active');
-    }
-    function showDept(dId) {
-        document.querySelectorAll('.dept-info').forEach(d => d.style.display = 'none');
-        document.getElementById(dId).style.display = 'block';
-    }
-</script>
-
+</body>
+</html>
 </body>
 </html>
