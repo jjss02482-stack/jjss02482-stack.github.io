@@ -3,170 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G.R.I.M. 核心终端 - 接入电视台频道</title>
+    <title>G.R.I.M. 核心终端</title>
     <style>
         :root {
-            --primary-color: #00ff41; /* 黑客帝国绿 */
-            --warning-color: #ff9800;
-            --bg-dark: #000;
-            --panel-bg: rgba(10, 10, 10, 0.9);
-            --border-color: #003b00;
+            --primary: #ff9800; /* 核心橙色 */
+            --bg-deep: #0a0a0a;
+            --bg-panel: #1a1a1a;
+            --border: #333;
+            --text-dim: #888;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--primary-color);
+            background-color: var(--bg-deep);
+            color: #ccc;
             font-family: "Courier New", "Microsoft YaHei", monospace;
             margin: 0; padding: 20px;
             display: flex; justify-content: center;
-            overflow-x: hidden;
         }
 
         .terminal-container {
-            max-width: 950px; width: 100%;
-            border: 1px solid var(--border-color);
+            max-width: 900px; width: 100%;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
             padding: 30px;
-            background: var(--panel-bg);
-            box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
-            position: relative; z-index: 2;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        /* --- 顶部代码雨画布 --- */
+        /* --- 中间小屏幕：代码雨 --- */
+        .monitor-box {
+            width: 100%; height: 180px;
+            background: #000;
+            border: 1px solid #444;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
         #matrix-canvas {
+            position: absolute; top: 0; left: 0;
+            opacity: 0.6; /* 让橙色代码雨不那么刺眼 */
+        }
+        .monitor-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; opacity: 0.15; pointer-events: none;
-        }
-
-        .monitor-frame {
-            width: 100%; height: 200px;
-            border: 1px solid var(--border-color);
-            margin-bottom: 25px; position: relative;
-            background: rgba(0, 20, 0, 0.3);
             display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+            color: var(--primary); font-size: 12px; letter-spacing: 2px;
+            pointer-events: none;
         }
 
-        /* --- 导航菜单 --- */
-        .nav-menu { display: flex; gap: 5px; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        /* --- 导航按钮 --- */
+        .nav-menu { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 15px; }
         .nav-btn {
-            background: transparent; border: 1px solid var(--border-color);
-            color: #008f11; padding: 10px 20px; cursor: pointer;
+            background: #222; border: 1px solid #444;
+            color: var(--text-dim); padding: 8px 18px; cursor: pointer;
             transition: 0.3s; font-size: 13px;
         }
-        .nav-btn:hover, .nav-btn.active { background: var(--primary-color); color: #000; }
+        .nav-btn:hover, .nav-btn.active { 
+            background: var(--primary); color: #000; border-color: var(--primary); 
+        }
 
-        .page-content { display: none; }
+        .page-content { display: none; line-height: 1.6; }
         .page-content.active { display: block; }
 
-        /* --- 军衔交互系统 --- */
-        .rank-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        /* --- 军衔系统：星星回归 + 悬停 --- */
+        .rank-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
         .rank-item {
-            padding: 15px; border: 1px solid #003b00; text-align: center;
-            background: #000; cursor: help; position: relative;
+            padding: 15px 10px; border: 1px solid #333; text-align: center;
+            background: #111; position: relative; cursor: help;
         }
-        .rank-item:hover { border-color: var(--primary-color); background: rgba(0,255,65,0.05); }
-
-        /* 悬停解释框 */
-        .rank-desc {
-            visibility: hidden; width: 200px; background-color: #000;
-            color: var(--primary-color); text-align: left;
-            border: 1px solid var(--primary-color); padding: 10px;
-            position: absolute; z-index: 10; bottom: 110%; left: 50%;
-            transform: translateX(-50%); font-size: 12px; line-height: 1.4;
-            box-shadow: 0 0 15px rgba(0,255,65,0.3);
+        .rank-item:hover { border-color: var(--primary); background: #222; }
+        .rank-star { color: var(--primary); display: block; margin-bottom: 5px; }
+        
+        /* 悬停详情浮窗 */
+        .rank-tooltip {
+            visibility: hidden; width: 220px; background: #222; color: #eee;
+            border: 1px solid var(--primary); padding: 12px;
+            position: absolute; z-index: 10; bottom: 115%; left: 50%;
+            transform: translateX(-50%); font-size: 12px; text-align: left;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
-        .rank-item:hover .rank-desc { visibility: visible; }
+        .rank-item:hover .rank-tooltip { visibility: visible; }
 
-        /* --- 职业模块 (部门系统) --- */
-        .dept-btns { display: flex; gap: 10px; margin: 20px 0; }
+        /* --- 职业模块 (保持原样) --- */
+        .dept-btns { display: flex; gap: 10px; margin-top: 20px; }
         .dept-info {
-            padding: 20px; background: #050505; border: 1px dashed var(--primary-color);
-            display: none; line-height: 1.8;
+            background: #0d0d0d; padding: 20px; margin-top: 15px;
+            border-left: 3px solid var(--primary); display: none;
         }
 
-        /* 新闻保持不动样式 */
-        .news-box { border-left: 2px solid var(--primary-color); padding: 15px; background: rgba(0,20,0,0.2); margin-bottom: 15px; }
-
-        h2 { border-left: 3px solid var(--primary-color); padding-left: 10px; font-size: 18px; color: var(--primary-color); }
+        /* 新闻简报 */
+        .news-item { background: #151515; padding: 15px; border: 1px solid #222; margin-bottom: 10px; }
+        
+        h2 { font-size: 16px; color: var(--primary); text-transform: uppercase; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-<canvas id="matrix-canvas"></canvas>
-
 <div class="terminal-container">
-    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-        <div style="letter-spacing:5px;">G.R.I.M. ROOT::ACCESS</div>
-        <div id="clock"></div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:12px; color:var(--text-dim);">
+        <span>STATUS: ENCRYPTED_UPLINK</span>
+        <span id="clock"></span>
     </div>
 
-    <div class="monitor-frame">
-        <div style="text-align:center;">
-            <div style="font-size:12px; color:var(--primary-color); letter-spacing:3px;">TV STATION UPLINK: CONNECTED</div>
-            <div style="font-size:10px; opacity:0.5;">DECIPHERING ENCRYPTED DATA...</div>
-        </div>
+    <div class="monitor-box">
+        <canvas id="matrix-canvas"></canvas>
+        <div class="monitor-overlay">TV_STATION FEED ACTIVE</div>
     </div>
 
     <div class="nav-menu">
-        <button class="nav-btn active" onclick="showPage('home')">1.0 概览</button>
-        <button class="nav-btn" onclick="showPage('ranks')">2.0 军衔</button>
-        <button class="nav-btn" onclick="showPage('news')">3.0 简报</button>
-        <button class="nav-btn" onclick="showPage('depts')">4.0 部门</button>
+        <button class="nav-btn active" onclick="showPage('home')">概览</button>
+        <button class="nav-btn" onclick="showPage('ranks')">军衔制度</button>
+        <button class="nav-btn" onclick="showPage('news')">日常简报</button>
+        <button class="nav-btn" onclick="showPage('depts')">部门系统</button>
     </div>
 
     <div id="home" class="page-content active">
-        <h2>// 接入协议！！！</h2>
-        <p>G.R.I.M. 已全面接管电视台联络频道。在此终端下，所有暗区行动指令均具备优先级。</p>
-        <p style="color:#008f11">> 正在监听卡莫纳山谷全频段...</p>
+        <h2>// 接入协议</h2>
+        <p>G.R.I.M. 终端已与卡莫纳电视台频道建立安全关联。</p>
+        <p style="color:var(--text-dim)">> 当前权限：二级<br>> 信号源：TV_STATION_CH04</p>
     </div>
 
     <div id="ranks" class="page-content">
-        <h2>// 权限序列 (悬停查看详情)</h2>
-        <div class="rank-grid" id="rankContainer">
+        <h2>// 晋升序列 (鼠标覆盖查看权限)</h2>
+        <div class="rank-grid" id="rankList">
             </div>
     </div>
 
     <div id="news" class="page-content">
-        <h2>// 战区实况</h2>
-        <div class="news-box">
-            <div style="font-size:12px; opacity:0.6;">2026-02-14 | TV_STATION</div>
-            <strong>电视台封闭通告</strong>
-            <p>电视台二楼已经全面由白狼联队接管。</p>
-        </div>
-        <div class="news-box">
-            <div style="font-size:12px; opacity:0.6;">2026-02-13 | VALLEY</div>
-            <strong>电视台探测到异常老鼠</strong>
-            <p>多名特遣队员反馈在此区域遭遇不明腿部打击，建议特遣队员带好防护腿部。</p>
+        <h2>// 暗区通报</h2>
+        <div class="news-item">
+            <strong>【电视台】区域警告</strong>
+            <p style="font-size:13px; color:#777; margin-top:5px;">电视台已经全面由白狼联队接管。</p>
         </div>
     </div>
 
     <div id="depts" class="page-content">
-        <h2>// 职能划分</h2>
+        <h2>// 职能模块</h2>
         <div class="dept-btns">
-            <button class="nav-btn" onclick="showDept('intel')">1. 情报部门</button>
-            <button class="nav-btn" onclick="showDept('assault')">2. 突击组</button>
-            <button class="nav-btn" onclick="showDept('logistics')">3. 后勤部门</button>
+            <button class="nav-btn" onclick="showDept('intel')">1: 情报部门</button>
+            <button class="nav-btn" onclick="showDept('assault')">2: 突击组</button>
+            <button class="nav-btn" onclick="showDept('logistics')">3: 后勤部门</button>
         </div>
-        <div id="intel" class="dept-info"><strong>情报部门：</strong> 负责快速判断敌方位置和做出战术预告</div>
-        <div id="assault" class="dept-info"><strong>突击组：</strong> 负责快速的对枪，主力力量，要求擅长近距离室内作战（CQB）。</div>
-        <div id="logistics" class="dept-info"><strong>后勤部门：</strong> 重装行动，确保队友的子弹和医疗</div>
+        <div id="intel" class="dept-info"><strong>情报部门：</strong> 负责快速寻找敌人位置，并且战术支持。</div>
+        <div id="assault" class="dept-info"><strong>突击组：</strong> 负责快速突破</div>
+        <div id="logistics" class="dept-info"><strong>后勤部门：</strong> 负责保持队友的子弹数量和医疗</div>
     </div>
 </div>
 
 <script>
-    // 1. 代码雨特效
+    // 1. 小屏幕代码雨 (橙色版)
     const canvas = document.getElementById('matrix-canvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
-    const fontSize = 16;
+    canvas.width = 900; canvas.height = 180;
+    const letters = "0123456789ABCDEF";
+    const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
 
-    function drawMatrix() {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#00ff41";
+        ctx.fillStyle = "#ff9800"; // 橙色代码
         ctx.font = fontSize + "px monospace";
         for (let i = 0; i < drops.length; i++) {
             const text = letters.charAt(Math.floor(Math.random() * letters.length));
@@ -175,53 +171,50 @@
             drops[i]++;
         }
     }
-    setInterval(drawMatrix, 33);
+    setInterval(draw, 40);
 
-    // 2. 军衔数据与生成
-    const ranks = [
-        {name: "实习", desc: "习见阶段，你要通过完成任务转正"},
-        {name: "二等兵", desc: "完成初级训练，可以接取部分任务。"},
-        {name: "一等兵", desc: "拥有标准武器申领权，允许与军校教官一起行动。"},
-        {name: "上等兵", desc: "精英士兵，拥有每日标准装备领取权限，允许与准尉行动"},
-        {name: "军校教官", desc: "负责新兵评估，并且对其训练和任职上的管理。"},
-        {name: "准尉", desc: "战术顾问储备，在一定程度上帮助队伍的信息调整"},
-        {name: "下士", desc: "战术骨干，需要彻底熟图并且保持战术能力"},
-        {name: "中士", desc: "班组核心，获得4人小队权限"},
-        {name: "上士", desc: "资深战术专家，允许直接管理军校教官。"},
-        {name: "军士长", desc: "士兵领袖，负责管理军士长以下职位的所有职位。"},
-        {name: "中尉", desc: "排级指挥官，允许在未经过讨论下随意做出任务改变。"},
-        {name: "上尉", desc: "连级核心，允许使用投掷无人机等等实验装备"},
-        {name: "准将", desc: "统筹暗区战役，拥有地图选择权。"},
-        {name: "少将", desc: "允许在批准的情况下，间接与上将直接交谈。"},
-        {name: "中将", desc: "允许开始布置任务。"},
-        {name: "上将", desc: "决策层成员，决定所有职位，可以在批准下进行裁员"},
-        {name: "五星上将", desc: "最高权限拥有者。众人之上，强者之列。控制所有队员。"}
+    // 2. 军衔数据 (包含星星)
+    const rankData = [
+        {n: "实习", s: "☆", d: "习见阶段，你要通过完成任务转正"},
+        {n: "二等兵", s: "★", d: "完成初级训练，可以接取部分任务"},
+        {n: "一等兵", s: "★★", d: "拥有标准武器申领权，允许与军校教官一起行动"},
+        {n: "上等兵", s: "★★★", d: "精英士兵，拥有每日标准装备领取权限，允许与准尉行动"},
+        {n: "军校教官", s: "◈", d: "负责新兵评估，并且对其训练和任职上的管理。"},
+        {n: "准尉", s: "✧", d: "战术顾问储备，在一定程度上帮助队伍的信息调整"},
+        {n: "下士", s: "★☆", d: "战术骨干，需要彻底熟图并且保持战术能力"},
+        {n: "中士", s: "★★☆", d: "班组核心，获得4人小队权限"},
+        {n: "上士", s: "★★★☆", d: "资深士官，拥有高级物资调动权。"},
+        {n: "军士长", s: "⚔️", d: "士兵领袖，负责管理军士长以下职位的所有职位。"},
+        {n: "中尉", s: "Ⅰ", d: "排级指挥官，允许在未经过讨论下随意做出任务改变。"},
+        {n: "上尉", s: "Ⅱ", d: "连级核心，允许使用投掷无人机等等实验装备"},
+        {n: "准将", s: "✪", d: "统筹暗区战役，拥有地图选择权"},
+        {n: "少将", s: "✪✪", d: "允许在批准的情况下，间接与上将直接交谈"},
+        {n: "中将", s: "✪✪✪", d: "允许开始布置任务"},
+        {n: "上将", s: "✪✪✪✪", d: "决策层成员，决定所有职位，可以在批准下进行裁员"},
+        {n: "五星上将", s: "✪✪✪✪✪", d: "最高权限拥有者。众人之上，强者之列。控制所有组织人员"}
     ];
 
-    const rankContainer = document.getElementById('rankContainer');
-    ranks.forEach(r => {
+    const rankList = document.getElementById('rankList');
+    rankData.forEach(item => {
         const div = document.createElement('div');
         div.className = 'rank-item';
-        div.innerHTML = `<span>${r.name}</span><div class="rank-desc"><strong>${r.name}</strong><br>${r.desc}</div>`;
-        rankContainer.appendChild(div);
+        div.innerHTML = `<span class="rank-star">${item.s}</span><span>${item.n}</span>
+                         <div class="rank-tooltip"><strong>${item.n}</strong><br>${item.d}</div>`;
+        rankList.appendChild(div);
     });
 
-    // 3. 基础逻辑
-    function showPage(pageId) {
+    // 3. 基础功能
+    function showPage(pId) {
         document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
+        document.getElementById(pId).classList.add('active');
         event.target.classList.add('active');
     }
-    function showDept(deptId) {
+    function showDept(dId) {
         document.querySelectorAll('.dept-info').forEach(d => d.style.display = 'none');
-        document.getElementById(deptId).style.display = 'block';
+        document.getElementById(dId).style.display = 'block';
     }
-    function updateClock() {
-        document.getElementById('clock').innerText = new Date().toLocaleString();
-    }
-    setInterval(updateClock, 1000); updateClock();
+    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleString(); }, 1000);
 </script>
-
 </body>
 </html>
