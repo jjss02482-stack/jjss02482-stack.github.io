@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G.R.I.M. 核心终端</title>
+    <title>G.R.I.M. 核心终端 v5.0</title>
     <style>
         :root {
             --primary: #ff9800; 
             --bg-deep: #0a0a0a;
-            --bg-panel: #1a1a1a;
+            --bg-panel: #141414;
             --border: #333;
-            --text-dim: #888;
+            --text-dim: #666;
         }
 
         body {
@@ -26,36 +26,32 @@
             background: var(--bg-panel);
             border: 1px solid var(--border);
             padding: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 0 50px rgba(0,0,0,1);
             margin-bottom: 20px;
+            position: relative;
         }
 
-        /* --- 小屏幕核心动画控制 --- */
+        /* --- 顶部显示屏逻辑 --- */
         .monitor-box {
             width: 100%; height: 180px;
-            background: #000;
-            border: 1px solid #444;
-            margin-bottom: 30px;
-            position: relative;
-            overflow: hidden;
+            background: #000; border: 1px solid #444;
+            margin-bottom: 30px; position: relative; overflow: hidden;
         }
         #matrix-canvas { position: absolute; top: 0; left: 0; }
         .monitor-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
-            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.8) 100%);
+            background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.8) 100%);
             color: var(--primary); font-size: 32px; font-weight: bold;
-            letter-spacing: 15px; pointer-events: none;
-            opacity: 0; transition: opacity 1s;
+            letter-spacing: 15px; opacity: 0; transition: 1.5s; pointer-events: none;
         }
-        .monitor-overlay.active { opacity: 1; text-shadow: 0 0 20px var(--primary); }
+        .monitor-overlay.active { opacity: 1; }
 
-        /* --- 导航按钮 --- */
+        /* --- 导航 --- */
         .nav-menu { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 15px; }
         .nav-btn {
-            background: #222; border: 1px solid #444;
-            color: var(--text-dim); padding: 8px 18px; cursor: pointer;
-            transition: 0.3s; font-size: 13px;
+            background: #1a1a1a; border: 1px solid #444;
+            color: var(--text-dim); padding: 8px 18px; cursor: pointer; transition: 0.3s;
         }
         .nav-btn:hover, .nav-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
 
@@ -65,64 +61,61 @@
         /* --- 军衔系统 --- */
         .rank-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
         .rank-item {
-            padding: 15px 10px; border: 1px solid #333; text-align: center;
-            background: #111; position: relative; cursor: help;
+            padding: 15px 10px; border: 1px solid #222; text-align: center;
+            background: #0d0d0d; position: relative; cursor: help;
         }
-        .rank-item:hover { border-color: var(--primary); background: #222; }
-        .rank-star { color: var(--primary); display: block; margin-bottom: 5px; }
+        .rank-item:hover { border-color: var(--primary); background: #1a1a1a; }
+        .rank-star { color: var(--primary); display: block; margin-bottom: 5px; font-size: 18px; }
         .rank-tooltip {
-            visibility: hidden; width: 220px; background: #222; color: #eee;
+            visibility: hidden; width: 220px; background: #111; color: #eee;
             border: 1px solid var(--primary); padding: 12px;
-            position: absolute; z-index: 10; bottom: 115%; left: 50%;
+            position: absolute; z-index: 100; bottom: 115%; left: 50%;
             transform: translateX(-50%); font-size: 12px; text-align: left;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px rgba(255,152,0,0.2);
         }
         .rank-item:hover .rank-tooltip { visibility: visible; }
 
-        /* --- 职业模块 --- */
-        .dept-btns { display: flex; gap: 10px; margin-top: 20px; }
-        .dept-info { background: #0d0d0d; padding: 20px; margin-top: 15px; border-left: 3px solid var(--primary); display: none; }
-        .news-item { background: #151515; padding: 15px; border: 1px solid #222; margin-bottom: 10px; }
-        h2 { font-size: 16px; color: var(--primary); text-transform: uppercase; margin-bottom: 20px; }
-
-        /* --- 底部全球态势面板 --- */
+        /* --- 底部全球战术面板 --- */
         .global-footer {
-            width: 100%; max-width: 960px;
-            display: grid; grid-template-columns: 1fr 2fr 1fr;
-            gap: 20px; background: #000; padding: 20px;
-            border: 1px solid #222; align-items: center;
+            width: 100%; max-width: 900px;
+            display: grid; grid-template-columns: 180px 1fr 180px;
+            background: #080808; border: 1px solid #222;
+            padding: 20px; align-items: center; box-sizing: border-box;
         }
-        
-        /* 旋转地球 */
-        .globe-container { width: 100px; height: 100px; margin: auto; }
-        .globe {
+
+        /* 3D 旋转地球 */
+        .globe-wrap { position: relative; width: 100px; height: 100px; margin: auto; }
+        .globe-circle {
             width: 80px; height: 80px; border-radius: 50%;
-            background: url('https://img.freepik.com/free-vector/world-map-black-background_23-2148281313.jpg') repeat-x;
-            background-size: cover; box-shadow: inset 0 0 15px var(--primary);
-            animation: rotateGlobe 10s linear infinite; opacity: 0.6;
+            position: absolute; top: 10px; left: 10px;
+            box-shadow: inset -10px -10px 30px #000, inset 10px 10px 30px rgba(255,152,0,0.2), 0 0 15px rgba(255,152,0,0.1);
+            overflow: hidden; border: 1px solid #333;
         }
-        @keyframes rotateGlobe { from { background-position: 0 0; } to { background-position: 200px 0; } }
-
-        /* 巨型时间表 */
-        .big-clock { text-align: center; }
-        #huge-time { font-size: 48px; font-weight: bold; color: var(--primary); font-family: 'Digital-7', monospace; text-shadow: 0 0 10px var(--primary); }
-        .date-text { color: #555; font-size: 14px; letter-spacing: 5px; }
-
-        /* 点阵世界地图 */
-        .dot-map {
-            width: 150px; height: 80px; 
-            background: radial-gradient(var(--primary) 1px, transparent 1px);
-            background-size: 8px 8px; opacity: 0.2; position: relative;
+        .globe-map {
+            width: 200%; height: 100%;
+            background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_Marble_2002.png/1024px-Blue_Marble_2002.png');
+            background-size: 50% 100%;
+            filter: sepia(100%) saturate(200%) hue-rotate(10deg) brightness(0.6);
+            animation: moveGlobe 15s linear infinite;
         }
-        .dot-map::after { content: "SAT_LINK ACTIVE"; position: absolute; bottom: 0; font-size: 8px; width: 100%; text-align: center; }
+        @keyframes moveGlobe { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        /* 巨型发光时钟 */
+        .time-center { text-align: center; }
+        #huge-clock { font-size: 56px; color: var(--primary); font-weight: bold; text-shadow: 0 0 20px rgba(255,152,0,0.5); font-family: 'Arial Black', sans-serif; }
+        .time-label { font-size: 10px; letter-spacing: 4px; color: #444; margin-top: -5px; }
+
+        /* 动态点阵地图 */
+        .dot-map-container { width: 160px; height: 90px; margin: auto; position: relative; }
+        #map-canvas { border: 1px solid #222; background: #000; }
     </style>
 </head>
 <body>
 
 <div class="terminal-container">
     <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:12px; color:var(--text-dim);">
-        <span>STATUS: ENCRYPTED_UPLINK</span>
-        <span id="small-clock"></span>
+        <span>G.R.I.M. :: SECURE_NODE</span>
+        <span id="small-date"></span>
     </div>
 
     <div class="monitor-box">
@@ -170,68 +163,77 @@
 </div>
 
 <div class="global-footer">
-    <div class="globe-container">
-        <div class="globe"></div>
+    <div class="globe-wrap">
+        <div class="globe-circle">
+            <div class="globe-map"></div>
+        </div>
+        <div style="position:absolute; bottom:-10px; width:100%; text-align:center; font-size:9px; color:#444;">GEO_SYNC</div>
     </div>
-    <div class="big-clock">
-        <div id="huge-time">00:00:00</div>
-        <div class="date-text">TACTICAL_TIME_SYNC</div>
+
+    <div class="time-center">
+        <div id="huge-clock">00:00:00</div>
+        <div class="time-label">TACTICAL TIME SYNCHRONIZATION</div>
     </div>
-    <div class="dot-map"></div>
+
+    <div class="dot-map-container">
+        <canvas id="map-canvas" width="160" height="90"></canvas>
+        <div style="font-size:8px; color:#444; margin-top:5px; text-align:center;">GLOBAL_LINK ACTIVE</div>
+    </div>
 </div>
 
 <script>
-    // 1. 小屏幕高级逻辑
-    const canvas = document.getElementById('matrix-canvas');
-    const ctx = canvas.getContext('2d');
+    // 1. 小屏幕代码雨逻辑
+    const mCanvas = document.getElementById('matrix-canvas');
+    const mCtx = mCanvas.getContext('2d');
     const overlay = document.getElementById('grim-overlay');
-    canvas.width = 900; canvas.height = 180;
-    const letters = "0123456789ABCDEF";
-    const fontSize = 14;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
-    let matrixRunning = true;
-    let fading = false;
+    mCanvas.width = 900; mCanvas.height = 180;
+    const chars = "0123456789ABCDEF";
+    const drops = Array(Math.floor(mCanvas.width/14)).fill(1);
+    let isGrim = false;
 
     function drawMatrix() {
-        if (!matrixRunning) return;
-        ctx.fillStyle = fading ? "rgba(0, 0, 0, 0.2)" : "rgba(0, 0, 0, 0.1)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#ff9800";
-        ctx.font = fontSize + "px monospace";
-        for (let i = 0; i < drops.length; i++) {
-            const text = letters.charAt(Math.floor(Math.random() * letters.length));
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-            drops[i]++;
+        mCtx.fillStyle = isGrim ? "rgba(0,0,0,0.2)" : "rgba(0,0,0,0.1)";
+        mCtx.fillRect(0,0,mCanvas.width, mCanvas.height);
+        if(!isGrim) {
+            mCtx.fillStyle = "#ff9800";
+            mCtx.font = "14px monospace";
+            drops.forEach((y, i) => {
+                const text = chars[Math.floor(Math.random()*chars.length)];
+                mCtx.fillText(text, i*14, y*14);
+                if(y*14 > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            });
         }
     }
-
-    // 状态机控制: 20s雨 -> 10s GRIM -> 乱码消失
-    function cycleMonitor() {
-        // 第一阶段：正常下雨
-        matrixRunning = true;
-        fading = false;
-        overlay.classList.remove('active');
-        
-        setTimeout(() => {
-            // 第二阶段：20秒后停止并显示G.R.I.M.
-            overlay.classList.add('active');
-            setTimeout(() => {
-                // 第三阶段：10秒后乱码消失
-                fading = true;
-                overlay.classList.remove('active');
-                setTimeout(() => {
-                    cycleMonitor(); // 重启循环
-                }, 2000); // 2秒消失过渡
-            }, 10000);
-        }, 20000);
-    }
-    
     setInterval(drawMatrix, 40);
-    cycleMonitor();
 
-    // 2. 军衔数据 (原样保留)
+    function startGrimCycle() {
+        isGrim = false; overlay.classList.remove('active');
+        setTimeout(() => {
+            isGrim = true; overlay.classList.add('active');
+            setTimeout(startGrimCycle, 10000); // 显示10秒
+        }, 20000); // 下雨20秒
+    }
+    startGrimCycle();
+
+    // 2. 动态点阵世界地图
+    const mapCanvas = document.getElementById('map-canvas');
+    const mapCtx = mapCanvas.getContext('2d');
+    function drawDotMap() {
+        mapCtx.clearRect(0,0,160,90);
+        for(let x=4; x<160; x+=6) {
+            for(let y=4; y<90; y+=6) {
+                const opacity = Math.random() * 0.3 + 0.1;
+                mapCtx.fillStyle = `rgba(255, 152, 0, ${opacity})`;
+                mapCtx.beginPath();
+                mapCtx.arc(x, y, 1, 0, Math.PI*2);
+                mapCtx.fill();
+            }
+        }
+    }
+    setInterval(drawDotMap, 150);
+
+    // 3. 军衔数据渲染
     const rankData = [
         {n: "实习", s: "☆", d: "习见阶段，你要通过完成任务转正"},
         {n: "二等兵", s: "★", d: "完成初级训练，可以接取部分任务"},
@@ -251,26 +253,23 @@
         {n: "上将", s: "✪✪✪✪", d: "决策层成员，决定所有职位，可以在批准下进行裁员"},
         {n: "五星上将", s: "✪✪✪✪✪", d: "最高权限拥有者。众人之上，强者之列。控制所有组织人员"}
     ];
-
     const rankList = document.getElementById('rankList');
     rankData.forEach(item => {
         const div = document.createElement('div');
         div.className = 'rank-item';
-        div.innerHTML = `<span class="rank-star">${item.s}</span><span>${item.n}</span>
-                         <div class="rank-tooltip"><strong>${item.n}</strong><br>${item.d}</div>`;
+        div.innerHTML = `<span class="rank-star">${item.s}</span><span>${item.n}</span><div class="rank-tooltip"><strong>${item.n}</strong><br>${item.d}</div>`;
         rankList.appendChild(div);
     });
 
-    // 3. 全球时钟同步
-    function updateClocks() {
+    // 4. 实时时钟
+    function updateClock() {
         const now = new Date();
-        const timeStr = now.toTimeString().split(' ')[0];
-        document.getElementById('small-clock').innerText = now.toLocaleString();
-        document.getElementById('huge-time').innerText = timeStr;
+        document.getElementById('huge-clock').innerText = now.toTimeString().split(' ')[0];
+        document.getElementById('small-date').innerText = now.toLocaleString();
     }
-    setInterval(updateClocks, 1000);
-    updateClocks();
+    setInterval(updateClock, 1000); updateClock();
 
+    // 5. 导航逻辑
     function showPage(pId) {
         document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -282,5 +281,6 @@
         document.getElementById(dId).style.display = 'block';
     }
 </script>
+
 </body>
 </html>
