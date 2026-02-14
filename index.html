@@ -1,28 +1,17 @@
-没问题，这套系统越来越完善了。既然涉及《暗区突围》的背景，我为你设计了一个多页面切换的单页系统（无需跳转多个文件，通过 JavaScript 切换显示内容，操作更顺滑）。
-
-我为你重新整合了代码，包含了：
-
-军衔制度：完整的阶梯展示。
-
-日常简报：模拟《暗区突围》风格的“暗区日报”。
-
-部门系统：情报、突击、后勤三部分。
-
-你可以直接复制这段代码替换原有的 index.html：
-
-HTML
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G.R.I.M. 战术终端</title>
+    <title>G.R.I.M. 战术终端 v2.0</title>
     <style>
         :root {
             --primary-color: #ff9800;
+            --danger-color: #ff4444;
             --bg-dark: #0a0a0a;
-            --panel-bg: rgba(25, 25, 25, 0.95);
+            --panel-bg: rgba(20, 20, 20, 0.98);
             --border-color: #333;
+            --text-gray: #aaa;
         }
 
         body {
@@ -38,156 +27,218 @@ HTML
         .terminal-container {
             max-width: 900px;
             width: 100%;
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-color);
             padding: 30px;
             background: var(--panel-bg);
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+            position: relative;
         }
 
-        /* 导航栏 */
+        /* 顶部装饰线 */
+        .terminal-header {
+            border-bottom: 2px solid var(--primary-color);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        /* 导航菜单 */
         .nav-menu {
             display: flex;
-            gap: 10px;
+            gap: 5px;
             margin-bottom: 30px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-            flex-wrap: wrap;
         }
 
         .nav-btn {
-            background: #1a1a1a;
+            background: #151515;
             border: 1px solid #444;
-            color: #888;
-            padding: 8px 15px;
+            color: #777;
+            padding: 10px 18px;
             cursor: pointer;
             font-size: 13px;
-            transition: 0.3s;
+            transition: all 0.2s;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); /* 战术切角效果 */
         }
 
         .nav-btn:hover, .nav-btn.active {
-            color: var(--primary-color);
+            color: #fff;
+            background: var(--primary-color);
             border-color: var(--primary-color);
-            background: #222;
         }
 
         /* 内容区控制 */
-        .page-content { display: none; animation: fadeIn 0.5s; }
+        .page-content { display: none; animation: scanline 0.3s ease-out; }
         .page-content.active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scanline { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 军衔样式 */
+        /* 军衔样式升级 */
         .rank-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
         }
         .rank-item {
-            padding: 10px;
+            padding: 15px 10px;
             border: 1px solid #222;
             text-align: center;
-            background: #111;
-            font-size: 13px;
+            background: linear-gradient(145deg, #111, #050505);
+            transition: 0.3s;
         }
-        .rank-item span { color: var(--primary-color); display: block; margin-bottom: 5px; }
+        .rank-item:hover { border-color: var(--primary-color); background: #1a1a1a; }
+        .rank-icon { font-size: 20px; color: var(--primary-color); display: block; margin-bottom: 8px; }
+        .rank-name { font-weight: bold; font-size: 14px; color: #eee; }
 
         /* 报纸样式 */
         .newspaper {
-            background: #151515;
-            padding: 20px;
-            border-left: 3px solid var(--primary-color);
-            margin-bottom: 20px;
-        }
-        .news-date { font-size: 12px; color: #666; }
-        .news-title { font-size: 18px; color: #fff; margin: 10px 0; font-weight: bold; }
-
-        /* 部门按钮样式 */
-        .dept-btns { display: flex; gap: 10px; margin-top: 20px; }
-        .dept-info {
             background: #111;
-            padding: 15px;
-            margin-top: 10px;
-            border: 1px dashed #444;
+            padding: 20px;
+            border: 1px solid #222;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .newspaper::before {
+            content: "TOP SECRET";
+            position: absolute;
+            right: -20px;
+            top: 10px;
+            background: var(--danger-color);
+            color: #000;
+            padding: 2px 30px;
+            font-size: 10px;
+            font-weight: bold;
+            transform: rotate(45deg);
+        }
+        .news-date { font-size: 11px; color: #555; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .news-title { font-size: 18px; color: var(--primary-color); margin: 15px 0 10px 0; font-weight: bold; }
+
+        /* 部门切换 */
+        .dept-container {
+            background: #0d0d0d;
+            border: 1px solid #222;
+            padding: 20px;
+        }
+        .dept-btns { display: flex; gap: 10px; margin-bottom: 20px; }
+        .dept-info {
+            padding: 20px;
+            background: #151515;
+            border-left: 4px solid var(--primary-color);
             display: none;
+            line-height: 2;
         }
 
-        h1 { text-align: center; letter-spacing: 5px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
-        .divider { height: 1px; background: #333; margin: 20px 0; }
+        h1 { margin: 0; letter-spacing: 8px; color: #fff; font-size: 24px; }
+        .motto-box {
+            margin-top: 40px;
+            padding: 15px;
+            text-align: center;
+            border: 1px dashed #444;
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
 
 <div class="terminal-container">
-    <h1>G.R.I.M. SYSTEM</h1>
-    <div style="text-align:center; color: #ff9800; font-size: 12px; margin-bottom: 20px;">[ 当前坐标：卡莫纳山谷 | 信号稳定 ]</div>
+    <div class="terminal-header">
+        <h1>G.R.I.M. TERMINAL</h1>
+        <div style="font-size: 12px; color: var(--primary-color);">STATUS: ENCRYPTED</div>
+    </div>
 
     <div class="nav-menu">
-        <button class="nav-btn active" onclick="showPage('home')">首页</button>
-        <button class="nav-btn" onclick="showPage('ranks')">军衔制度</button>
-        <button class="nav-btn" onclick="showPage('news')">日常简报</button>
-        <button class="nav-btn" onclick="showPage('depts')">部门系统</button>
+        <button class="nav-btn active" onclick="showPage('home')">1.0 概览</button>
+        <button class="nav-btn" onclick="showPage('ranks')">2.0 军衔制度</button>
+        <button class="nav-btn" onclick="showPage('news')">3.0 日常简报</button>
+        <button class="nav-btn" onclick="showPage('depts')">4.0 部门架构</button>
     </div>
 
     <div id="home" class="page-content active">
-        <img src="./extreme_compressed.jpg" alt="Logo" style="width:100%; border:1px solid #333; filter: grayscale(1);">
-        <p>这里是 G.R.I.M. 核心终端。请选择上方模块进行操作。</p>
+        <div style="position: relative;">
+            <img src="./extreme_compressed.jpg" alt="Logo" style="width:100%; border:1px solid #333; opacity: 0.6;">
+            <div style="position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 10px;">
+                <p style="margin:0; font-size: 14px;"><strong>当前防区：</strong> 卡莫纳 - 农场/山谷/北山</p>
+            </div>
+        </div>
+        <p style="margin-top: 20px; color: #888;">G.R.I.M. 是利伦国海军旗下的独立战术力量，专注于暗区内的情报渗透与高难度撤离支援。未经授权严禁查阅核心数据。</p>
     </div>
 
     <div id="ranks" class="page-content">
-        <h3>等级序列 / RANK SYSTEM</h3>
+        <h3 style="color:var(--primary-color)">// 晋升序列 _RANKING_PROTOCOL</h3>
         <div class="rank-grid">
-            <div class="rank-item"><span>01</span>实习</div>
-            <div class="rank-item"><span>02</span>二等兵</div>
-            <div class="rank-item"><span>03</span>一等兵</div>
-            <div class="rank-item"><span>04</span>上等兵</div>
-            <div class="rank-item"><span>05</span>军校教官</div>
-            <div class="rank-item"><span>06</span>准尉</div>
-            <div class="rank-item"><span>07</span>下士</div>
-            <div class="rank-item"><span>08</span>中士</div>
-            <div class="rank-item"><span>09</span>上士</div>
-            <div class="rank-item"><span>10</span>军士长</div>
-            <div class="rank-item"><span>11</span>中尉</div>
-            <div class="rank-item"><span>12</span>上尉</div>
-            <div class="rank-item"><span>13</span>准将</div>
-            <div class="rank-item"><span>14</span>少将</div>
-            <div class="rank-item"><span>15</span>中将</div>
-            <div class="rank-item"><span>16</span>上将</div>
-            <div class="rank-item"><span>17</span>五星上将</div>
+            <div class="rank-item"><span class="rank-icon">▽</span><span class="rank-name">实习</span></div>
+            <div class="rank-item"><span class="rank-icon">▼</span><span class="rank-name">二等兵</span></div>
+            <div class="rank-item"><span class="rank-icon">▼▼</span><span class="rank-name">一等兵</span></div>
+            <div class="rank-item"><span class="rank-icon">▼▼▼</span><span class="rank-name">上等兵</span></div>
+            <div class="rank-item"><span class="rank-icon">◈</span><span class="rank-name">军校教官</span></div>
+            <div class="rank-item"><span class="rank-icon">◇</span><span class="rank-name">准尉</span></div>
+            <div class="rank-item"><span class="rank-icon">⚓</span><span class="rank-name">下士</span></div>
+            <div class="rank-item"><span class="rank-icon">⚓⚓</span><span class="rank-name">中士</span></div>
+            <div class="rank-item"><span class="rank-icon">⚓⚓⚓</span><span class="rank-name">上士</span></div>
+            <div class="rank-item"><span class="rank-icon">⚔️</span><span class="rank-name">军士长</span></div>
+            <div class="rank-item"><span class="rank-icon">|</span><span class="rank-name">中尉</span></div>
+            <div class="rank-item"><span class="rank-icon">||</span><span class="rank-name">上尉</span></div>
+            <div class="rank-item"><span class="rank-icon">★</span><span class="rank-name">准将</span></div>
+            <div class="rank-item"><span class="rank-icon">★★</span><span class="rank-name">少将</span></div>
+            <div class="rank-item"><span class="rank-icon">★★★</span><span class="rank-name">中将</span></div>
+            <div class="rank-item"><span class="rank-icon">★★★★</span><span class="rank-name">上将</span></div>
+            <div class="rank-item"><span class="rank-icon">✪✪✪✪✪</span><span class="rank-name">五星上将</span></div>
         </div>
     </div>
 
     <div id="news" class="page-content">
-        <h3>卡莫纳时报 / DAILY REPORT</h3>
+        <h3 style="color:var(--primary-color)">// 暗区实报 _DAILY_SITREP</h3>
         <div class="newspaper">
-            <div class="news-date">2026.02.14 - 欧特斯战区</div>
-            <div class="news-title">北山酒店爆发大规模交火，传闻有金狮雕像流出</div>
-            <p>据前方线报，多名伪装者目击到精锐小队出没。建议所有 G.R.I.M. 干员在撤离点增派人手。</p>
+            <div class="news-date">REQ_ID: 99283 | 2026.02.14</div>
+            <div class="news-title">【头条】卡莫纳山谷撤离点出现不明电磁干扰</div>
+            <p>由于山谷雷达站电力波动，部分干员反馈无线电失效。G.R.I.M. 情报部建议携带手摇式发电机作为备用。阿贾克斯的巡逻队在农场东侧活动频繁，严禁单兵深入。</p>
         </div>
         <div class="newspaper">
-            <div class="news-date">2026.02.13 - 农场</div>
-            <div class="news-title">阿贾克斯部下加强巡逻：管物交易站暂时封锁</div>
-            <p>情报显示卡莫纳农场局势升级，请注意防范手榴弹覆盖式打击。</p>
+            <div class="news-date">REQ_ID: 99281 | 2026.02.13</div>
+            <div class="news-title">市场波动：柯恩币汇率走低，高级改枪配件告急</div>
+            <p>后勤部提示：消音器与长枪管库存仅剩15%。请各组干员优先回收物资，换取弹药。卡莫纳农场的管物交易战利品分配方案已下发。</p>
         </div>
     </div>
 
     <div id="depts" class="page-content">
-        <h3>组织架构 / DEPARTMENTS</h3>
-        <div class="dept-btns">
-            <button class="nav-btn" onclick="showDept('intel')">1. 情报部门</button>
-            <button class="nav-btn" onclick="showDept('assault')">2. 突击组</button>
-            <button class="nav-btn" onclick="showDept('logistics')">3. 后勤部门</button>
+        <h3 style="color:var(--primary-color)">// 组织分配 _UNIT_ASSIGNMENT</h3>
+        <div class="dept-container">
+            <div class="dept-btns">
+                <button class="nav-btn" onclick="showDept('intel')">情报部门</button>
+                <button class="nav-btn" onclick="showDept('assault')">突击组</button>
+                <button class="nav-btn" onclick="showDept('logistics')">后勤部门</button>
+            </div>
+            <div id="intel" class="dept-info">
+                <strong>[情报部门]</strong><br>
+                - 监控全区动态，识别伪装者特征。<br>
+                - 负责破解保险箱密码及撤离点锁定状态。<br>
+                - 核心目标：在战斗前获得100%的信息差。
+            </div>
+            <div id="assault" class="dept-info">
+                <strong>[突击组]</strong><br>
+                - 核心战斗单元，负责处理硬仗。<br>
+                - 装备标准：5级以上甲，精改长枪，配备大容量弹挂。<br>
+                - 核心目标：确保撤离成功率，消灭威胁目标。
+            </div>
+            <div id="logistics" class="dept-info">
+                <strong>[后勤部门]</strong><br>
+                - 医疗支援、物资买卖、枪械调试。<br>
+                - 负责全员的伤情管理与仓库调配。<br>
+                - 核心目标：不让任何一名干员因缺少弹药而陷入绝境。
+            </div>
         </div>
-        <div id="intel" class="dept-info"><strong>情报部门：</strong> 负责监听卡莫纳全频段通讯，分析各撤离点风险系数。</div>
-        <div id="assault" class="dept-info"><strong>突击组：</strong> 核心作战力量。精通各类武器，负责深入前线执行斩首行动。</div>
-        <div id="logistics" class="dept-info"><strong>后勤部门：</strong> 提供柯恩币兑换、改枪建议及全地形防弹衣维护。</div>
     </div>
 
-    <div class="divider"></div>
-    <div style="font-size: 10px; color: #444; text-align: center;">SECURE LINE BY G.R.I.M. OPERATIONS</div>
+    <div class="motto-box">
+        “众人之上，强者之列” <br>
+        <span style="font-size: 10px; color: #444;">ID: G-02482-STACK | ACCESS RECORDED</span>
+    </div>
 </div>
 
 <script>
-    // 页面切换脚本
     function showPage(pageId) {
         document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -195,7 +246,6 @@ HTML
         event.target.classList.add('active');
     }
 
-    // 部门切换脚本
     function showDept(deptId) {
         document.querySelectorAll('.dept-info').forEach(d => d.style.display = 'none');
         document.getElementById(deptId).style.display = 'block';
