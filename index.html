@@ -3,250 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G.R.I.M. 战术终端 - 电视台频道</title>
+    <title>G.R.I.M. 核心终端 - 接入电视台频道</title>
     <style>
         :root {
-            --primary-color: #ff9800;
-            --danger-color: #ff4444;
-            --tv-green: #00ff41; /* 经典显示屏绿 */
-            --bg-dark: #050505;
-            --panel-bg: rgba(15, 15, 15, 0.95);
-            --border-color: #333;
+            --primary-color: #00ff41; /* 黑客帝国绿 */
+            --warning-color: #ff9800;
+            --bg-dark: #000;
+            --panel-bg: rgba(10, 10, 10, 0.9);
+            --border-color: #003b00;
         }
 
         body {
             background-color: var(--bg-dark);
-            color: #d1d1d1;
+            color: var(--primary-color);
             font-family: "Courier New", "Microsoft YaHei", monospace;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+            margin: 0; padding: 20px;
+            display: flex; justify-content: center;
+            overflow-x: hidden;
         }
 
         .terminal-container {
-            max-width: 950px;
-            width: 100%;
+            max-width: 950px; width: 100%;
             border: 1px solid var(--border-color);
             padding: 30px;
             background: var(--panel-bg);
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
-            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
+            position: relative; z-index: 2;
         }
 
-        /* 模拟电视信号干扰动画 */
-        .tv-monitor {
-            width: 100%;
-            height: 300px;
-            background: #111;
-            border: 1px solid #444;
-            margin-bottom: 25px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .tv-monitor::before {
-            content: "LIVE - TV STATION FEED";
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: var(--tv-green);
-            font-size: 12px;
-            z-index: 2;
+        /* --- 顶部代码雨画布 --- */
+        #matrix-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; opacity: 0.15; pointer-events: none;
         }
 
-        /* 模拟扫描线 */
-        .scanlines {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
-            z-index: 1;
+        .monitor-frame {
+            width: 100%; height: 200px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px; position: relative;
+            background: rgba(0, 20, 0, 0.3);
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .signal-lost {
-            color: #444;
-            text-align: center;
-            font-size: 14px;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-        /* 导航菜单 */
-        .nav-menu {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #222;
-            padding-bottom: 10px;
-        }
-
+        /* --- 导航菜单 --- */
+        .nav-menu { display: flex; gap: 5px; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .nav-btn {
-            background: transparent;
-            border: 1px solid #444;
-            color: #666;
-            padding: 8px 20px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: 0.3s;
+            background: transparent; border: 1px solid var(--border-color);
+            color: #008f11; padding: 10px 20px; cursor: pointer;
+            transition: 0.3s; font-size: 13px;
         }
+        .nav-btn:hover, .nav-btn.active { background: var(--primary-color); color: #000; }
 
-        .nav-btn:hover, .nav-btn.active {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-            background: rgba(255, 152, 0, 0.1);
-        }
-
-        /* 内容区控制 */
         .page-content { display: none; }
         .page-content.active { display: block; }
 
-        /* 军衔网格 */
-        .rank-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-        }
+        /* --- 军衔交互系统 --- */
+        .rank-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
         .rank-item {
-            padding: 15px;
-            border: 1px solid #222;
-            text-align: center;
-            background: #0d0d0d;
+            padding: 15px; border: 1px solid #003b00; text-align: center;
+            background: #000; cursor: help; position: relative;
         }
-        .rank-icon { color: var(--primary-color); font-size: 18px; margin-bottom: 5px; display: block; }
+        .rank-item:hover { border-color: var(--primary-color); background: rgba(0,255,65,0.05); }
 
-        /* 部门按钮 */
+        /* 悬停解释框 */
+        .rank-desc {
+            visibility: hidden; width: 200px; background-color: #000;
+            color: var(--primary-color); text-align: left;
+            border: 1px solid var(--primary-color); padding: 10px;
+            position: absolute; z-index: 10; bottom: 110%; left: 50%;
+            transform: translateX(-50%); font-size: 12px; line-height: 1.4;
+            box-shadow: 0 0 15px rgba(0,255,65,0.3);
+        }
+        .rank-item:hover .rank-desc { visibility: visible; }
+
+        /* --- 职业模块 (部门系统) --- */
         .dept-btns { display: flex; gap: 10px; margin: 20px 0; }
         .dept-info {
-            padding: 20px;
-            background: #0a0a0a;
-            border: 1px dashed #333;
-            display: none;
-            border-left: 3px solid var(--primary-color);
+            padding: 20px; background: #050505; border: 1px dashed var(--primary-color);
+            display: none; line-height: 1.8;
         }
 
-        /* 报纸风格 */
-        .news-item {
-            padding: 15px;
-            border-left: 2px solid var(--danger-color);
-            background: #111;
-            margin-bottom: 15px;
-        }
+        /* 新闻保持不动样式 */
+        .news-box { border-left: 2px solid var(--primary-color); padding: 15px; background: rgba(0,20,0,0.2); margin-bottom: 15px; }
 
-        h2 { border-left: 4px solid var(--primary-color); padding-left: 15px; font-size: 18px; margin: 30px 0 20px; }
+        h2 { border-left: 3px solid var(--primary-color); padding-left: 10px; font-size: 18px; color: var(--primary-color); }
     </style>
 </head>
 <body>
 
+<canvas id="matrix-canvas"></canvas>
+
 <div class="terminal-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <div style="font-size: 20px; font-weight: bold; letter-spacing: 5px;">G.R.I.M. DATA OPS</div>
-        <div id="clock" style="color: var(--tv-green); font-size: 14px;"></div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+        <div style="letter-spacing:5px;">G.R.I.M. ROOT::ACCESS</div>
+        <div id="clock"></div>
     </div>
 
-    <div class="tv-monitor">
-        <div class="scanlines"></div>
-        <div class="signal-lost">
-            [ NO VISUAL FEED ]<br>
-            <span style="font-size: 10px;">ENCRYPTED CHANNEL: TV_STATION_CH_04</span>
+    <div class="monitor-frame">
+        <div style="text-align:center;">
+            <div style="font-size:12px; color:var(--primary-color); letter-spacing:3px;">TV STATION UPLINK: CONNECTED</div>
+            <div style="font-size:10px; opacity:0.5;">DECIPHERING ENCRYPTED DATA...</div>
         </div>
     </div>
 
     <div class="nav-menu">
-        <button class="nav-btn active" onclick="showPage('home')">频道概览</button>
-        <button class="nav-btn" onclick="showPage('ranks')">军衔晋升</button>
-        <button class="nav-btn" onclick="showPage('news')">暗区简报</button>
-        <button class="nav-btn" onclick="showPage('depts')">组织架构</button>
+        <button class="nav-btn active" onclick="showPage('home')">1.0 概览</button>
+        <button class="nav-btn" onclick="showPage('ranks')">2.0 军衔</button>
+        <button class="nav-btn" onclick="showPage('news')">3.0 简报</button>
+        <button class="nav-btn" onclick="showPage('depts')">4.0 部门</button>
     </div>
 
     <div id="home" class="page-content active">
-        <h2>// 联合作战协议</h2>
-        <p>G.R.I.M. 目前已与卡莫纳电视台频道达成战略关联。通过本终端可直接下达任务指令并获取实时战区报告。</p>
-        <p style="color: #666;">> 警告：所有操作已被电视台转播控制中心记录。</p>
+        <h2>// 接入协议！！！</h2>
+        <p>G.R.I.M. 已全面接管电视台联络频道。在此终端下，所有暗区行动指令均具备优先级。</p>
+        <p style="color:#008f11">> 正在监听卡莫纳山谷全频段...</p>
     </div>
 
     <div id="ranks" class="page-content">
-        <h2>// 等级序列 RANKING</h2>
-        <div class="rank-grid">
-            <div class="rank-item"><span class="rank-icon">◇</span>实习</div>
-            <div class="rank-item"><span class="rank-icon">◈</span>二等兵</div>
-            <div class="rank-item"><span class="rank-icon">◈◈</span>一等兵</div>
-            <div class="rank-item"><span class="rank-icon">◈◈◈</span>上等兵</div>
-            <div class="rank-item"><span class="rank-icon">★</span>军校教官</div>
-            <div class="rank-item"><span class="rank-icon">☆</span>准尉</div>
-            <div class="rank-item"><span class="rank-icon">⚓</span>下士</div>
-            <div class="rank-item"><span class="rank-icon">⚓⚓</span>中士</div>
-            <div class="rank-item"><span class="rank-icon">⚓⚓⚓</span>上士</div>
-            <div class="rank-item"><span class="rank-icon">⚔️</span>军士长</div>
-            <div class="rank-item"><span class="rank-icon">|</span>中尉</div>
-            <div class="rank-item"><span class="rank-icon">||</span>上尉</div>
-            <div class="rank-item"><span class="rank-icon">⍟</span>准将</div>
-            <div class="rank-item"><span class="rank-icon">⍟⍟</span>少将</div>
-            <div class="rank-item"><span class="rank-icon">⍟⍟⍟</span>中将</div>
-            <div class="rank-item"><span class="rank-icon">⍟⍟⍟⍟</span>上将</div>
-            <div class="rank-item"><span class="rank-icon">✪✪✪✪✪</span>五星上将</div>
-        </div>
+        <h2>// 权限序列 (悬停查看详情)</h2>
+        <div class="rank-grid" id="rankContainer">
+            </div>
     </div>
 
     <div id="news" class="page-content">
-        <h2>// 电视台快讯 TV_STATION_NEWS</h2>
-        <div class="news-item">
-            <div style="font-size: 12px; color: #555;">ID: 2026-02-14 | 地点: 电视台二楼</div>
-            <div style="color: var(--primary-color); margin: 5px 0; font-weight: bold;">【重磅】电视台演播厅爆发拉锯战</div>
-            <p>多个突击组反馈在演播厅遭遇强力阻击，建议绕行二楼通风口。后勤部已部署临时撤离点。</p>
+        <h2>// 战区实况</h2>
+        <div class="news-box">
+            <div style="font-size:12px; opacity:0.6;">2026-02-14 | TV_STATION</div>
+            <strong>电视台封闭通告</strong>
+            <p>电视台二楼已经全面由白狼联队接管。</p>
         </div>
-        <div class="news-item">
-            <div style="font-size: 12px; color: #555;">ID: 2026-02-13 | 地点: 行政区</div>
-            <div style="color: var(--primary-color); margin: 5px 0; font-weight: bold;">【通告】科恩币兑换率受电视台封锁影响波动</div>
-            <p>由于电视台信号屏蔽器启动，市场数据出现延迟。请各干员备足现钞。</p>
+        <div class="news-box">
+            <div style="font-size:12px; opacity:0.6;">2026-02-13 | VALLEY</div>
+            <strong>电视台探测到异常老鼠</strong>
+            <p>多名特遣队员反馈在此区域遭遇不明腿部打击，建议特遣队员带好防护腿部。</p>
         </div>
     </div>
 
     <div id="depts" class="page-content">
-        <h2>// 职能模块 MODULES</h2>
+        <h2>// 职能划分</h2>
         <div class="dept-btns">
             <button class="nav-btn" onclick="showDept('intel')">1. 情报部门</button>
             <button class="nav-btn" onclick="showDept('assault')">2. 突击组</button>
             <button class="nav-btn" onclick="showDept('logistics')">3. 后勤部门</button>
         </div>
-        <div id="intel" class="dept-info"><strong>情报中心：</strong> 负责截获电视台内部通讯，解析撤离时间窗口。</div>
-        <div id="assault" class="dept-info"><strong>一线突击：</strong> 负责占领演播室、资料室等核心战术目标。</div>
-        <div id="logistics" class="dept-info"><strong>物资调配：</strong> 提供电视台专用防护服与高穿透弹药。</div>
-    </div>
-
-    <div style="margin-top: 50px; text-align: center; font-size: 10px; color: #444; border-top: 1px solid #222; padding-top: 10px;">
-        G.R.I.M. NETWORK | CONNECTION: STABLE | SOURCE: TV_STATION
+        <div id="intel" class="dept-info"><strong>情报部门：</strong> 负责快速判断敌方位置和做出战术预告</div>
+        <div id="assault" class="dept-info"><strong>突击组：</strong> 负责快速的对枪，主力力量，要求擅长近距离室内作战（CQB）。</div>
+        <div id="logistics" class="dept-info"><strong>后勤部门：</strong> 重装行动，确保队友的子弹和医疗</div>
     </div>
 </div>
 
 <script>
-    // 时间显示
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('clock').innerText = now.toLocaleString();
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
+    // 1. 代码雨特效
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
 
-    // 页面切换
+    function drawMatrix() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00ff41";
+        ctx.font = fontSize + "px monospace";
+        for (let i = 0; i < drops.length; i++) {
+            const text = letters.charAt(Math.floor(Math.random() * letters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+    setInterval(drawMatrix, 33);
+
+    // 2. 军衔数据与生成
+    const ranks = [
+        {name: "实习", desc: "习见阶段，你要通过完成任务转正"},
+        {name: "二等兵", desc: "完成初级训练，可以接取部分任务。"},
+        {name: "一等兵", desc: "拥有标准武器申领权，允许与军校教官一起行动。"},
+        {name: "上等兵", desc: "精英士兵，拥有每日标准装备领取权限，允许与准尉行动"},
+        {name: "军校教官", desc: "负责新兵评估，并且对其训练和任职上的管理。"},
+        {name: "准尉", desc: "战术顾问储备，在一定程度上帮助队伍的信息调整"},
+        {name: "下士", desc: "战术骨干，需要彻底熟图并且保持战术能力"},
+        {name: "中士", desc: "班组核心，获得4人小队权限"},
+        {name: "上士", desc: "资深战术专家，允许直接管理军校教官。"},
+        {name: "军士长", desc: "士兵领袖，负责管理军士长以下职位的所有职位。"},
+        {name: "中尉", desc: "排级指挥官，允许在未经过讨论下随意做出任务改变。"},
+        {name: "上尉", desc: "连级核心，允许使用投掷无人机等等实验装备"},
+        {name: "准将", desc: "统筹暗区战役，拥有地图选择权。"},
+        {name: "少将", desc: "允许在批准的情况下，间接与上将直接交谈。"},
+        {name: "中将", desc: "允许开始布置任务。"},
+        {name: "上将", desc: "决策层成员，决定所有职位，可以在批准下进行裁员"},
+        {name: "五星上将", desc: "最高权限拥有者。众人之上，强者之列。控制所有队员。"}
+    ];
+
+    const rankContainer = document.getElementById('rankContainer');
+    ranks.forEach(r => {
+        const div = document.createElement('div');
+        div.className = 'rank-item';
+        div.innerHTML = `<span>${r.name}</span><div class="rank-desc"><strong>${r.name}</strong><br>${r.desc}</div>`;
+        rankContainer.appendChild(div);
+    });
+
+    // 3. 基础逻辑
     function showPage(pageId) {
         document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
         event.target.classList.add('active');
     }
-
-    // 部门切换
     function showDept(deptId) {
         document.querySelectorAll('.dept-info').forEach(d => d.style.display = 'none');
         document.getElementById(deptId).style.display = 'block';
     }
+    function updateClock() {
+        document.getElementById('clock').innerText = new Date().toLocaleString();
+    }
+    setInterval(updateClock, 1000); updateClock();
 </script>
 
 </body>
