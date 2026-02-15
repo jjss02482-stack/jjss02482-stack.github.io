@@ -2,196 +2,37 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G.R.I.M. | 全球侦查与渗透海军陆战队</title>
+    <title>G.R.I.M. | 官方门户</title>
     <style>
-        :root {
-            --primary: #ff9800;
-            --primary-dark: #e68a00;
-            --bg: #050505;
-            --card-bg: #111;
-            --text-main: #e0e0e0;
-            --text-dim: #999;
-            --border: rgba(255, 152, 0, 0.2);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* --- 导航栏 --- */
-        nav {
-            height: 70px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 10%;
-            background: rgba(0, 0, 0, 0.9);
-            border-bottom: 1px solid var(--border);
-            position: fixed; width: 100%; z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
-        .logo { font-size: 24px; font-weight: 800; color: var(--primary); letter-spacing: 2px; }
-        .nav-links { display: flex; gap: 40px; }
-        .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 14px; transition: 0.3s; text-transform: uppercase; }
-        .nav-links a:hover { color: var(--primary); }
-
-        /* --- Hero 主视图 --- */
-        .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: radial-gradient(circle, rgba(255, 152, 0, 0.05) 0%, rgba(0,0,0,1) 70%);
-            padding: 0 20px;
-        }
-        .hero h1 { font-size: 4rem; font-weight: 900; margin-bottom: 20px; letter-spacing: 10px; color: #fff; }
-        .hero p { font-size: 1.2rem; color: var(--text-dim); max-width: 600px; margin-bottom: 30px; }
-        .hero-btn {
-            padding: 15px 40px;
-            background: var(--primary);
-            color: #000;
-            text-decoration: none;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: 0.3s;
-        }
-        .hero-btn:hover { background: #fff; transform: translateY(-3px); }
-
-        /* --- 分区通用样式 --- */
-        section { padding: 100px 10%; }
-        .section-title { font-size: 2rem; color: var(--primary); margin-bottom: 50px; text-align: center; position: relative; }
-        .section-title::after { content: ''; display: block; width: 50px; height: 2px; background: var(--primary); margin: 10px auto; }
-
-        /* --- 简述区 --- */
-        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
-        .about-text h3 { margin-bottom: 20px; color: #fff; font-size: 1.5rem; }
-        .about-text mark { background: none; color: var(--primary); font-weight: bold; }
-
-        /* --- 部门区 --- */
-        .dept-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .dept-card {
-            background: var(--card-bg);
-            padding: 40px;
-            border: 1px solid #222;
-            transition: 0.4s;
-            text-align: center;
-        }
-        .dept-card:hover { border-color: var(--primary); transform: translateY(-10px); }
-        .dept-card h4 { color: var(--primary); margin-bottom: 15px; font-size: 1.2rem; }
-
-        /* --- 荣誉/战绩区 --- */
-        .history { background: #0a0a0a; }
-        .history-item { border-left: 2px solid var(--primary); padding-left: 30px; margin-bottom: 40px; position: relative; }
-        .history-item span { color: var(--primary); font-weight: bold; font-size: 1.1rem; }
-
-        /* --- 底部 --- */
-        footer {
-            padding: 60px 10%;
-            background: #000;
-            border-top: 1px solid #111;
-            text-align: center;
-        }
-        .slogan { font-size: 1.5rem; color: #fff; margin-bottom: 10px; font-style: italic; }
-        .quote { color: var(--primary); letter-spacing: 5px; margin-bottom: 30px; display: block; }
-        .copyright { font-size: 12px; color: #444; }
-
-        /* 响应式调整 */
-        @media (max-width: 768px) {
-            .about-grid, .dept-container { grid-template-columns: 1fr; }
-            .hero h1 { font-size: 2.5rem; }
-        }
+        :root { --primary: #ff9800; --bg: #050505; }
+        body { margin: 0; background: var(--bg); color: #e0e0e0; font-family: "Segoe UI", sans-serif; }
+        nav { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 10%; border-bottom: 1px solid rgba(255,152,0,0.1); position: sticky; top: 0; background: rgba(5,5,5,0.9); z-index: 100; }
+        .logo { font-size: 24px; font-weight: 900; color: var(--primary); letter-spacing: 3px; }
+        .hero { height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: radial-gradient(circle, rgba(255,152,0,0.05) 0%, #050505 80%); }
+        .hero h1 { font-size: 5rem; margin-bottom: 10px; letter-spacing: 15px; }
+        .section { padding: 80px 15%; line-height: 1.8; }
+        .section h2 { color: var(--primary); border-left: 4px solid var(--primary); padding-left: 15px; margin-bottom: 30px; }
+        mark { background: none; color: var(--primary); font-weight: bold; }
+        .access-panel { background: #111; padding: 40px; text-align: center; border: 1px dashed #333; margin-top: 50px; }
+        .btn-link { color: var(--primary); text-decoration: none; border: 1px solid var(--primary); padding: 10px 30px; transition: 0.3s; }
+        .btn-link:hover { background: var(--primary); color: #000; }
     </style>
 </head>
 <body>
-
-    <nav>
-        <div class="logo">G.R.I.M.</div>
-        <div class="nav-links">
-            <a href="#about">使命</a>
-            <a href="#depts">部门</a>
-            <a href="#ops">行动经历</a>
-            <a href="#equip">装备标准</a>
-        </div>
-    </nav>
-
+    <nav><div class="logo">G.R.I.M.</div></nav>
     <div class="hero">
         <h1>G.R.I.M.</h1>
-        <p>全球侦查与渗透海军陆战队 <br> GLOBAL RECON INFILTRATION MARINES</p>
-        <a href="#about" class="hero-btn">进入核心</a>
+        <p style="letter-spacing: 5px; color: #888;">GLOBAL RECON INFILTRATION MARINES</p>
     </div>
-
-    <section id="about">
-        <div class="about-grid">
-            <div class="about-text">
-                <p style="color:var(--primary); margin-bottom:10px;">EST. 1994</p>
-                <h3>科伦国海军之刃</h3>
-                <p>G.R.I.M. 是科伦国在<mark>苏梅克委员会</mark>监视下产生的两栖作战部队。作为直属科伦海军的精英力量，我们拥有独立的行动决策权。</p>
-                <br>
-                <p>我们的使命在于情报层面的<mark>超限战优势</mark>，以及针对高危目标的快速毁灭打击。我们是陆军跨海支援的先锋，是战场逻辑的改写者。</p>
-            </div>
-            <div style="background: #151515; height: 300px; border: 1px solid var(--border); display:flex; align-items:center; justify-content:center;">
-                <span style="color:#333; font-size:5rem; font-weight:900;">SECURED</span>
-            </div>
+    <div class="section">
+        <h2>组织起源</h2>
+        <p>成立于<mark>1994年</mark>，隶属于<mark>科伦国海军</mark>，是在苏梅克委员会监视下产生的两栖作战精锐。我们不仅拥有独立的行动权，更是在情报超限战中为陆军提供核心支援的尖刀。</p>
+        <h2>战区简报</h2>
+        <p>在卡莫纳山谷，我们助多斯赢取首级；在农场冲突中，我们为空袭指引目标。G.R.I.M. 始终活跃在最危险的边缘。</p>
+        <div class="access-panel">
+            <p style="font-size: 12px; color: #555; margin-bottom: 20px;">RESTRICTED AREA: COMMANDER LEVEL ONLY</p>
+            <a href="tactical.html" class="btn-link">接入战术中枢</a>
         </div>
-    </section>
-
-    <section id="depts" style="background:#080808;">
-        <h2 class="section-title">组织架构</h2>
-        <div class="dept-container">
-            <div class="dept-card">
-                <h4>情报部</h4>
-                <p>负责快速寻找敌人位置，并提供全方位的战术数据支持。</p>
-            </div>
-            <div class="dept-card">
-                <h4>突击组</h4>
-                <p>执行高烈度快速突破，负责物理层面的目标清除。</p>
-            </div>
-            <div class="dept-card">
-                <h4>后勤部</h4>
-                <p>维持战区资源循环，确保弹药基数与战伤医疗保障。</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="ops">
-        <h2 class="section-title">战区纪录</h2>
-        <div class="history-item">
-            <span>卡莫纳山谷行动</span>
-            <p>协助多斯（Doss）快速赢取敌方首级，建立区域绝对控制权。</p>
-        </div>
-        <div class="history-item">
-            <span>农场谷物交易战</span>
-            <p>在激烈冲突中，凭借精准空袭快速辅助深渊小队拿下核心战略据点。</p>
-        </div>
-    </section>
-
-    <section id="equip" style="background:#080808;">
-        <h2 class="section-title">装备准则</h2>
-        <div style="max-width:800px; margin:0 auto; text-align:center; color:var(--text-dim);">
-            <p>G.R.I.M. 授权干员使用卡莫纳地区可采集的所有战术装备。</p>
-            <p style="margin-top:20px;">由官方提供<mark>制式标准</mark>底座，特殊需求装备遵循<mark>自费原则</mark>。</p>
-        </div>
-    </section>
-
-    <footer>
-        <div class="slogan">保持冷静，继续前行！</div>
-        <span class="quote">众人之上，强者之列</span>
-        <div class="copyright">
-            © 1994-2026 G.R.I.M. GLOBAL RECON INFILTRATION MARINES. <br>
-            隶属于科伦国海军部 - 受到苏梅克委员会法律监督
-        </div>
-    </footer>
-
-</body>
-</html>
+    </div>
 </body>
 </html>
