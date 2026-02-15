@@ -2,36 +2,40 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>G.R.I.M. | 官方门户</title>
+    <title>G.R.I.M. | 全球侦查与渗透海军陆战队</title>
     <style>
         :root { --primary: #ff9800; --bg: #050505; }
-        body { margin: 0; background: var(--bg); color: #e0e0e0; font-family: "Segoe UI", sans-serif; }
-        nav { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 10%; border-bottom: 1px solid rgba(255,152,0,0.1); position: sticky; top: 0; background: rgba(5,5,5,0.9); z-index: 100; }
+        body { margin: 0; background: var(--bg); color: #e0e0e0; font-family: "Segoe UI", sans-serif; overflow-x: hidden; }
+        nav { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 10%; border-bottom: 1px solid rgba(255,152,0,0.1); position: sticky; top: 0; background: rgba(5,5,5,0.9); z-index: 100; backdrop-filter: blur(10px); }
         .logo { font-size: 24px; font-weight: 900; color: var(--primary); letter-spacing: 3px; }
-        .hero { height: 80vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: radial-gradient(circle, rgba(255,152,0,0.05) 0%, #050505 80%); }
-        .hero h1 { font-size: 5rem; margin-bottom: 10px; letter-spacing: 15px; }
-        .section { padding: 80px 15%; line-height: 1.8; }
-        .section h2 { color: var(--primary); border-left: 4px solid var(--primary); padding-left: 15px; margin-bottom: 30px; }
+        .hero { height: 70vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: radial-gradient(circle, rgba(255,152,0,0.08) 0%, #050505 80%); }
+        .hero h1 { font-size: 5rem; margin: 0; letter-spacing: 15px; color: #fff; text-shadow: 0 0 20px rgba(255,152,0,0.2); }
+        .content-section { padding: 60px 15%; max-width: 1000px; margin: 0 auto; }
+        h2 { color: var(--primary); border-left: 4px solid var(--primary); padding-left: 15px; font-size: 1.5rem; margin: 40px 0 20px; }
+        p { line-height: 1.8; color: #bbb; }
         mark { background: none; color: var(--primary); font-weight: bold; }
-        .access-panel { background: #111; padding: 40px; text-align: center; border: 1px dashed #333; margin-top: 50px; }
-        .btn-link { color: var(--primary); text-decoration: none; border: 1px solid var(--primary); padding: 10px 30px; transition: 0.3s; }
-        .btn-link:hover { background: var(--primary); color: #000; }
+        .portal-footer { background: #0a0a0a; border: 1px dashed #333; padding: 40px; text-align: center; margin-top: 50px; }
+        .cmd-btn { display: inline-block; color: var(--primary); text-decoration: none; border: 1px solid var(--primary); padding: 12px 35px; font-weight: bold; letter-spacing: 2px; transition: 0.3s; margin-top: 20px; }
+        .cmd-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 15px var(--primary); }
     </style>
 </head>
 <body>
     <nav><div class="logo">G.R.I.M.</div></nav>
     <div class="hero">
         <h1>G.R.I.M.</h1>
-        <p style="letter-spacing: 5px; color: #888;">GLOBAL RECON INFILTRATION MARINES</p>
+        <p style="letter-spacing: 5px; color: #666; font-size: 0.9rem;">GLOBAL RECON INFILTRATION MARINES</p>
     </div>
-    <div class="section">
-        <h2>组织起源</h2>
-        <p>成立于<mark>1994年</mark>，隶属于<mark>科伦国海军</mark>，是在苏梅克委员会监视下产生的两栖作战精锐。我们不仅拥有独立的行动权，更是在情报超限战中为陆军提供核心支援的尖刀。</p>
-        <h2>战区简报</h2>
-        <p>在卡莫纳山谷，我们助多斯赢取首级；在农场冲突中，我们为空袭指引目标。G.R.I.M. 始终活跃在最危险的边缘。</p>
-        <div class="access-panel">
-            <p style="font-size: 12px; color: #555; margin-bottom: 20px;">RESTRICTED AREA: COMMANDER LEVEL ONLY</p>
-            <a href="tactical.html" class="btn-link">接入战术中枢</a>
+    <div class="content-section">
+        <h2>部队概况</h2>
+        <p>G.R.I.M. 是科伦国在<mark>苏梅克委员会</mark>监视下产生的两栖作战部队。成立于<mark>1994年</mark>，直属于科伦海军。我们强调<mark>勇气与纪律</mark>，以超限战情报优势和精准清除高危目标为核心使命。</p>
+        
+        <h2>标志性精神</h2>
+        <p>口号：<mark>“保持冷静，继续前行！”</mark></p>
+        <p>语录：<mark>“众人之上，强者之列”</mark></p>
+
+        <div class="portal-footer">
+            <p style="font-size: 0.7rem; color: #444; letter-spacing: 2px;">AUTHENTICATION REQUIRED: COMMANDER-IN-CHIEF</p>
+            <a href="tactical.html" class="cmd-btn">接入指挥系统</a>
         </div>
     </div>
 </body>
