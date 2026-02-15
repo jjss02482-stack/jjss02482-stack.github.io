@@ -2,63 +2,165 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>G.R.I.M. | 全球侦查与渗透海军陆战队</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commander's Command Center | 个人主页</title>
     <style>
-        :root { --primary: #ff9800; --bg: #050505; }
-        body { margin: 0; background: var(--bg); color: #e0e0e0; font-family: "Microsoft YaHei", sans-serif; }
-        nav { height: 60px; display: flex; justify-content: space-between; align-items: center; padding: 0 10%; border-bottom: 1px solid rgba(255,152,0,0.1); position: sticky; top: 0; background: rgba(5,5,5,0.95); z-index: 100; }
-        .logo { font-size: 20px; font-weight: 900; color: var(--primary); letter-spacing: 2px; }
-        .hero { height: 40vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: radial-gradient(circle, rgba(255,152,0,0.05) 0%, #050505 80%); }
-        .section { padding: 40px 10%; max-width: 1200px; margin: 0 auto; }
-        h2 { color: var(--primary); border-left: 3px solid var(--primary); padding-left: 15px; font-size: 1.4rem; margin: 30px 0 20px; }
-        .rank-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-        .rank-card { background: #111; padding: 15px; border: 1px solid #222; }
-        .rank-name { color: var(--primary); font-weight: bold; display: block; margin-bottom: 5px; }
-        .rank-desc { font-size: 12px; color: #777; line-height: 1.5; }
-        .mini-auth-zone { border: 1px solid #222; padding: 20px; display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; margin-top: 40px; }
-        .auth-btn { color: var(--primary); text-decoration: none; border: 1px solid var(--primary); padding: 8px 20px; font-weight: bold; transition: 0.3s; }
-        .auth-btn:hover { background: var(--primary); color: #000; }
+        :root {
+            --primary-glow: #ff9800;
+            --army-green: #4b5320;
+            --bg-dark: #0a0a0a;
+            --panel-bg: rgba(20, 20, 20, 0.9);
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-dark);
+            color: #eee;
+            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1a 0%, #050505 100%);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .blog-container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        /* 顶部身份卡片 */
+        .profile-header {
+            background: var(--panel-bg);
+            border: 1px solid #333;
+            padding: 30px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--primary-glow);
+        }
+
+        h1 { margin: 0 0 10px 0; letter-spacing: 2px; color: #fff; }
+        .identity-tags { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .tag {
+            background: #222;
+            padding: 4px 12px;
+            font-size: 13px;
+            color: var(--primary-glow);
+            border: 1px solid #444;
+        }
+
+        /* 游戏与军事兴趣区 */
+        .interest-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .interest-card {
+            background: var(--panel-bg);
+            border: 1px solid #222;
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .interest-card:hover { border-color: var(--primary-glow); transform: translateY(-3px); }
+        .interest-card h3 { margin-top: 0; color: var(--primary-glow); font-size: 16px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .interest-card p { font-size: 14px; color: #aaa; line-height: 1.6; }
+
+        /* 核心中转信标 */
+        .gateway-section {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px dashed #333;
+        }
+
+        .gateway-title { font-size: 14px; color: #666; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 30px; }
+
+        .links-flex {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .portal-btn {
+            flex: 1;
+            padding: 20px;
+            text-decoration: none;
+            border: 1px solid #333;
+            transition: 0.4s;
+            position: relative;
+        }
+
+        .portal-btn.grim { background: #000; color: #ff9800; border-color: #ff9800; }
+        .portal-btn.senra { background: #fdfaf7; color: #bda286; border-color: #e0d9d2; }
+
+        .portal-btn:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(255,152,0,0.2); }
+
+        .portal-btn span { display: block; font-weight: bold; font-size: 18px; margin-bottom: 5px; }
+        .portal-btn small { font-size: 11px; opacity: 0.7; }
+
+        .footer { text-align: center; font-size: 12px; color: #444; margin-top: 50px; }
+
     </style>
 </head>
 <body>
-    <nav><div class="logo">G.R.I.M.</div></nav>
-    <div class="hero"><h1>G.R.I.M.</h1><p>保持冷静，继续前行！</p></div>
-    <div class="section">
-        <h2>// 部队档案</h2>
-        <p>G.R.I.M.，全球侦查与渗透海军陆战队，是科伦国在苏梅克委员会监视下产生的两栖作战部队，成立于1994年，隶属于科伦国海军，但是拥有自己的行动权。主要任务是在情报上获得超限战上的优势与快速的消灭高危目标，为科伦陆军提供支援。</p>
-        
-        <h2>// 晋升序列</h2>
-        <div class="rank-grid" id="rank-container"></div>
 
-        <div class="mini-auth-zone">
-            <div style="font-size:12px; color:#444;">COMMANDER_ACCESS_POINT</div>
-            <a href="tactical.html" class="auth-btn">进入指挥终端</a>
+<div class="blog-container">
+    <div class="profile-header">
+        <h1>指挥官档案 | Commander Archive</h1>
+        <div class="identity-tags">
+            <span class="tag">出生: 2012/03/30</span>
+            <span class="tag">星座: 白羊座</span>
+            <span class="tag">生肖: 龙</span>
+            <span class="tag">籍贯: 上海 / 中国汉族</span>
+            <span class="tag">职级: 中将 (Vice Admiral)</span>
+        </div>
+        <p style="margin-top:20px; font-size: 14px; color: #888;">
+            立足于上海的军事爱好者。在虚拟战场中磨砺意志，在现实生活中构建美学。
+        </p>
+    </div>
+
+    <div class="interest-grid">
+        <div class="interest-card">
+            <h3>// 战术游戏 | Tactical Gaming</h3>
+            <p><strong>《暗区突围》 (Arena Breakout)</strong><br>沉浸于高风险的硬核撤离体验，对物资管理与突袭战术有深度研究。</p>
+        </div>
+        <div class="interest-card">
+            <h3>// 军事策略 | Military Strategy</h3>
+            <p><strong>《KARDS》</strong><br>精通冰岛二战题材卡牌，从卡组构筑中研习宏观军事部署与资源博弈。</p>
         </div>
     </div>
-    <script>
-        const rankData = [
-            {n: "实习", d: "习见阶段，你要通过完成任务转正"},
-            {n: "二等兵", d: "完成初级训练，可以接取部分任务"},
-            {n: "一等兵", d: "拥有标准武器申领权，允许与军校教官一起行动"},
-            {n: "上等兵", d: "精英士兵，拥有每日标准装备领取权限，允许与准尉行动"},
-            {n: "军校教官", d: "负责新兵评估，并且对其训练和任职上的管理。"},
-            {n: "准尉", d: "战术顾问储备，在一定程度上帮助队伍的信息调整"},
-            {n: "下士", d: "战术骨干，需要彻底熟图并且保持战术能力"},
-            {n: "中士", d: "班组核心，获得4人小队权限"},
-            {n: "上士", d: "资深士官，拥有高级物资调动权。"},
-            {n: "军士长", d: "士兵领袖，负责管理军士长以下职位的所有职位。"},
-            {n: "中尉", d: "排级指挥官，允许在未经过讨论下随意做出任务改变。"},
-            {n: "上尉", d: "连级核心，允许使用投掷无人机等等实验装备"},
-            {n: "准将", d: "统筹暗区战役，拥有地图选择权"},
-            {n: "少将", d: "允许在批准的情况下，间接与上将直接交谈"},
-            {n: "中将", d: "允许开始布置任务"},
-            {n: "上将", d: "决策层成员，决定所有职位，可以在批准下进行裁员"},
-            {n: "五星上将", d: "最高权限拥有者。众人之上，强者之列。控制所有组织人员"}
-        ];
-        const container = document.getElementById('rank-container');
-        rankData.forEach(r => {
-            container.innerHTML += `<div class="rank-card"><span class="rank-name">${r.n}</span><div class="rank-desc">${r.d}</div></div>`;
-        });
-    </script>
+
+    <div class="gateway-section">
+        <div class="gateway-title">—— 系统接入点 | Access Point ——</div>
+        <div class="links-flex">
+            <a href="./grim/index.html" class="portal-btn grim">
+                <span>G.R.I.M.</span>
+                <small>战术指挥中心 / TACTICAL NETWORK</small>
+            </a>
+            <a href="./senra/index.html" class="portal-btn senra">
+                <span>Senra</span>
+                <small>定制品牌官网 / BESPOKE DESIGN</small>
+            </a>
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 Commander's Blog. 系统正常运行中。
+    </div>
+</div>
+
+<script>
+    console.log("Welcome, General. 2012-03-30 Aries verified.");
+</script>
+
 </body>
 </html>
