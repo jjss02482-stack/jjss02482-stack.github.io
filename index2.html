@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>G.R.I.M. | 内部战术网络</title>
+    <style>
+        :root { --primary: #ff9800; --bg: #000; }
+        body { background: var(--bg); color: var(--primary); font-family: "Courier New", monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .terminal { width: 90%; max-width: 1000px; border: 1px solid #333; padding: 20px; background: #0a0a0a; }
+        /* 小屏幕代码雨 */
+        .monitor { width: 100%; height: 150px; background: #000; border: 1px solid #444; position: relative; overflow: hidden; margin-bottom: 20px; }
+        #matrix-canvas { position: absolute; top: 0; left: 0; opacity: 0.5; }
+        .grim-overlay { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold; letter-spacing: 10px; opacity: 0; transition: 1s; }
+        .grim-overlay.active { opacity: 1; }
+        /* 底部态势面板 */
+        .footer-grid { display: grid; grid-template-columns: 150px 1fr 150px; width: 90%; max-width: 1000px; margin-top: 20px; border: 1px solid #222; padding: 15px; align-items: center; }
+        .globe { width: 80px; height: 80px; border-radius: 50%; border: 1px solid var(--primary); box-shadow: inset 0 0 10px var(--primary); position: relative; overflow: hidden; }
+        .globe::after { content: ''; position: absolute; width: 200%; height: 100%; background: repeating-linear-gradient(90deg, transparent, rgba(255,152,0,0.1) 10px); animation: rotate 5s linear infinite; }
+        @keyframes rotate { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        #huge-clock { font-size: 40px; text-align: center; font-weight: bold; text-shadow: 0 0 15px var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div style="font-size: 10px; margin-bottom: 5px;">[SECURE_LINE_AUTHENTICATED]</div>
+        <div class="monitor">
+            <canvas id="matrix-canvas"></canvas>
+            <div id="grim-overlay" class="grim-overlay">G.R.I.M.</div>
+        </div>
+        <div style="font-size: 14px;">
+            > 权限确认：上将 (GENERAL)<br>
+            > 语录：众人之上，强者之列<br>
+            > 口号：保持冷静，继续前行！
+        </div>
+    </div>
+    <div class="footer-grid">
+        <div class="globe"></div>
+        <div id="huge-clock">00:00:00</div>
+        <div style="text-align: right; font-size: 8px;">SAT_LINK_ACTIVE<br>DOT_MAP_SYNCING...</div>
+    </div>
+
+    <script>
+        // 代码雨逻辑 (20s循环 + 10s显示GRIM)
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        const overlay = document.getElementById('grim-overlay');
+        canvas.width = 1000; canvas.height = 150;
+        const columns = canvas.width / 14;
+        const drops = Array(Math.floor(columns)).fill(1);
+        let showGrim = false;
+
+        function draw() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ff9800";
+            if(!showGrim) {
+                drops.forEach((y, i) => {
+                    const text = String.fromCharCode(Math.random() * 128);
+                    ctx.fillText(text, i * 14, y * 14);
+                    if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                    drops[i]++;
+                });
+            }
+        }
+        setInterval(draw, 50);
+        setInterval(() => {
+            showGrim = !showGrim;
+            overlay.classList.toggle('active', showGrim);
+        }, 20000); // 这里的演示逻辑为交替，您可以根据需要细化
+
+        // 时钟
+        setInterval(() => {
+            document.getElementById('huge-clock').innerText = new Date().toTimeString().split(' ')[0];
+        }, 1000);
+    </script>
+</body>
+</html>
