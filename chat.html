@@ -29,12 +29,25 @@ font-size:60px;
 letter-spacing:5px;
 }
 
+.pass-wrap{
+display:flex;
+justify-content:center;
+gap:6px;
+}
+
 input{
 background:#000;
 border:1px solid #fff;
 color:#fff;
 padding:10px;
 font-size:18px;
+}
+
+.eye{
+cursor:pointer;
+padding:10px;
+border:1px solid #fff;
+user-select:none;
 }
 
 button{
@@ -89,27 +102,21 @@ overflow:auto;
 white-space:pre-wrap;
 }
 
-/* ===== 像素地球 ===== */
-
-#globe{
-position:absolute;
-bottom:10px;
-left:10px;
-font-size:40px;
-animation:spin 6s linear infinite;
-opacity:.8;
-}
-
-@keyframes spin{
-from{transform:rotate(0)}
-to{transform:rotate(360deg)}
-}
-
 textarea{
 width:100%;
 height:200px;
 background:#000;
 color:#fff;
+border:1px solid #fff;
+}
+
+/* ===== 像素地球 ===== */
+
+#globeCanvas{
+position:absolute;
+bottom:10px;
+left:10px;
+background:#000;
 border:1px solid #fff;
 }
 
@@ -124,9 +131,10 @@ border:1px solid #fff;
 
 <h1>需要解锁二级权限</h1>
 
+<div class="pass-wrap">
 <input id="pass" type="password" placeholder="输入密码">
-
-<br>
+<div class="eye" onclick="toggleEye()">👁</div>
+</div>
 
 <button onclick="unlock()">解锁</button>
 
@@ -149,11 +157,13 @@ border:1px solid #fff;
 
 <div id="screen">内部终端已启动…</div>
 
-<div id="globe">🌍</div>
+<canvas id="globeCanvas" width="120" height="120"></canvas>
 
 </div>
 
 <script>
+
+/* ===== 密码系统 ===== */
 
 const PASSWORD="J.0330jpn";
 
@@ -161,18 +171,27 @@ function unlock(){
 
 if(document.getElementById("pass").value===PASSWORD){
 
-document.getElementById("lock").style.display="none";
-document.getElementById("terminal").style.display="flex";
+lock.style.display="none";
+terminal.style.display="flex";
+startGlobe();
 
 }else{
 
-document.getElementById("msg").textContent="❌ 无权限";
+msg.textContent="❌ 无权限";
 
 }
 
 }
 
-/* 数据 */
+function toggleEye(){
+
+const p=document.getElementById("pass");
+
+p.type=p.type==="password"?"text":"password";
+
+}
+
+/* ===== 数据 ===== */
 
 const screen=document.getElementById("screen");
 
@@ -196,7 +215,7 @@ const ranks=[
 {name:"五星上将",desc:"最高权限拥有者。众人之上，强者之列。控制所有队员。"}
 ];
 
-/* 功能 */
+/* ===== 功能 ===== */
 
 function brief(){
 
@@ -238,16 +257,68 @@ localStorage.getItem("grim_note")||"";
 
 function saveNote(){
 
-localStorage.setItem(
-"grim_note",
-document.getElementById("note").value
-);
+localStorage.setItem("grim_note",note.value);
 
 alert("已保存");
 
 }
 
+/* ===== 像素地球动画 ===== */
+
+function startGlobe(){
+
+const c=document.getElementById("globeCanvas");
+const ctx=c.getContext("2d");
+
+let angle=0;
+
+function draw(){
+
+ctx.clearRect(0,0,120,120);
+
+ctx.strokeStyle="#fff";
+
+ctx.beginPath();
+ctx.arc(60,60,40,0,Math.PI*2);
+ctx.stroke();
+
+/* 纬线 */
+
+for(let i=-2;i<=2;i++){
+
+ctx.beginPath();
+ctx.ellipse(60,60,40,15+i*5,0,0,Math.PI*2);
+ctx.stroke();
+
+}
+
+/* 经线旋转 */
+
+for(let i=0;i<4;i++){
+
+let a=angle+i*Math.PI/2;
+
+ctx.beginPath();
+ctx.ellipse(60,60,10,40,a,0,Math.PI*2);
+ctx.stroke();
+
+}
+
+angle+=0.02;
+
+requestAnimationFrame(draw);
+
+}
+
+draw();
+
+}
+
 </script>
+
+</body>
+</html>
+
 
 </body>
 </html>
