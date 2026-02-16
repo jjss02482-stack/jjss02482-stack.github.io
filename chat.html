@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G.R.I.M. | 实时战术通讯终端</title>
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    <style>
+        :root { --grim-red: #ff0000; --grim-gray: #1a1a1a; --text: #ffffff; }
+        body { background: #000; color: var(--text); font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* 顶部状态栏 */
+        header { padding: 15px 25px; border-bottom: 2px solid var(--grim-gray); display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; }
+        .unit-info { border-left: 3px solid var(--grim-red); padding-left: 15px; }
+        .unit-info h1 { font-size: 18px; margin: 0; letter-spacing: 2px; }
+        .slogan { font-size: 10px; color: #666; }
+
+        /* 聊天显示区 */
+        #display { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column-reverse; scrollbar-width: thin; }
+        .intel-entry { margin-bottom: 12px; border-bottom: 1px solid #111; padding-bottom: 8px; animation: scanLine 0.5s ease-out; }
+        .meta { font-size: 11px; color: var(--grim-red); margin-bottom: 4px; }
+        .user-id { font-weight: bold; color: #fff; margin-right: 10px; }
+        .text { font-size: 14px; line-height: 1.4; color: #ccc; }
+
+        /* 输入区 */
+        .terminal-input { padding: 20px; background: #0a0a0a; border-top: 2px solid var(--grim-gray); display: flex; gap: 10px; }
+        input { background: #000; border: 1px solid #333; color: #fff; padding: 12px; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--grim-red); }
+        #callsign { width: 100px; }
+        #message { flex: 1; }
+        button { background: var(--grim-red); color: #fff; border: none; padding: 0 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+        button:hover { background: #cc0000; }
+
+        .back-btn { text-decoration: none; color: #666; font-size: 12px; border: 1px solid #333; padding: 5px 10px; transition: 0.3s; }
+        .back-btn:hover { color: #fff; border-color: #fff; }
+
+        @keyframes scanLine { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="unit-info">
+        <h1>G.R.I.M. TACTICAL NETWORK</h1>
+        <div class="slogan">保持冷静，继续前行！ | 众人之上，强者之列</div>
+    </div>
+    <a href="index.html" class="back-link">返回个人档案</a>
+</header>
+
+<div id="display">
+    </div>
+
+<form class="terminal-input" id="intel-form">
+    <input type="text" id="callsign" placeholder="呼号" required maxlength="10">
+    <input type="text" id="message" placeholder="输入战术情报 (加密传输)..." required>
+    <button type="submit">发送</button>
+</form>
+
+<script>
+    // 初始化 P2P 节点
+    const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']);
+    const network = gun.get('grim_tactical_v5_0330');
+
+    const display = document.getElementById('display');
+    const form = document.getElementById('intel-form');
+
+    // 提交情报
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        const user = document.getElementById('callsign').value;
+        const text = document.getElementById('message').value;
+        
+        network.set({
+            u: user.toUpperCase(),
+            m: text,
+            t: new Date().toLocaleTimeString()
+        });
+        document.getElementById('message').value = '';
+    };
+
+    // 监听情报流
+    network.map().once((data) => {
+        if(!data || !data.m) return;
+        const entry = document.createElement('div');
+        entry.className = 'intel-entry';
+        entry.innerHTML = `
+            <div class="meta">
+                <span class="user-id">[ID: ${data.u}]</span>
+                <span>TIME: ${data.t}</span>
+            </div>
+            <div class="text">> ${data.m}</div>
+        `;
+        display.prepend(entry);
+    });
+</script>
+</body>
+</html>
+</body>
+</html>
