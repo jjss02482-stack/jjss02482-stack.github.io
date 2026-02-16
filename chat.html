@@ -1,140 +1,211 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G.R.I.M. | 零后端 AI 战术终端</title>
-    <style>
-        :root { --grim-red: #ff0000; --grim-gray: #1a1a1a; --text: #ffffff; --glow: rgba(255, 0, 0, 0.4); }
-        body { background: #000; color: var(--text); font-family: 'Consolas', 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        
-        /* 扫描线特效 */
-        body::before { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G.R.I.M. AI 战术终端</title>
 
-        header { padding: 15px 25px; border-bottom: 2px solid var(--grim-gray); display: flex; justify-content: space-between; align-items: center; background: #0a0a0a; position: relative; z-index: 3; }
-        .unit-info h1 { font-size: 18px; margin: 0; letter-spacing: 3px; color: var(--grim-red); text-shadow: 0 0 10px var(--glow); }
-        
-        #display { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 1; scroll-behavior: smooth; }
-        
-        .msg { max-width: 85%; padding: 12px; border: 1px solid #333; position: relative; animation: fadeIn 0.3s ease; }
-        .msg.user { align-self: flex-end; border-right: 4px solid #fff; background: rgba(255,255,255,0.05); }
-        .msg.ai { align-self: flex-start; border-left: 4px solid var(--grim-red); background: rgba(255,0,0,0.05); }
-        
-        .meta { font-size: 10px; text-transform: uppercase; margin-bottom: 5px; color: #888; }
-        .ai .meta { color: var(--grim-red); }
-        .content { font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
 
-        .terminal-input { padding: 20px; background: #0a0a0a; border-top: 2px solid var(--grim-gray); display: flex; gap: 10px; position: relative; z-index: 3; }
-        input { flex: 1; background: #000; border: 1px solid #444; color: #fff; padding: 12px; font-family: inherit; outline: none; }
-        input:focus { border-color: var(--grim-red); box-shadow: 0 0 10px var(--glow); }
-        
-        button { background: var(--grim-red); color: white; border: none; padding: 0 20px; cursor: pointer; font-weight: bold; }
-        button:disabled { background: #333; opacity: 0.5; }
+<style>
+:root {
+    --grim-red:#ff0000;
+    --grim-gray:#1a1a1a;
+}
 
-        #config-trigger { cursor: pointer; font-size: 10px; color: #444; text-decoration: underline; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+body{
+    background:#000;
+    color:#fff;
+    font-family:Courier New;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+}
+
+header{
+    padding:15px 25px;
+    border-bottom:2px solid #1a1a1a;
+    display:flex;
+    justify-content:space-between;
+    background:#0a0a0a;
+}
+
+#display{
+    flex:1;
+    overflow-y:auto;
+    padding:15px;
+}
+
+.intel-entry{
+    border-bottom:1px solid #111;
+    margin-bottom:8px;
+}
+
+.meta{
+    font-size:11px;
+    color:#ff0000;
+}
+
+.terminal-input{
+    padding:15px;
+    background:#0a0a0a;
+    border-top:2px solid #1a1a1a;
+    display:flex;
+    gap:6px;
+}
+
+input,button{
+    background:#000;
+    color:#fff;
+    border:1px solid #333;
+    padding:8px;
+}
+
+button{
+    background:#ff0000;
+    cursor:pointer;
+}
+
+.ai-panel{
+    padding:15px;
+    border-top:2px solid #1a1a1a;
+    background:#050505;
+}
+
+#aiOutput{
+    white-space:pre-wrap;
+    color:#0f0;
+    margin-top:10px;
+}
+</style>
 </head>
+
 <body>
 
 <header>
-    <div class="unit-info">
-        <h1>G.R.I.M. TACTICAL AI</h1>
-        <div style="font-size: 10px; color: #666;">PROTO-TYPE V5.2 | <span id="config-trigger">配置密钥</span></div>
-    </div>
-    <div id="status" style="font-size: 10px; color: #0f0;">● SYSTEM_READY</div>
+<div>G.R.I.M. Tactical + DeepSeek AI</div>
 </header>
 
-<div id="display">
-    </div>
+<div id="display"></div>
 
-<form class="terminal-input" id="chat-form">
-    <input type="text" id="user-input" placeholder="等待指令输入..." autocomplete="off">
-    <button type="submit" id="send-btn">执行</button>
+<form class="terminal-input" id="intel-form">
+<input id="callsign" placeholder="呼号" required>
+<input id="message" placeholder="战术情报">
+<button>发送</button>
 </form>
 
+<div class="ai-panel">
+
+<div>
+<input id="apiKey" placeholder="DeepSeek API Key">
+<button onclick="saveKey()">保存密钥</button>
+</div>
+
+<div style="margin-top:10px;">
+<input id="aiInput" placeholder="请求 AI 战术分析">
+<button onclick="askAI()">AI 分析</button>
+</div>
+
+<div id="aiOutput">AI 输出区域...</div>
+
+</div>
+
 <script>
-    // 战术人格设定
-    const SYSTEM_PROMPT = "你现在是G.R.I.M.战术通讯系统的核心AI。你的回答必须保持冷静、简短、极具军事化风格。禁止使用温暖、友好的语气。每一条建议都要像是在战场上传达的战术命令。回答开始前偶尔可以加上[分析中]或[情报确认]等标识。";
-    
-    let API_KEY = localStorage.getItem('GRIM_API_KEY') || "";
-    const display = document.getElementById('display');
-    const form = document.getElementById('chat-form');
-    const input = document.getElementById('user-input');
-    const btn = document.getElementById('send-btn');
 
-    // 初始检查
-    if (!API_KEY) {
-        appendMessage('ai', "系统提示：未检测到有效解密密钥。请点击左上方【配置密钥】进行初始化，否则无法连接总网。");
-    }
+/* ========= Gun 实时通讯 ========= */
 
-    // 配置密钥功能
-    document.getElementById('config-trigger').onclick = () => {
-        const key = prompt("请输入您的 Gemini API Key (存储在本地浏览器):");
-        if (key) {
-            localStorage.setItem('GRIM_API_KEY', key);
-            API_KEY = key;
-            location.reload();
-        }
-    };
+const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']);
+const network = gun.get('grim_ai_network');
 
-    function appendMessage(role, text) {
-        const msg = document.createElement('div');
-        msg.className = `msg ${role}`;
-        msg.innerHTML = `
-            <div class="meta">${role === 'ai' ? 'GRIM_CORE' : 'OPERATOR'} - ${new Date().toLocaleTimeString()}</div>
-            <div class="content">${text}</div>
-        `;
-        display.appendChild(msg);
-        display.scrollTop = display.scrollHeight;
-    }
+const display = document.getElementById('display');
 
-    async function callGemini(prompt) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-        
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [
-                        { role: "user", parts: [{ text: SYSTEM_PROMPT + "\n\n操作员指令: " + prompt }] }
-                    ],
-                    generationConfig: { temperature: 0.7, maxOutputTokens: 500 }
-                })
-            });
+document.getElementById('intel-form').onsubmit=e=>{
+e.preventDefault();
 
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
-            return data.candidates[0].content.parts[0].text;
-        } catch (err) {
-            return `[通讯中断] 错误原因: ${err.message}`;
-        }
-    }
+const u=document.getElementById('callsign').value.toUpperCase();
+const m=document.getElementById('message').value;
 
-    form.onsubmit = async (e) => {
-        e.preventDefault();
-        const text = input.value.trim();
-        if (!text || !API_KEY) return;
+network.set({
+u,m,
+t:new Date().toLocaleTimeString()
+});
 
-        appendMessage('user', text);
-        input.value = '';
-        input.disabled = true;
-        btn.disabled = true;
-        document.getElementById('status').innerText = "● ANALYZING...";
-        document.getElementById('status').style.color = "#ff0000";
+document.getElementById('message').value='';
+};
 
-        const aiRes = await callGemini(text);
-        
-        appendMessage('ai', aiRes);
-        input.disabled = false;
-        btn.disabled = false;
-        document.getElementById('status').innerText = "● SYSTEM_READY";
-        document.getElementById('status').style.color = "#0f0";
-        input.focus();
-    };
+network.map().once(data=>{
+if(!data||!data.m)return;
+
+const div=document.createElement('div');
+div.className='intel-entry';
+div.innerHTML=`
+<div class="meta">[${data.u}] ${data.t}</div>
+<div>> ${data.m}</div>
+`;
+
+display.prepend(div);
+});
+
+/* ========= DeepSeek AI ========= */
+
+function saveKey(){
+localStorage.setItem(
+"deepseek_key",
+document.getElementById("apiKey").value
+);
+alert("密钥已保存");
+}
+
+document.getElementById("apiKey").value=
+localStorage.getItem("deepseek_key")||"";
+
+async function askAI(){
+
+const key=localStorage.getItem("deepseek_key");
+if(!key){
+alert("请输入 API Key");
+return;
+}
+
+const prompt=document.getElementById("aiInput").value;
+const out=document.getElementById("aiOutput");
+
+out.textContent="AI 分析中...";
+
+try{
+
+const res=await fetch(
+"https://api.deepseek.com/chat/completions",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+key
+},
+body:JSON.stringify({
+model:"deepseek-chat",
+messages:[
+{role:"user",content:prompt}
+]
+})
+});
+
+const data=await res.json();
+
+out.textContent=
+data.choices?.[0]?.message?.content
+||"AI 无响应";
+
+}catch(e){
+
+out.textContent="请求失败："+e;
+
+}
+
+}
+
 </script>
-</body>
-</html>
+
 </body>
 </html>
