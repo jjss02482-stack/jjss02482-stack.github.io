@@ -11,14 +11,58 @@ background:#000;
 color:#0f0;
 font-family:Courier New;
 display:flex;
-flex-direction:column;
+justify-content:center;
 align-items:center;
+height:100vh;
+}
+
+/* ===== 锁屏 ===== */
+
+#lock{
+text-align:center;
+}
+
+#lock h1{
+font-size:60px;
+letter-spacing:5px;
+margin-bottom:20px;
+}
+
+input{
+background:#000;
+border:1px solid #0f0;
+color:#0f0;
+padding:10px;
+font-size:18px;
+}
+
+button{
+background:#000;
+border:1px solid #0f0;
+color:#0f0;
+padding:10px 20px;
+cursor:pointer;
+margin-top:10px;
+}
+
+button:hover{
+background:#0f0;
+color:#000;
+}
+
+/* ===== 主终端 ===== */
+
+#terminal{
+display:none;
+flex-direction:column;
+width:90%;
+height:90%;
 }
 
 header{
-font-size:80px;
-letter-spacing:10px;
-margin:30px;
+font-size:60px;
+text-align:center;
+margin:10px;
 animation:breath 3s infinite;
 }
 
@@ -30,28 +74,15 @@ animation:breath 3s infinite;
 
 .panel{
 display:flex;
-gap:20px;
-margin-bottom:20px;
-}
-
-button{
-background:#111;
-border:1px solid #0f0;
-color:#0f0;
-padding:10px 20px;
-cursor:pointer;
-}
-
-button:hover{
-background:#0f0;
-color:#000;
+gap:15px;
+justify-content:center;
+margin:10px;
 }
 
 #screen{
-width:80%;
-height:400px;
+flex:1;
 border:1px solid #0f0;
-padding:15px;
+padding:10px;
 overflow:auto;
 white-space:pre-wrap;
 }
@@ -68,17 +99,61 @@ border:1px solid #0f0;
 
 <body>
 
+<!-- ===== 锁屏界面 ===== -->
+
+<div id="lock">
+
+<h1>需要解锁二级权限</h1>
+
+<input id="pass" type="password" placeholder="输入访问密码">
+
+<br>
+
+<button onclick="unlock()">解锁</button>
+
+<div id="msg"></div>
+
+</div>
+
+<!-- ===== 主终端 ===== -->
+
+<div id="terminal">
+
 <header>G.R.I.M.</header>
 
 <div class="panel">
 <button onclick="brief()">暗区简报</button>
 <button onclick="showRanks()">军衔系统</button>
 <button onclick="diary()">日记本</button>
+<button onclick="location.href='index.html'">返回主页</button>
 </div>
 
 <div id="screen">内部终端已启动…</div>
 
+</div>
+
 <script>
+
+const PASSWORD="J.0330jpn";
+
+function unlock(){
+
+const val=document.getElementById("pass").value;
+
+if(val===PASSWORD){
+
+document.getElementById("lock").style.display="none";
+document.getElementById("terminal").style.display="flex";
+
+}else{
+
+document.getElementById("msg").textContent="❌ 无权限";
+
+}
+
+}
+
+/* ===== 数据 ===== */
 
 const screen=document.getElementById("screen");
 
@@ -102,29 +177,32 @@ const ranks=[
 {name:"五星上将",desc:"最高权限拥有者。众人之上，强者之列。控制所有队员。"}
 ];
 
+/* ===== 功能 ===== */
+
 function brief(){
+
 screen.textContent=
 "【暗区简报】\n\n"+
 "• 电视台已被白狼联队占领\n"+
 "• 深渊小队近日伙食变好";
+
 }
 
 function showRanks(){
+
 let out="【军衔系统】\n\n";
+
 ranks.forEach((r,i)=>{
+
 out+=(i+1)+"."+r.name+"\n"+r.desc+"\n\n";
+
 });
+
 screen.textContent=out;
+
 }
 
 function diary(){
-
-let pass=prompt("输入访问密码：");
-
-if(pass!=="J.0330jpn"){
-screen.textContent="❌ 权限错误";
-return;
-}
 
 screen.innerHTML=`
 【日记本】
@@ -136,14 +214,18 @@ screen.innerHTML=`
 
 document.getElementById("note").value=
 localStorage.getItem("grim_note")||"";
+
 }
 
 function saveNote(){
+
 localStorage.setItem(
 "grim_note",
 document.getElementById("note").value
 );
+
 alert("已保存");
+
 }
 
 </script>
