@@ -2,108 +2,65 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>0330 | COMMANDER PROFILE</title>
+    <title>0330 | 个人档案</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #ffffff; --text: #000000; --accent: #1a1a1a; }
-        @media (prefers-color-scheme: dark) { :root { --bg: #000000; --text: #ffffff; --accent: #e5e5e5; } }
-        
-        body { background: var(--bg); color: var(--text); font-family: 'Courier New', Courier, monospace; margin: 0; transition: 0.5s; }
-        .container { max-width: 1000px; margin: 0 auto; padding: 50px 20px; }
-
-        /* 头部设计 */
-        header { border-bottom: 5px solid var(--text); padding-bottom: 20px; margin-bottom: 50px; position: relative; }
-        .id-badge { position: absolute; top: 0; right: 0; border: 2px solid var(--text); padding: 10px; font-weight: bold; }
-        h1 { font-size: clamp(40px, 10vw, 80px); margin: 0; letter-spacing: -2px; }
-
-        /* 计时器 */
-        #timer { font-size: 1.2rem; background: var(--text); color: var(--bg); display: inline-block; padding: 5px 15px; margin-top: 10px; }
-
-        /* 内容区 */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; margin-top: 50px; }
-        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
-
-        .game-card { border: 1px solid var(--text); padding: 20px; margin-bottom: 20px; transition: 0.3s; }
-        .game-card:hover { background: var(--text); color: var(--bg); }
-
-        /* 按钮系统 */
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 50px; }
-        .nav-btn { border: 2px solid var(--text); color: var(--text); text-decoration: none; padding: 20px; text-align: center; font-weight: bold; transition: 0.3s; text-transform: uppercase; }
-        .nav-btn:hover { background: var(--text); color: var(--bg); letter-spacing: 5px; }
-
-        canvas { max-width: 100% !important; height: auto !important; filter: grayscale(1); }
+        body { background: #fff; color: #000; font-family: sans-serif; margin: 0; text-align: center; }
+        .hero { padding: 100px 20px; border-bottom: 10px solid #000; }
+        h1 { font-size: 80px; margin: 0; letter-spacing: 10px; }
+        .timer { font-family: monospace; font-size: 20px; margin-top: 20px; font-weight: bold; }
+        .content { display: flex; justify-content: space-around; padding: 50px; flex-wrap: wrap; }
+        .box { width: 400px; border: 2px solid #000; padding: 20px; margin: 10px; text-align: left; }
+        .footer-nav { display: flex; height: 100px; border-top: 2px solid #000; }
+        .footer-nav a { flex: 1; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #fff; font-weight: bold; }
+        .bg-black { background: #000; }
+        .bg-gray { background: #333; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <div class="id-badge">RANK: COMMANDER</div>
-        <h1>ARCHIVE: 0330</h1>
-        <div id="timer">SYNCHRONIZING...</div>
-    </header>
+<div class="hero">
+    <p>EST. 2012.03.30</p>
+    <h1>0330</h1>
+    <div id="live-timer" class="timer">系统启动中...</div>
+</div>
 
-    <div class="grid">
-        <div class="stats">
-            <h2 style="text-decoration: underline;">TACTICAL STATS</h2>
-            <canvas id="radarChart"></canvas>
-        </div>
-
-        <div class="bio">
-            <h2 style="text-decoration: underline;">OPERATIONS</h2>
-            <div class="game-card">
-                <h3>■ Arena Breakout (暗区突围)</h3>
-                <p>硬核撤离专家。专注于高价值物资提取与战术包抄。</p>
-            </div>
-            <div class="game-card">
-                <h3>■ KARDS</h3>
-                <p>前线指挥官。擅长利用闪电战与资源压制统治战场。</p>
-            </div>
-        </div>
+<div class="content">
+    <div class="box">
+        <h2>战术属性 / STATS</h2>
+        <canvas id="myChart"></canvas>
     </div>
-
-    <div class="btn-group">
-        <a href="tactical.html" class="nav-btn">G.R.I.M. 组织</a>
-        <a href="terminal.html" class="nav-btn">全球战术终端 (Live)</a>
+    <div class="box">
+        <h2>任务记录 / MISSIONS</h2>
+        <p><strong>暗区突围 (Arena Breakout):</strong> 硬核撤离与资源博弈。</p>
+        <p><strong>KARDS:</strong> 二战策略，卡牌阵线压制。</p>
+        <p>掌握 Python 自动化与 C++ 基础架构。</p>
     </div>
 </div>
 
+<div class="footer-nav">
+    <a href="tactical.html" class="bg-black">G.R.I.M. 组织百科</a>
+    <a href="chat.html" class="bg-gray">全球战术终端 (LIVE)</a>
+</div>
+
 <script>
-    // 寿命与存续计时器：精确到秒
     function updateTimer() {
-        const birth = new Date('2012-03-30T00:00:00').getTime();
-        const now = new Date().getTime();
+        const birth = new Date('2012-03-30T00:00:00');
+        const now = new Date();
         const diff = now - birth;
-
-        const yrs = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+        const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
         const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24));
-        const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-        document.getElementById('timer').innerHTML = 
-            `ACTIVE: ${yrs}Y ${days}D ${hrs}H ${mins}M ${secs}S`;
+        const timeStr = now.toLocaleTimeString();
+        document.getElementById('live-timer').innerText = `已存续: ${years}年 ${days}天 | ${timeStr}`;
     }
     setInterval(updateTimer, 1000);
-
-    // 属性图
-    const ctx = document.getElementById('radarChart').getContext('2d');
-    new Chart(ctx, {
+    new Chart(document.getElementById('myChart'), {
         type: 'radar',
         data: {
-            labels: ['STR', 'AGI', 'INT', 'VIT', 'EXP', 'TECH'],
-            datasets: [{
-                data: [85, 70, 95, 80, 88, 92],
-                backgroundColor: 'rgba(0,0,0,0.1)',
-                borderColor: '#000',
-                borderWidth: 2
-            }]
+            labels: ['攻击', '防御', '智力', '体力', '经验', '技术'],
+            datasets: [{ data: [8, 6, 9, 7, 8, 9], borderColor: '#000', backgroundColor: 'rgba(0,0,0,0.1)' }]
         },
-        options: { 
-            scales: { r: { ticks: { display: false }, grid: { color: '#eee' } } },
-            plugins: { legend: { display: false } }
-        }
+        options: { plugins: { legend: { display: false } } }
     });
 </script>
 </body>
