@@ -2,72 +2,44 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>个人档案 | COMMANDER</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>0330 | 个人档案</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #ffffff; --text: #000000; --accent: #eeeeee; --grim-black: #0a0a0a; }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Noto Sans SC', sans-serif; margin: 0; }
+        :root { --bg: #ffffff; --text: #000000; --accent: #eeeeee; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Noto Sans SC', sans-serif; margin: 0; overflow-x: hidden; }
 
         /* 顶部黑白拼接 */
         .header-split { display: flex; height: 500px; width: 100%; border-bottom: 1px solid var(--accent); }
-        .side-black { 
-            width: 50%; background: var(--grim-black); position: relative; 
-            display: flex; justify-content: flex-end; align-items: flex-end;
-        }
-        .side-white { 
-            width: 50%; background: #fff; padding: 60px; 
-            display: flex; flex-direction: column; justify-content: center;
-        }
+        .side-black { width: 50%; background: #000; position: relative; display: flex; justify-content: flex-end; align-items: flex-end; }
+        .side-white { width: 50%; background: #fff; padding: 60px; display: flex; flex-direction: column; justify-content: center; }
         
-        .silhouette-white {
-            width: 200px; height: 350px; background: #fff;
-            clip-path: polygon(50% 0%, 80% 10%, 90% 35%, 50% 45%, 10% 35%, 20% 10%);
-            margin-right: -100px; z-index: 10;
-        }
-        .silhouette-black {
-            width: 200px; height: 350px; background: #000;
-            clip-path: polygon(50% 0%, 80% 10%, 90% 35%, 50% 45%, 10% 35%, 20% 10%);
-            margin-left: -100px;
-        }
+        .silhouette-white { width: 200px; height: 350px; background: #fff; clip-path: polygon(50% 0%, 80% 10%, 90% 35%, 50% 45%, 10% 35%, 20% 10%); margin-right: -100px; z-index: 10; }
+        .silhouette-black { width: 200px; height: 350px; background: #000; clip-path: polygon(50% 0%, 80% 10%, 90% 35%, 50% 45%, 10% 35%, 20% 10%); margin-left: -100px; }
 
-        .name { font-family: 'Noto Serif SC', serif; font-size: 48px; font-weight: 700; margin: 0; letter-spacing: 4px; }
-        .birth-info { font-size: 13px; color: #999; margin: 10px 0 25px; letter-spacing: 2px; }
-        .timer { font-family: 'Courier New', monospace; font-size: 18px; font-weight: bold; border-left: 3px solid #000; padding-left: 15px; }
+        .name { font-family: 'Noto Serif SC', serif; font-size: 64px; font-weight: 700; margin: 0; letter-spacing: 10px; }
+        .birth-info { font-size: 14px; color: #999; margin: 10px 0 25px; letter-spacing: 2px; }
+        .timer { font-family: monospace; font-size: 18px; font-weight: bold; border-left: 3px solid #000; padding-left: 15px; line-height: 1.5; }
 
-        /* 中部区域 */
-        .main-content { display: grid; grid-template-columns: 1fr 1fr; padding: 80px; gap: 60px; }
+        /* 主内容：关于我 & 属性图 */
+        .main-content { display: grid; grid-template-columns: 1fr 1fr; padding: 80px; gap: 80px; }
         
-        /* G.R.I.M. 介绍与军衔 */
-        .grim-section h3 { font-family: 'Noto Serif SC', serif; font-size: 24px; border-bottom: 2px solid #000; padding-bottom: 10px; }
-        .grim-intro { font-size: 14px; line-height: 1.8; color: #333; margin-bottom: 20px; }
-        .quote { font-style: italic; color: #000; font-weight: 700; border-left: 2px solid #000; padding-left: 10px; margin: 15px 0; }
+        .about-me h3 { font-family: 'Noto Serif SC', serif; font-size: 24px; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 25px; }
+        .bio-text { font-size: 15px; line-height: 1.8; color: #333; margin-bottom: 30px; }
+        .skill-tag { display: inline-block; padding: 5px 12px; border: 1px solid #000; font-size: 12px; margin-right: 10px; margin-bottom: 10px; font-weight: bold; }
 
-        .rank-list { height: 200px; overflow-y: auto; background: #f9f9f9; padding: 15px; border: 1px solid #eee; font-size: 13px; }
-        .rank-item { margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .rank-name { font-weight: 700; color: #000; }
-
-        /* 游戏按钮 */
-        .game-btn { 
-            display: block; width: 100%; padding: 12px; margin-top: 10px;
-            background: #fff; border: 1px solid #000; font-size: 13px; cursor: pointer;
-        }
+        /* 游戏按钮系统 */
+        .game-btn { display: block; width: 100%; padding: 15px; margin-bottom: 15px; background: #fff; border: 1px solid #000; font-size: 14px; cursor: pointer; text-align: left; transition: 0.3s; }
         .game-btn:hover { background: #000; color: #fff; }
+        .game-desc { display: none; padding: 15px; background: #f9f9f9; border: 1px dashed #ccc; font-size: 13px; color: #666; margin-bottom: 20px; }
 
-        /* 底部矩阵 */
-        .matrix-footer { 
-            display: grid; grid-template-columns: repeat(10, 1fr); gap: 12px; 
-            padding: 60px 80px; border-top: 1px solid var(--accent);
-        }
-        .matrix-cell { aspect-ratio: 1; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #ccc; }
-        
-        /* 官网按钮：黑色风格 */
-        .cell-grim-web { background: var(--grim-black) !important; border-color: var(--grim-black) !important; }
-        .cell-grim-web a { color: #fff !important; font-weight: 700; text-decoration: none; text-align: center; }
-        
-        /* 终端按钮：白色风格 */
-        .cell-terminal { background: #fff !important; border-color: #000 !important; }
-        .cell-terminal a { color: #000 !important; font-weight: 700; text-decoration: none; text-align: center; }
+        /* 底部20格矩阵 */
+        .matrix-footer { display: grid; grid-template-columns: repeat(10, 1fr); gap: 12px; padding: 60px 80px; border-top: 1px solid var(--accent); }
+        .matrix-cell { aspect-ratio: 1; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #ccc; transition: 0.3s; }
+        .matrix-cell.active { border-color: #000; }
+        .matrix-cell.active a { color: #000; text-decoration: none; font-weight: 700; text-align: center; font-size: 11px; }
+        .matrix-cell.active:hover { background: #000; }
+        .matrix-cell.active:hover a { color: #fff; }
     </style>
 </head>
 <body>
@@ -76,41 +48,44 @@
     <div class="side-black"><div class="silhouette-white"></div></div>
     <div class="side-white">
         <div class="silhouette-black" style="position: absolute; left: 0; top: 100px;"></div>
-        <h1 class="name">COMMANDER</h1>
-        <div class="birth-info">出生日期: 2012.03.30 | 众人之上，强者之列</div>
-        <div id="live-timer" class="timer">计时加载中...</div>
+        <h1 class="name">0330</h1>
+        <div class="birth-info">COMMANDER PROFILE | EST. 2012.03.30</div>
+        <div id="live-timer" class="timer">ARCHIVE LOADING...</div>
     </div>
 </section>
 
 <section class="main-content">
-    <div class="grim-section">
-        <h3>G.R.I.M. 部队档案</h3>
-        <div class="grim-intro">
-            <strong>全球侦查与渗透海军陆战队</strong>，成立于1994年，隶属于科伦海军。在苏梅克委员会监视下拥有独立行动权。擅长情报超限战与快速歼灭高危目标。
-        </div>
-        <div class="quote">“保持冷静，继续前行！”</div>
-        
-        <div class="rank-list" id="rank-box">
+    <div class="about-me">
+        <h3>个人档案 / BIO</h3>
+        <div class="bio-text">
+            我是 0330。一名专注于技术与策略的研究者。掌握 Python 自动化逻辑，并具备 C++ 基础架构认知。在数字化领域中，我追求极致的效率与精准的判断。
+            <div style="margin-top: 15px;">
+                <span class="skill-tag">PYTHON</span>
+                <span class="skill-tag">C++ (BASICS)</span>
+                <span class="skill-tag">STRATEGY</span>
             </div>
+        </div>
 
-        <h3 style="margin-top:40px;">战绩与装备</h3>
-        <div class="grim-intro">
-            曾辅助深渊小队拿下谷物交易战，并协助多斯赢取敌方首级。装备涵盖卡莫纳全境，支持自费改装。
+        <h3>游戏库 / MISSIONS</h3>
+        <button class="game-btn" onclick="toggleDesc('ab')">■ 暗区突围 (Arena Breakout)</button>
+        <div id="ab" class="game-desc">
+            硬核撤离类射击游戏。在极高风险的环境下进行资源博弈，考验生存意志与战术规划能力。
+        </div>
+
+        <button class="game-btn" onclick="toggleDesc('kards')">■ KARDS</button>
+        <div id="kards" class="game-desc">
+            二战题材卡牌策略。通过宏观层面的兵种克制与前线推进，在桌面之上决胜千里。
         </div>
     </div>
 
     <div class="radar-container">
         <canvas id="statChart"></canvas>
-        <div style="margin-top:20px;">
-            <button class="game-btn">■ 暗区突围 (Arena Breakout)</button>
-            <button class="game-btn">■ KARDS</button>
-        </div>
     </div>
 </section>
 
 <div class="matrix-footer">
-    <div class="matrix-cell cell-grim-web"><a href="tactical.html">G.R.I.M.<br>官网</a></div>
-    <div class="matrix-cell cell-terminal"><a href="sub.html">战术<br>终端</a></div>
+    <div class="matrix-cell active" style="background:#000;"><a href="tactical.html" style="color:#fff;">G.R.I.M.<br>官网</a></div>
+    <div class="matrix-cell active"><a href="sub.html">战术<br>终端</a></div>
     
     <div class="matrix-cell">03</div><div class="matrix-cell">04</div><div class="matrix-cell">05</div>
     <div class="matrix-cell">06</div><div class="matrix-cell">07</div><div class="matrix-cell">08</div>
@@ -121,34 +96,8 @@
 </div>
 
 <script>
-    // 1. 军衔数据加载
-    const ranks = [
-        {name: "实习", desc: "习见阶段，你要通过完成任务转正"},
-        {name: "二等兵", desc: "完成初级训练，可以接取部分任务。"},
-        {name: "一等兵", desc: "拥有标准武器申领权，允许与军校教官一起行动。"},
-        {name: "上等兵", desc: "精英士兵，拥有每日标准装备领取权限，允许与准尉行动"},
-        {name: "军校教官", desc: "负责新兵评估，并且对其训练和任职上的管理。"},
-        {name: "准尉", desc: "战术顾问储备，在一定程度上帮助队伍的信息调整"},
-        {name: "下士", desc: "战术骨干，需要彻底熟图并且保持战术能力"},
-        {name: "中士", desc: "班组核心，获得4人小队权限"},
-        {name: "上士", desc: "资深战术专家，允许直接管理军校教官。"},
-        {name: "军士长", desc: "士兵领袖，负责管理军士长以下职位的所有职位。"},
-        {name: "中尉", desc: "排级指挥官，允许在未经过讨论下随意做出任务改变。"},
-        {name: "上尉", desc: "连级核心，允许使用投掷无人机等等实验装备"},
-        {name: "准将", desc: "统筹暗区战役，拥有地图选择权。"},
-        {name: "少将", desc: "允许在批准的情况下，间接与上将直接交谈。"},
-        {name: "中将", desc: "允许开始布置任务。"},
-        {name: "上将", desc: "决策层成员，决定所有职位，可以在批准下进行裁员"},
-        {name: "五星上将", desc: "最高权限拥有者。众人之上，强者之列。控制所有队员。"}
-    ];
-
-    const rankBox = document.getElementById('rank-box');
-    ranks.forEach(r => {
-        rankBox.innerHTML += `<div class="rank-item"><span class="rank-name">[${r.name}]</span> ${r.desc}</div>`;
-    });
-
-    // 2. 精确计时器
-    function updateTimer() {
+    // 实时计时器（精确到秒）
+    function updateAge() {
         const birth = new Date('2012-03-30T00:00:00');
         const now = new Date();
         const diff = now - birth;
@@ -156,12 +105,18 @@
         let years = now.getFullYear() - birth.getFullYear();
         if (now.getMonth() < birth.getMonth() || (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())) { years--; }
         const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
-        document.getElementById('live-timer').innerHTML = `存续: ${years}岁 | 第 ${days} 天 | ${timeStr}`;
+        document.getElementById('live-timer').innerHTML = `存续: ${years}岁 | 第 ${days} 天<br>当前: ${timeStr}`;
     }
-    setInterval(updateTimer, 1000);
-    updateTimer();
+    setInterval(updateAge, 1000);
+    updateAge();
 
-    // 3. 属性雷达图
+    // 游戏介绍切换
+    function toggleDesc(id) {
+        const desc = document.getElementById(id);
+        desc.style.display = (desc.style.display === 'block') ? 'none' : 'block';
+    }
+
+    // 属性图
     const ctx = document.getElementById('statChart').getContext('2d');
     new Chart(ctx, {
         type: 'radar',
@@ -172,11 +127,12 @@
                 backgroundColor: 'rgba(0,0,0,0.05)',
                 borderColor: '#000',
                 borderWidth: 1.5,
-                pointRadius: 2
+                pointRadius: 4,
+                pointBackgroundColor: '#000'
             }]
         },
         options: {
-            scales: { r: { grid: { color: '#eee' }, ticks: { display: false }, min: 0, max: 8 } },
+            scales: { r: { grid: { color: '#eee' }, pointLabels: { color: '#000', font: { size: 14, weight: 'bold' } }, ticks: { display: false }, min: 0, max: 8 } },
             plugins: { legend: { display: false } }
         }
     });
