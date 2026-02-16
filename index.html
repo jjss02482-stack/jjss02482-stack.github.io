@@ -2,170 +2,142 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>我的个人主页 | Terminal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;600&family=Noto+Sans+SC:wght@200;500;700&display=swap" rel="stylesheet">
+    <title>个人档案</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Noto+Sans+SC:wght@300;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #000; --text: #fff; --grey: #222; --accent: #ffffff; }
-        body { background-color: var(--bg); color: var(--text); font-family: 'Noto Sans SC', sans-serif; margin: 0; overflow-x: hidden; }
+        :root { --bg: #000; --text: #fff; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Noto Sans SC', sans-serif; margin: 0; }
 
-        /* 顶部黑白拼接：人型视觉区 */
-        .hero-section { display: flex; height: 550px; width: 100%; border-bottom: 1px solid var(--grey); }
-        .hero-left { 
+        /* 顶部黑白人型拼接 */
+        .header-split { display: flex; height: 500px; width: 100%; border-bottom: 1px solid #222; }
+        .side-white { 
             width: 50%; background: #fff; position: relative; 
             display: flex; justify-content: flex-end; align-items: flex-end;
         }
-        .hero-right { 
+        .side-black { 
             width: 50%; background: #000; padding: 60px; 
             display: flex; flex-direction: column; justify-content: center;
         }
         
-        /* 拼接剪影逻辑 */
-        .silhouette {
-            width: 180px; height: 380px; background: #000;
-            clip-path: polygon(50% 0%, 85% 15%, 100% 40%, 50% 50%, 0% 40%, 15% 15%);
-            margin-right: -90px; z-index: 10;
+        /* 人型几何剪影 */
+        .silhouette-black {
+            width: 200px; height: 350px; background: #000;
+            clip-path: polygon(50% 0%, 80% 10%, 90% 35%, 50% 45%, 10% 35%, 20% 10%);
+            margin-right: -100px; z-index: 10;
         }
         .silhouette-white {
-            width: 180px; height: 380px; background: #fff;
-            clip-path: polygon(50% 0%, 85% 15%, 100% 40%, 50% 50%, 0% 40%, 15% 15%);
-            margin-left: -90px; z-index: 5;
+            width: 200px; height: 350px; background: #fff;
+            clip-path: polygon(50% 0%, 80% 10%, 90% 35%, 50% 45%, 10% 35%, 20% 10%);
+            margin-left: -100px;
         }
 
-        /* 个人信息区 */
-        .info-title { font-family: 'Cormorant Garamond', serif; font-size: 56px; letter-spacing: 10px; margin: 0; }
-        .info-sub { font-size: 14px; letter-spacing: 4px; color: #888; margin-bottom: 30px; }
+        /* 个人基本信息 */
+        .name { font-family: 'Noto Serif SC', serif; font-size: 48px; font-weight: 700; margin: 0; letter-spacing: 2px; }
+        .birth-info { font-size: 14px; color: #888; margin: 10px 0 30px; letter-spacing: 1px; }
+        .timer { font-family: monospace; font-size: 18px; border-left: 2px solid #fff; padding-left: 15px; }
+
+        /* 游戏与数据属性 */
+        .main-content { display: grid; grid-template-columns: 1fr 1fr; padding: 80px; gap: 60px; }
         
-        /* 实时动态计时器 */
-        .timer-box { 
-            font-family: monospace; font-size: 20px; color: #fff; 
-            border-left: 3px solid #fff; padding-left: 20px; margin-top: 10px;
-        }
-        .timer-label { font-size: 12px; color: #555; text-transform: uppercase; margin-bottom: 5px; }
-
-        /* 属性与游戏数据 */
-        .content-grid { display: grid; grid-template-columns: 1fr 1fr; padding: 80px; gap: 40px; background: #050505; }
+        .game-section h3 { font-family: 'Noto Serif SC', serif; font-size: 24px; margin-bottom: 30px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        .game-item { font-size: 16px; margin: 20px 0; color: #ccc; letter-spacing: 1px; }
         
-        .games-area h3 { font-family: 'Cormorant Garamond', serif; font-size: 28px; border-bottom: 1px solid var(--grey); padding-bottom: 15px; }
-        .game-card { 
-            display: block; padding: 20px; border: 1px solid #111; 
-            text-decoration: none; color: #666; margin-bottom: 15px; transition: 0.3s;
-        }
-        .game-card:hover { background: #fff; color: #000; border-color: #fff; }
+        .radar-container { display: flex; justify-content: center; align-items: center; }
+        canvas { max-width: 400px !important; max-height: 400px !important; }
 
-        .radar-box { display: flex; justify-content: center; align-items: center; }
-        canvas { max-width: 450px !important; max-height: 450px !important; }
-
-        /* 底部20格系统 */
-        .terminal-grid { 
-            display: grid; grid-template-columns: repeat(10, 1fr); gap: 15px; 
-            padding: 60px 80px; background: #000;
+        /* 底部20格矩阵 */
+        .matrix-footer { 
+            display: grid; grid-template-columns: repeat(10, 1fr); gap: 12px; 
+            padding: 60px 80px; border-top: 1px solid #222;
         }
-        .grid-cell { 
+        .matrix-cell { 
             aspect-ratio: 1; border: 1px solid #1a1a1a; display: flex; 
-            align-items: center; justify-content: center; font-size: 10px; color: #333;
-            transition: 0.3s; cursor: crosshair;
+            align-items: center; justify-content: center; font-size: 11px; color: #333;
         }
-        .grid-cell:hover { border-color: #555; color: #888; }
-        .grid-cell.active { border-color: #fff; background: #111; position: relative; }
-        .grid-cell.active a { color: #fff; text-decoration: none; font-weight: bold; font-size: 11px; text-align: center; }
-        .grid-cell.active::after { content: 'CONNECTED'; position: absolute; bottom: -20px; font-size: 8px; color: #fff; }
+        .matrix-cell.active { border-color: #fff; }
+        .matrix-cell.active a { color: #fff; text-decoration: none; font-weight: 500; text-align: center; line-height: 1.4; }
 
     </style>
 </head>
 <body>
 
-<section class="hero-section">
-    <div class="hero-left">
-        <div class="silhouette"></div>
+<section class="header-split">
+    <div class="side-white">
+        <div class="silhouette-black"></div>
     </div>
-    <div class="hero-right">
+    <div class="side-black">
         <div class="silhouette-white" style="position: absolute; left: 0; top: 100px;"></div>
-        <h1 class="info-title">COMMANDER</h1>
-        <div class="info-sub">EST. 2012.03.30 | STATUS: LEVEL 13</div>
-        
-        <div class="timer-label">实时生存时长评估 (RT-AGE)</div>
-        <div id="age-timer" class="timer-box">初始化战术时钟...</div>
+        <h1 class="name">COMMANDER</h1>
+        <div class="birth-info">出生日期：2012年3月30日</div>
+        <div id="live-timer" class="timer">计算中...</div>
     </div>
 </section>
 
-<section class="content-grid">
-    <div class="games-area">
-        <h3>正在运行的档案 (GAMES)</h3>
-        <a href="https://share.google/1gfAuHL4Z8jTyZomr" class="game-card">
-            <strong>档案 Alpha</strong><br>
-            <span style="font-size: 10px;">DATA LINK: SHARE.GOOGLE.LOG_01</span>
-        </a>
-        <a href="https://share.google/FWo0Ty5VhuLzWtD4u" class="game-card">
-            <strong>档案 Beta</strong><br>
-            <span style="font-size: 10px;">DATA LINK: SHARE.GOOGLE.LOG_02</span>
-        </a>
+<section class="main-content">
+    <div class="game-section">
+        <h3>游戏档案</h3>
+        <div class="game-item">■ 暗区突围 (Arena Breakout)</div>
+        <div class="game-item">■ KARDS</div>
     </div>
 
-    <div class="radar-box">
-        <canvas id="abilityChart"></canvas>
+    <div class="radar-container">
+        <canvas id="statChart"></canvas>
     </div>
 </section>
 
-<div class="terminal-grid">
-    <div class="grid-cell">01</div><div class="grid-cell">02</div><div class="grid-cell">03</div><div class="grid-cell">04</div>
-    <div class="grid-cell">05</div><div class="grid-cell">06</div><div class="grid-cell">07</div><div class="grid-cell">08</div>
-    <div class="grid-cell active"><a href="#">GRIM<br>官网</a></div>
-    <div class="grid-cell active"><a href="#">GRIM<br>终端</a></div>
-    <div class="grid-cell">11</div><div class="grid-cell">12</div><div class="grid-cell">13</div><div class="grid-cell">14</div>
-    <div class="grid-cell">15</div><div class="grid-cell">16</div><div class="grid-cell">17</div><div class="grid-cell">18</div>
-    <div class="grid-cell">19</div><div class="grid-cell">20</div>
+<div class="matrix-footer">
+    <div class="matrix-cell">01</div><div class="matrix-cell">02</div><div class="matrix-cell">03</div><div class="matrix-cell">04</div>
+    <div class="grid-item matrix-cell">05</div><div class="matrix-cell">06</div><div class="matrix-cell">07</div><div class="matrix-cell">08</div>
+    
+    <div class="matrix-cell active"><a href="#">GRIM<br>官网</a></div>
+    <div class="matrix-cell active"><a href="#">GRIM<br>终端</a></div>
+    
+    <div class="matrix-cell">11</div><div class="matrix-cell">12</div><div class="matrix-cell">13</div><div class="matrix-cell">14</div>
+    <div class="matrix-cell">15</div><div class="matrix-cell">16</div><div class="matrix-cell">17</div><div class="matrix-cell">18</div>
+    <div class="matrix-cell">19</div><div class="matrix-cell">20</div>
 </div>
 
 <script>
-    // 1. bro的年龄是：
-    function calculateTacticalAge() {
-        const birthDate = new Date('2012-03-30T00:00:00');
+    // 精确年龄计时器
+    function updateTimer() {
+        const birth = new Date('2012-03-30T00:00:00');
         const now = new Date();
+        const diff = now - birth;
         
-        const diff = now - birthDate;
-        
-        // 计算天数
-        const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
-        
-        // 计算精确年岁
-        let years = now.getFullYear() - birthDate.getFullYear();
-        let months = now.getMonth() - birthDate.getMonth();
-        let days = now.getDate() - birthDate.getDate();
-
-        if (months < 0 || (months === 0 && days < 0)) {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        let years = now.getFullYear() - birth.getFullYear();
+        if (now.getMonth() < birth.getMonth() || (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())) {
             years--;
         }
 
-        document.getElementById('age-timer').innerHTML = 
-            `${years}岁 | 第 ${totalDays} 天<br>` + 
-            `<span style="font-size: 14px; color: #444;">实时计数: ${now.toLocaleTimeString()}</span>`;
+        document.getElementById('live-timer').innerHTML = 
+            `已存续：${years}岁<br>总计：${days}天`;
     }
-    setInterval(calculateTacticalAge, 1000);
-    calculateTacticalAge();
+    setInterval(updateTimer, 1000);
+    updateTimer();
 
-    // 2. 六边形属性雷达图 (Chart.js)
-    const ctx = document.getElementById('abilityChart').getContext('2d');
+    // 属性六边形图
+    const ctx = document.getElementById('statChart').getContext('2d');
     new Chart(ctx, {
         type: 'radar',
         data: {
             labels: ['攻击力', '防御力', '智力', '体力', '经验', '技术'],
             datasets: [{
-                label: 'COMMANDER STATS',
-                data: [0, 1, 7, 3, 5, 7], // 按照您的要求设置数值
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                data: [0, 1, 7, 3, 5, 7],
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 borderColor: '#ffffff',
-                borderWidth: 2,
-                pointBackgroundColor: '#ffffff'
+                borderWidth: 1.5,
+                pointRadius: 0
             }]
         },
         options: {
             scales: {
                 r: {
-                    angleLines: { color: '#333' },
-                    grid: { color: '#333' },
-                    pointLabels: { color: '#fff', font: { size: 14 } },
-                    ticks: { display: false, stepSize: 2 },
+                    angleLines: { color: '#222' },
+                    grid: { color: '#222' },
+                    pointLabels: { color: '#888', font: { size: 14 } },
+                    ticks: { display: false },
                     min: 0, max: 8
                 }
             },
