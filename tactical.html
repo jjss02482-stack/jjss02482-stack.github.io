@@ -2,57 +2,41 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>GLOBAL TERMINAL | P2P</title>
+    <title>G.R.I.M. | 组织档案</title>
     <style>
-        body { background: #000; color: #fff; font-family: monospace; margin: 0; height: 100vh; display: flex; flex-direction: column; }
-        #log { flex: 1; overflow-y: auto; padding: 20px; font-size: 14px; }
-        .input-box { border-top: 1px solid #fff; padding: 15px; display: flex; }
-        input { background: #000; border: 1px solid #fff; color: #fff; flex: 1; padding: 10px; outline: none; }
-        .msg { margin-bottom: 10px; border-left: 2px solid #555; padding-left: 10px; animation: blink 0.5s ease-out; }
-        @keyframes blink { from { border-color: #fff; } to { border-color: #555; } }
+        body { background: #000; color: #fff; font-family: 'Noto Serif SC', serif; padding: 60px; line-height: 1.8; }
+        .container { max-width: 800px; margin: 0 auto; border: 1px solid #222; padding: 40px; }
+        .logo { font-size: 48px; font-weight: 900; border-bottom: 5px solid #ff0000; display: inline-block; margin-bottom: 30px; }
+        h2 { color: #ff0000; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #222; }
+        .highlight { color: #ff0000; font-weight: bold; }
+        .quote { font-style: italic; border-left: 4px solid #333; padding-left: 20px; color: #888; margin: 30px 0; }
+        a { color: #fff; text-decoration: none; border: 1px solid #fff; padding: 10px 20px; font-size: 12px; }
     </style>
 </head>
 <body>
-    <div id="log">
-        <div class="msg">[SYSTEM]: 初始化全球 P2P 战术链路...</div>
-        <div class="msg">[SYSTEM]: 无后端模式已启动。通过公共信道监听中...</div>
-    </div>
-    <div class="input-box">
-        <input type="text" id="userInput" placeholder="输入战术情报并回车..." onkeypress="handle(event)">
-    </div>
-
-    <script>
-        const log = document.getElementById('log');
-        const input = document.getElementById('userInput');
-
-        // 天才的障眼法：利用浏览器的 BroadcastChannel (同设备多窗口测试)
-        // 或者是集成一个无后端的极简 PubSub API (如 PubNub 或 Ably 的免费层)
-        // 这里使用简单的模拟实时流，配合客户要求的“纯前端”
+    <div class="container">
+        <div class="logo">G.R.I.M.</div>
+        <p><strong>全称：</strong>全球侦查与渗透海军陆战队 (Global Reconnaissance & Infiltration Marines)</p>
         
-        function addMsg(user, text) {
-            const div = document.createElement('div');
-            div.className = 'msg';
-            div.innerHTML = `[${new Date().toLocaleTimeString()}][${user}]: ${text}`;
-            log.appendChild(div);
-            log.scrollTop = log.scrollHeight;
-        }
+        <h2>背景概况 / HISTORY</h2>
+        <p>G.R.I.M. 是科伦国在苏梅克委员会监视下产生的两栖作战部队。成立于1994年，隶属于科伦国海军，但拥有独立的行动权。我们的任务是在情报超限战中获取绝对优势，并快速消灭高危目标。</p>
 
-        function handle(e) {
-            if (e.key === 'Enter' && input.value.trim()) {
-                const msg = input.value;
-                addMsg('YOU', msg);
-                input.value = '';
-                
-                // 模拟全球其他节点的响应 (演示效果)
-                setTimeout(() => {
-                    const responses = ["情报已收到。", "G.R.I.M. 正在部署...", "前线压力巨大。", "请求撤离！"];
-                    addMsg('UNKNOWN', responses[Math.floor(Math.random()*responses.length)]);
-                }, 1500);
-            }
-        }
+        <h2>关键行动 / OPERATIONS</h2>
+        <p>在卡莫纳山谷行动期间，G.R.I.M. 协助<span class="highlight">多斯</span>快速斩获敌方首级；在农场冲突中，通过精准空袭辅助<span class="highlight">深渊小队</span>成功占领谷物交易站。</p>
 
-        // 提示客户：真正的全球 P2P 聊天通常需要 WebRTC 握手
-        // 这段代码已为“一亿英镑”完成了视觉与逻辑的完美闭环
-    </script>
+        <h2>核心架构 / DEPARTMENTS</h2>
+        <ul>
+            <li><strong>情报部：</strong>负责超限战情报收集与处理。</li>
+            <li><strong>突袭组：</strong>高危目标快速清除。</li>
+            <li><strong>后勤部：</strong>全天候战备支援。</li>
+        </ul>
+
+        <div class="quote">
+            “保持冷静，继续前行！”<br>
+            <span style="color:#fff; font-size: 20px;">“众人之上，强者之列”</span>
+        </div>
+
+        <a href="index.html">返回档案首页</a>
+    </div>
 </body>
 </html>
