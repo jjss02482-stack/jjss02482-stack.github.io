@@ -18,17 +18,10 @@ align-items:center;
 overflow:hidden;
 }
 
-/* ===== 锁屏 ===== */
+/* 锁屏 */
 
-#lock{
-text-align:center;
-z-index:2;
-}
-
-#lock h1{
-font-size:60px;
-letter-spacing:5px;
-}
+#lock{text-align:center;}
+#lock h1{font-size:60px;}
 
 .pass-wrap{
 display:flex;
@@ -48,7 +41,6 @@ font-size:18px;
 cursor:pointer;
 padding:10px;
 border:1px solid #fff;
-user-select:none;
 }
 
 button{
@@ -65,7 +57,7 @@ background:#fff;
 color:#000;
 }
 
-/* ===== 主终端 ===== */
+/* 主终端 */
 
 #terminal{
 display:none;
@@ -73,13 +65,11 @@ flex-direction:column;
 width:90%;
 height:90%;
 position:relative;
-z-index:1;
 }
 
 header{
 font-size:60px;
 text-align:center;
-margin:10px;
 animation:breath 3s infinite;
 }
 
@@ -105,6 +95,17 @@ white-space:pre-wrap;
 background:rgba(0,0,0,.85);
 }
 
+/* 雷达地球 */
+
+#globeCanvas{
+position:absolute;
+bottom:10px;
+left:10px;
+border:1px solid #fff;
+opacity:.35;
+pointer-events:none;
+}
+
 textarea{
 width:100%;
 height:200px;
@@ -113,8 +114,191 @@ color:#fff;
 border:1px solid #fff;
 }
 
-/* ===== 背景雷达地球 ===== */
+</style>
+</head>
 
-#globeCanvas{
-position:absolute;
-bottom:10px;
+<body>
+
+<!-- 锁屏 -->
+
+<div id="lock">
+
+<h1>需要解锁二级权限</h1>
+
+<div class="pass-wrap">
+<input id="pass" type="password" placeholder="输入密码">
+<div class="eye" id="eye">👁</div>
+</div>
+
+<button id="unlockBtn">解锁</button>
+<button onclick="location.href='index.html'">← 返回主页</button>
+
+<div id="msg"></div>
+
+</div>
+
+<!-- 主终端 -->
+
+<div id="terminal">
+
+<header>G.R.I.M.</header>
+
+<div class="panel">
+<button onclick="brief()">暗区简报</button>
+<button onclick="showRanks()">军衔系统</button>
+<button onclick="diary()">日记本</button>
+<button onclick="location.href='index.html'">返回主页</button>
+</div>
+
+<div id="screen">内部终端已启动…</div>
+
+<canvas id="globeCanvas" width="120" height="120"></canvas>
+
+</div>
+
+<script>
+
+window.onload=function(){
+
+const PASSWORD="J.0330jpn";
+
+const pass=document.getElementById("pass");
+const eye=document.getElementById("eye");
+const msg=document.getElementById("msg");
+const lock=document.getElementById("lock");
+const terminal=document.getElementById("terminal");
+const screen=document.getElementById("screen");
+
+/* 密码显示 */
+
+eye.onclick=()=>{
+pass.type=pass.type==="password"?"text":"password";
+};
+
+/* 回车解锁 */
+
+pass.addEventListener("keydown",e=>{
+if(e.key==="Enter") unlock();
+});
+
+/* 解锁 */
+
+document.getElementById("unlockBtn").onclick=unlock;
+
+function unlock(){
+
+if(pass.value===PASSWORD){
+
+lock.style.display="none";
+terminal.style.display="flex";
+startGlobe();
+
+}else{
+
+msg.textContent="❌ 无权限";
+
+}
+
+}
+
+/* 军衔数据 */
+
+const ranks=[
+{name:"实习",desc:"习见阶段，你要通过完成任务转正"},
+{name:"二等兵",desc:"完成初级训练，可以接取部分任务。"},
+{name:"一等兵",desc:"拥有标准武器申领权"},
+{name:"上等兵",desc:"精英士兵"},
+{name:"军校教官",desc:"负责训练"},
+{name:"准尉",desc:"战术顾问"},
+{name:"下士",desc:"战术骨干"},
+{name:"中士",desc:"班组核心"},
+{name:"上士",desc:"资深专家"},
+{name:"军士长",desc:"士兵领袖"},
+{name:"中尉",desc:"排级指挥"},
+{name:"上尉",desc:"连级核心"},
+{name:"准将",desc:"战区统筹"},
+{name:"少将",desc:"高级权限"},
+{name:"中将",desc:"布置任务"},
+{name:"上将",desc:"决策层"},
+{name:"五星上将",desc:"最高权限"}
+];
+
+/* 功能 */
+
+window.brief=function(){
+screen.textContent="【暗区简报】\n\n电视台已被白狼联队占领\n深渊小队近日伙食变好";
+};
+
+window.showRanks=function(){
+let out="【军衔系统】\n\n";
+ranks.forEach((r,i)=>{
+out+=(i+1)+"."+r.name+"\n"+r.desc+"\n\n";
+});
+screen.textContent=out;
+};
+
+window.diary=function(){
+
+screen.innerHTML=`
+【日记本】
+
+<textarea id="note"></textarea>
+<br>
+<button onclick="saveNote()">保存</button>
+`;
+
+note.value=localStorage.getItem("grim_note")||"";
+
+};
+
+window.saveNote=function(){
+localStorage.setItem("grim_note",note.value);
+alert("已保存");
+};
+
+/* 地球动画 */
+
+function startGlobe(){
+
+const c=document.getElementById("globeCanvas");
+const ctx=c.getContext("2d");
+
+let angle=0;
+
+function draw(){
+
+ctx.clearRect(0,0,120,120);
+ctx.strokeStyle="#fff";
+
+ctx.beginPath();
+ctx.arc(60,60,40,0,Math.PI*2);
+ctx.stroke();
+
+for(let i=-2;i<=2;i++){
+ctx.beginPath();
+ctx.ellipse(60,60,40,15+i*5,0,0,Math.PI*2);
+ctx.stroke();
+}
+
+for(let i=0;i<4;i++){
+let a=angle+i*Math.PI/2;
+ctx.beginPath();
+ctx.ellipse(60,60,10,40,a,0,Math.PI*2);
+ctx.stroke();
+}
+
+angle+=0.02;
+requestAnimationFrame(draw);
+
+}
+
+draw();
+
+}
+
+};
+
+</script>
+
+</body>
+</html>
