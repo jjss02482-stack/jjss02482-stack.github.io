@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>G.R.I.M. 战术终端</title>
+    <style>
+        body { background: #fff; color: #000; font-family: monospace; margin: 0; padding: 40px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+        .terminal-header { border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px; }
+        .log-container { flex-grow: 1; border: 1px solid #eee; padding: 20px; overflow-y: auto; font-size: 14px; line-height: 1.6; }
+        .input-line { display: flex; margin-top: 20px; align-items: center; }
+        .prompt { font-weight: bold; margin-right: 10px; }
+        input { border: none; outline: none; flex-grow: 1; font-family: monospace; font-size: 16px; }
+        .status-bar { margin-top: 20px; font-size: 12px; color: #999; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <div class="terminal-header">
+        <strong>G.R.I.M. TACTICAL TERMINAL v1.0.4</strong><br>
+        CONNECTION: STABLE | ENCRYPTION: ACTIVE
+    </div>
+
+    <div class="log-container" id="logs">
+        > 初始化系统序列...<br>
+        > 正在接入科伦国海军情报部网络...<br>
+        > 身份确认：中将级别指挥官。<br>
+        > 欢迎回来，中将。请下达行动指令。
+    </div>
+
+    <div class="input-line">
+        <span class="prompt">GRIM_CMD: \></span>
+        <input type="text" id="cmd-input" autofocus onkeydown="handleCmd(event)">
+    </div>
+
+    <div class="status-bar">
+        <span>LOC: KAMONA_VALLEY</span>
+        <span id="clock"></span>
+    </div>
+
+    <script>
+        function handleCmd(e) {
+            if (e.key === 'Enter') {
+                const input = e.target;
+                const logs = document.getElementById('logs');
+                logs.innerHTML += `<br><span style="color:#666;">$ ${input.value}</span>`;
+                
+                if (input.value === 'help') {
+                    logs.innerHTML += `<br>> 可用指令: status, deploy, logs, clear`;
+                } else if (input.value === 'clear') {
+                    logs.innerHTML = `> 终端已重置。`;
+                } else {
+                    logs.innerHTML += `<br>> 错误：指令 "${input.value}" 权限暂未开放。`;
+                }
+                
+                input.value = '';
+                logs.scrollTop = logs.scrollHeight;
+            }
+        }
+
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        }, 1000);
+    </script>
+</body>
+</html>
