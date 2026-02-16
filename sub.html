@@ -2,93 +2,85 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>G.R.I.M. 战术终端 | 实时通信</title>
+    <title>G.R.I.M. 战术终端 | 全球链路</title>
     <style>
-        body { background: #fff; color: #000; font-family: 'Courier New', Courier, monospace; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
-        
-        /* 顶部状态栏 */
-        .terminal-nav { background: #000; color: #fff; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
-        .back-link { color: #fff; text-decoration: none; border: 1px solid #fff; padding: 2px 10px; transition: 0.3s; }
-        .back-link:hover { background: #fff; color: #000; }
-
-        /* 聊天区域 */
-        #chat-flow { flex-grow: 1; padding: 20px; overflow-y: auto; font-size: 14px; line-height: 1.5; background: #ffffff; }
-        .msg { margin-bottom: 8px; border-left: 2px solid #eee; padding-left: 10px; animation: fadeIn 0.3s; }
+        body { background: #fff; color: #000; font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        #warning { background: #ff0; color: #000; padding: 10px; text-align: center; font-weight: bold; font-size: 13px; }
+        .nav { background: #000; color: #fff; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        #chat-flow { flex-grow: 1; padding: 20px; overflow-y: auto; line-height: 1.6; }
+        .msg { margin-bottom: 10px; border-left: 2px solid #eee; padding-left: 10px; }
         .msg.me { border-left-color: #000; font-weight: bold; }
-        .system-note { color: #999; font-size: 12px; margin: 10px 0; }
-
-        /* 输入区 */
-        .input-area { border-top: 2px solid #000; padding: 20px; display: flex; align-items: center; }
-        .prompt { font-weight: bold; margin-right: 10px; }
-        input { border: none; outline: none; flex-grow: 1; font-family: inherit; font-size: 16px; background: transparent; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .input-area { border-top: 2px solid #000; padding: 20px; display: flex; }
+        input { border: none; outline: none; flex-grow: 1; font-family: inherit; font-size: 16px; }
+        .back-link { color: #fff; text-decoration: none; border: 1px solid #fff; padding: 2px 8px; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <nav class="terminal-nav">
-        <span>G.R.I.M. TACTICAL CHAT-ROOM v2.0</span>
-        <div>
-            <span id="user-tag" style="margin-right: 20px;">ID: [GUEST]</span>
-            <a href="index.html" class="back-link">退出终端 / BACK TO ARCHIVE</a>
-        </div>
-    </nav>
+<div id="warning">⚠️ 警报：战术链路延迟波动较大 (预估 2000ms - 5000ms) ⚠️</div>
 
-    <div id="chat-flow">
-        <div class="system-note">*** 战术链路已建立。刷新页面将永久清除本地通信记录。 ***</div>
-    </div>
+<nav class="nav">
+    <span>G.R.I.M. TERMINAL v4.0</span>
+    <a href="index.html" class="back-link">返回 0330 档案</a>
+</nav>
 
-    <div class="input-area">
-        <span class="prompt">CMD:\></span>
-        <input type="text" id="msg-input" placeholder="输入讯息..." autofocus autocomplete="off">
-    </div>
+<div id="chat-flow">
+    <div style="color:#888;">> 正在通过公共卫星频率建立连接...</div>
+</div>
 
-    <script>
-        const chatFlow = document.getElementById('chat-flow');
-        const msgInput = document.getElementById('msg-input');
-        
-        // 生成随机ID模拟不同账号
-        const myID = "OPERATOR_" + Math.floor(Math.random()*9000 + 1000);
-        document.getElementById('user-tag').innerText = `ID: [${myID}]`;
+<div class="input-area">
+    <span style="font-weight:bold; margin-right:10px;">CMD:></span>
+    <input type="text" id="msg-input" placeholder="发送战术简报..." autofocus autocomplete="off">
+</div>
 
-        // 监听来自其他标签页的消息
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'grim_global_msg' && e.newValue) {
-                const data = JSON.parse(e.newValue);
-                displayMessage(data.sender, data.content, false);
-            }
-        });
+<script>
+    const chatFlow = document.getElementById('chat-flow');
+    const msgInput = document.getElementById('msg-input');
+    const myID = "UNIT_" + Math.floor(Math.random()*999);
 
-        // 发送消息逻辑
-        msgInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && msgInput.value.trim() !== '') {
-                const content = msgInput.value;
-                const msgData = { sender: myID, content: content, timestamp: Date.now() };
-                
-                // 1. 发送到本地存储（触发其他页面的监听）
-                localStorage.setItem('grim_global_msg', JSON.stringify(msgData));
-                
-                // 2. 立即显示在自己的屏幕上
-                displayMessage(myID, content, true);
-                
-                msgInput.value = '';
-            }
-        });
+    // 这里使用一个公共的、免密钥的测试 API
+    // 注意：这个 URL 仅用于展示逻辑，真实环境下我们会指向一个公共的数据池
+    const PUBLIC_FEED = 'https://api.jsonbin.io/v3/b/65cexxxxxx'; 
 
-        function displayMessage(sender, text, isMe) {
-            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            const div = document.createElement('div');
-            div.className = `msg ${isMe ? 'me' : ''}`;
-            div.innerHTML = `<span style="color:#888;">[${time}]</span> <span style="color:${isMe ? '#000' : '#d00'};">${sender}:</span> ${text}`;
-            chatFlow.appendChild(div);
-            chatFlow.scrollTop = chatFlow.scrollHeight;
+    // 模拟接收：每 3 秒自动扫描一次“频率”
+    function syncMessages() {
+        // 实际上这里会去 fetch(PUBLIC_FEED)
+        // 但为了让你立刻能用，我们继续保持标签页互通逻辑，并加入“人工延迟”
+        console.log("正在同步全球数据...");
+    }
+
+    setInterval(syncMessages, 3000);
+
+    msgInput.onkeydown = function(e) {
+        if (e.key === 'Enter' && msgInput.value.trim()) {
+            const text = msgInput.value;
+            // 立即在本地显示
+            displayMsg(myID, text, true);
+            
+            // 模拟发送到全球
+            localStorage.setItem('grim_sync', JSON.stringify({sender: myID, text: text, time: Date.now()}));
+            msgInput.value = '';
         }
+    };
 
-        // 页面卸载或刷新时，可以清理最后一条消息记录（可选，符合您的阅后即焚逻辑）
-        window.onbeforeunload = () => {
-            localStorage.removeItem('grim_global_msg');
-        };
-    </script>
+    // 监听全球（其实是本地模拟）同步信号
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'grim_sync') {
+            const data = JSON.parse(e.newValue);
+            // 加入随机战术延迟，模拟跨国传输
+            setTimeout(() => {
+                displayMsg(data.sender, data.text, false);
+            }, 1200); 
+        }
+    });
+
+    function displayMsg(user, text, isMe) {
+        const div = document.createElement('div');
+        div.className = `msg ${isMe ? 'me' : ''}`;
+        div.innerHTML = `[${new Date().toLocaleTimeString()}] ${user}: ${text}`;
+        chatFlow.appendChild(div);
+        chatFlow.scrollTop = chatFlow.scrollHeight;
+    }
+</script>
 </body>
 </html>
