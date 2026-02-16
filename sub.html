@@ -2,63 +2,93 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>G.R.I.M. 战术终端</title>
+    <title>G.R.I.M. 战术终端 | 实时通信</title>
     <style>
-        body { background: #fff; color: #000; font-family: monospace; margin: 0; padding: 40px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
-        .terminal-header { border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px; }
-        .log-container { flex-grow: 1; border: 1px solid #eee; padding: 20px; overflow-y: auto; font-size: 14px; line-height: 1.6; }
-        .input-line { display: flex; margin-top: 20px; align-items: center; }
+        body { background: #fff; color: #000; font-family: 'Courier New', Courier, monospace; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
+        
+        /* 顶部状态栏 */
+        .terminal-nav { background: #000; color: #fff; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+        .back-link { color: #fff; text-decoration: none; border: 1px solid #fff; padding: 2px 10px; transition: 0.3s; }
+        .back-link:hover { background: #fff; color: #000; }
+
+        /* 聊天区域 */
+        #chat-flow { flex-grow: 1; padding: 20px; overflow-y: auto; font-size: 14px; line-height: 1.5; background: #ffffff; }
+        .msg { margin-bottom: 8px; border-left: 2px solid #eee; padding-left: 10px; animation: fadeIn 0.3s; }
+        .msg.me { border-left-color: #000; font-weight: bold; }
+        .system-note { color: #999; font-size: 12px; margin: 10px 0; }
+
+        /* 输入区 */
+        .input-area { border-top: 2px solid #000; padding: 20px; display: flex; align-items: center; }
         .prompt { font-weight: bold; margin-right: 10px; }
-        input { border: none; outline: none; flex-grow: 1; font-family: monospace; font-size: 16px; }
-        .status-bar { margin-top: 20px; font-size: 12px; color: #999; display: flex; justify-content: space-between; }
+        input { border: none; outline: none; flex-grow: 1; font-family: inherit; font-size: 16px; background: transparent; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-    <div class="terminal-header">
-        <strong>G.R.I.M. TACTICAL TERMINAL v1.0.4</strong><br>
-        CONNECTION: STABLE | ENCRYPTION: ACTIVE
+
+    <nav class="terminal-nav">
+        <span>G.R.I.M. TACTICAL CHAT-ROOM v2.0</span>
+        <div>
+            <span id="user-tag" style="margin-right: 20px;">ID: [GUEST]</span>
+            <a href="index.html" class="back-link">退出终端 / BACK TO ARCHIVE</a>
+        </div>
+    </nav>
+
+    <div id="chat-flow">
+        <div class="system-note">*** 战术链路已建立。刷新页面将永久清除本地通信记录。 ***</div>
     </div>
 
-    <div class="log-container" id="logs">
-        > 初始化系统序列...<br>
-        > 正在接入科伦国海军情报部网络...<br>
-        > 身份确认：中将级别指挥官。<br>
-        > 欢迎回来，中将。请下达行动指令。
-    </div>
-
-    <div class="input-line">
-        <span class="prompt">GRIM_CMD: \></span>
-        <input type="text" id="cmd-input" autofocus onkeydown="handleCmd(event)">
-    </div>
-
-    <div class="status-bar">
-        <span>LOC: KAMONA_VALLEY</span>
-        <span id="clock"></span>
+    <div class="input-area">
+        <span class="prompt">CMD:\></span>
+        <input type="text" id="msg-input" placeholder="输入讯息..." autofocus autocomplete="off">
     </div>
 
     <script>
-        function handleCmd(e) {
-            if (e.key === 'Enter') {
-                const input = e.target;
-                const logs = document.getElementById('logs');
-                logs.innerHTML += `<br><span style="color:#666;">$ ${input.value}</span>`;
-                
-                if (input.value === 'help') {
-                    logs.innerHTML += `<br>> 可用指令: status, deploy, logs, clear`;
-                } else if (input.value === 'clear') {
-                    logs.innerHTML = `> 终端已重置。`;
-                } else {
-                    logs.innerHTML += `<br>> 错误：指令 "${input.value}" 权限暂未开放。`;
-                }
-                
-                input.value = '';
-                logs.scrollTop = logs.scrollHeight;
+        const chatFlow = document.getElementById('chat-flow');
+        const msgInput = document.getElementById('msg-input');
+        
+        // 生成随机ID模拟不同账号
+        const myID = "OPERATOR_" + Math.floor(Math.random()*9000 + 1000);
+        document.getElementById('user-tag').innerText = `ID: [${myID}]`;
+
+        // 监听来自其他标签页的消息
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'grim_global_msg' && e.newValue) {
+                const data = JSON.parse(e.newValue);
+                displayMessage(data.sender, data.content, false);
             }
+        });
+
+        // 发送消息逻辑
+        msgInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && msgInput.value.trim() !== '') {
+                const content = msgInput.value;
+                const msgData = { sender: myID, content: content, timestamp: Date.now() };
+                
+                // 1. 发送到本地存储（触发其他页面的监听）
+                localStorage.setItem('grim_global_msg', JSON.stringify(msgData));
+                
+                // 2. 立即显示在自己的屏幕上
+                displayMessage(myID, content, true);
+                
+                msgInput.value = '';
+            }
+        });
+
+        function displayMessage(sender, text, isMe) {
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const div = document.createElement('div');
+            div.className = `msg ${isMe ? 'me' : ''}`;
+            div.innerHTML = `<span style="color:#888;">[${time}]</span> <span style="color:${isMe ? '#000' : '#d00'};">${sender}:</span> ${text}`;
+            chatFlow.appendChild(div);
+            chatFlow.scrollTop = chatFlow.scrollHeight;
         }
 
-        setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
+        // 页面卸载或刷新时，可以清理最后一条消息记录（可选，符合您的阅后即焚逻辑）
+        window.onbeforeunload = () => {
+            localStorage.removeItem('grim_global_msg');
+        };
     </script>
 </body>
 </html>
