@@ -2,104 +2,92 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>G.R.I.M. | 战术中枢</title>
+    <title>G.R.I.M. 官方档案库</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&family=Noto+Sans+SC:wght@300;400&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #ff9800; --bg: #000; }
-        body { background: var(--bg); color: var(--primary); font-family: "Courier New", "Microsoft YaHei", monospace; margin: 0; padding: 20px; }
-        .tactical-frame { border: 1px solid #222; padding: 20px; background: #080808; max-width: 1100px; margin: 0 auto; position: relative; }
+        body { background: #000; color: #fff; font-family: 'Noto Sans SC', sans-serif; margin: 0; padding: 40px; }
+        .back-btn { color: #555; text-decoration: none; font-size: 12px; border: 1px solid #333; padding: 5px 15px; transition: 0.3s; }
+        .back-btn:hover { color: #fff; border-color: #fff; }
         
-        .nav-header { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
-        
-        /* 强化的退出按钮 */
-        .exit-btn { 
-            color: #ff4444; /* 改为红色警告色，更显眼 */
-            text-decoration: none; 
-            border: 1px solid #442222; 
-            padding: 8px 20px; 
-            font-size: 13px; 
-            cursor: pointer;
-            background: transparent;
-            font-family: inherit;
-        }
-        .exit-btn:hover { color: #fff; border-color: #fff; background: #330000; }
-        
-        .monitor { width: 100%; height: 180px; background: #000; border: 1px solid #333; position: relative; overflow: hidden; }
-        #matrix-canvas { position: absolute; top: 0; left: 0; opacity: 0.3; }
-        .grim-overlay { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; letter-spacing: 15px; opacity: 0; transition: 1s; pointer-events: none; }
-        .grim-overlay.active { opacity: 1; }
+        .header { margin-top: 60px; border-left: 4px solid #fff; padding-left: 20px; }
+        h1 { font-family: 'Noto Serif SC', serif; font-size: 50px; margin: 0; letter-spacing: 5px; }
+        .slogan { font-style: italic; color: #888; margin-top: 10px; }
 
-        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-        .data-panel { border: 1px solid #222; padding: 15px; background: #0a0a0a; }
-        .panel-title { font-size: 14px; border-bottom: 1px solid #222; padding-bottom: 8px; margin-bottom: 10px; color: #fff; }
-        .news-scroll { height: 100px; overflow-y: auto; font-size: 12px; color: #888; }
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 60px; }
         
-        #huge-clock { font-size: 45px; text-align: center; margin: 20px 0; font-weight: 900; text-shadow: 0 0 10px var(--primary); }
+        .info-box h2 { border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 20px; }
+        .info-text { font-size: 14px; line-height: 2; color: #ccc; text-align: justify; }
+        
+        /* 军衔系统视觉优化 */
+        .rank-grid { display: grid; grid-template-columns: 1fr; gap: 15px; height: 500px; overflow-y: auto; padding-right: 20px; }
+        .rank-card { background: #111; padding: 20px; border: 1px solid #222; transition: 0.3s; }
+        .rank-card:hover { border-color: #fff; background: #1a1a1a; }
+        .rank-name { color: #fff; font-weight: bold; font-size: 16px; margin-bottom: 5px; display: block; }
+        .rank-desc { color: #666; font-size: 13px; }
+
+        .footer-quote { margin-top: 80px; text-align: center; border-top: 1px solid #222; padding-top: 40px; color: #444; font-size: 14px; letter-spacing: 8px; }
     </style>
 </head>
 <body>
-    <div class="tactical-frame">
-        <div class="nav-header">
-            <span>[G.R.I.M. 战术网络 - 接入点 04]</span>
-            <button class="exit-btn" onclick="location.href='index.html'">关闭终端并返回官网</button>
-        </div>
-        
-        <div class="monitor">
-            <canvas id="matrix-canvas"></canvas>
-            <div id="grim-overlay" class="grim-overlay">G.R.I.M.</div>
+    <a href="index.html" class="back-btn">返回个人主页</a>
+
+    <header class="header">
+        <h1>G.R.I.M.</h1>
+        <div class="slogan">“保持冷静，继续前行！” | Global Reconnaissance & Infiltration Marine</div>
+    </header>
+
+    <div class="content-grid">
+        <div class="info-box">
+            <h2>部队综述 / UNIT PROFILE</h2>
+            <div class="info-text">
+                全球侦查与渗透海军陆战队（G.R.I.M.），成立于1994年，隶属于科伦国海军，但拥有完全独立的行动决策权。在苏梅克委员会的严密监视下，G.R.I.M. 负责在情报超限战中获取绝对优势，并快速消灭高危目标。<br><br>
+                <strong>战史记录：</strong> 在卡莫纳山谷战役中，G.R.I.M. 曾协助多斯（Doss）斩获敌方首级；在农场冲突中，通过精准空袭辅助深渊小队迅速占领谷物交易站。
+            </div>
+            <h2 style="margin-top:40px;">装备标准 / GEAR</h2>
+            <div class="info-text">
+                部队允许使用卡莫纳地区所有现存装备。官方提供统一制式标准，其余个性化改装及特种装备需由队员自费筹措。
+            </div>
         </div>
 
-        <div id="huge-clock">00:00:00</div>
-
-        <div class="data-grid">
-            <div class="data-panel">
-                <div class="panel-title">// 职能部门状态</div>
-                <div style="font-size:12px;">
-                    <p><strong>情报部门：</strong> 负责快速寻找敌人位置，并且战术支持。</p>
-                    <p><strong>突击组：</strong> 负责快速突破</p>
-                    <p><strong>后勤部门：</strong> 负责保持队友的子弹数量和医疗</p>
+        <div class="info-box">
+            <h2>军衔系统 / RANK SYSTEM</h2>
+            <div class="rank-grid" id="rank-container">
                 </div>
-            </div>
-            <div class="data-panel">
-                <div class="panel-title">// 暗区通报</div>
-                <div class="news-scroll">
-                    <p style="color:var(--primary)">[警告] 电视台区域已由白狼联队接管。</p>
-                    <p>[通报] 山谷多斯行动目标已达成。</p>
-                    <p>[通报] 谷物交易站冲突已由深渊小队平息。</p>
-                    <p>[状态] 卫星链路同步完成，信号良好。</p>
-                </div>
-            </div>
         </div>
     </div>
 
-    <script>
-        // 代码雨逻辑保持不变
-        const canvas = document.getElementById('matrix-canvas');
-        const ctx = canvas.getContext('2d');
-        const overlay = document.getElementById('grim-overlay');
-        canvas.width = 1100; canvas.height = 180;
-        const columns = canvas.width / 14;
-        const drops = Array(Math.floor(columns)).fill(1);
-        let cycle = 0;
+    <div class="footer-quote">众人之上，强者之列</div>
 
-        function draw() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#ff9800";
-            if(cycle < 400) {
-                overlay.classList.remove('active');
-                drops.forEach((y, i) => {
-                    const text = String.fromCharCode(Math.random() * 128);
-                    ctx.fillText(text, i * 14, y * 14);
-                    if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
-                    drops[i]++;
-                });
-            } else { overlay.classList.add('active'); }
-            cycle = cycle > 600 ? 0 : cycle + 1;
-        }
-        setInterval(draw, 50);
-        setInterval(() => {
-            document.getElementById('huge-clock').innerText = new Date().toTimeString().split(' ')[0];
-        }, 1000);
+    <script>
+        const ranks = [
+            {name: "实习", desc: "习见阶段，你要通过完成任务转正"},
+            {name: "二等兵", desc: "完成初级训练，可以接取部分任务。"},
+            {name: "一等兵", desc: "拥有标准武器申领权，允许与军校教官一起行动。"},
+            {name: "上等兵", desc: "精英士兵，拥有每日标准装备领取权限，允许与准尉行动"},
+            {name: "军校教官", desc: "负责新兵评估，并且对其训练和任职上的管理。"},
+            {name: "准尉", desc: "战术顾问储备，在一定程度上帮助队伍的信息调整"},
+            {name: "下士", desc: "战术骨干，需要彻底熟图并且保持战术能力"},
+            {name: "中士", desc: "班组核心，获得4人小队权限"},
+            {name: "上士", desc: "资深战术专家，允许直接管理军校教官。"},
+            {name: "军士长", desc: "士兵领袖，负责管理军士长以下职位的所有职位。"},
+            {name: "中尉", desc: "排级指挥官，允许在未经过讨论下随意做出任务改变。"},
+            {name: "上尉", desc: "连级核心，允许使用投掷无人机等等实验装备"},
+            {name: "准将", desc: "统筹暗区战役，拥有地图选择权。"},
+            {name: "少将", desc: "允许在批准的情况下，间接与上将直接交谈。"},
+            {name: "中将", desc: "允许开始布置任务。"},
+            {name: "上将", desc: "决策层成员，决定所有职位，可以在批准下进行裁员"},
+            {name: "五星上将", desc: "最高权限拥有者。众人之上，强者之列。控制所有队员。"}
+        ];
+
+        const container = document.getElementById('rank-container');
+        ranks.forEach(r => {
+            container.innerHTML += `
+                <div class="rank-card">
+                    <span class="rank-name">★ ${r.name}</span>
+                    <span class="rank-desc">${r.desc}</span>
+                </div>
+            `;
+        });
     </script>
 </body>
 </html>
