@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0330 | COMMANDER PROFILE</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --bg: #ffffff; --text: #000000; --accent: #1a1a1a; }
+        @media (prefers-color-scheme: dark) { :root { --bg: #000000; --text: #ffffff; --accent: #e5e5e5; } }
+        
+        body { background: var(--bg); color: var(--text); font-family: 'Courier New', Courier, monospace; margin: 0; transition: 0.5s; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 50px 20px; }
+
+        /* 头部设计 */
+        header { border-bottom: 5px solid var(--text); padding-bottom: 20px; margin-bottom: 50px; position: relative; }
+        .id-badge { position: absolute; top: 0; right: 0; border: 2px solid var(--text); padding: 10px; font-weight: bold; }
+        h1 { font-size: clamp(40px, 10vw, 80px); margin: 0; letter-spacing: -2px; }
+
+        /* 计时器 */
+        #timer { font-size: 1.2rem; background: var(--text); color: var(--bg); display: inline-block; padding: 5px 15px; margin-top: 10px; }
+
+        /* 内容区 */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; margin-top: 50px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
+        .game-card { border: 1px solid var(--text); padding: 20px; margin-bottom: 20px; transition: 0.3s; }
+        .game-card:hover { background: var(--text); color: var(--bg); }
+
+        /* 按钮系统 */
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 50px; }
+        .nav-btn { border: 2px solid var(--text); color: var(--text); text-decoration: none; padding: 20px; text-align: center; font-weight: bold; transition: 0.3s; text-transform: uppercase; }
+        .nav-btn:hover { background: var(--text); color: var(--bg); letter-spacing: 5px; }
+
+        canvas { max-width: 100% !important; height: auto !important; filter: grayscale(1); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="id-badge">RANK: COMMANDER</div>
+        <h1>ARCHIVE: 0330</h1>
+        <div id="timer">SYNCHRONIZING...</div>
+    </header>
+
+    <div class="grid">
+        <div class="stats">
+            <h2 style="text-decoration: underline;">TACTICAL STATS</h2>
+            <canvas id="radarChart"></canvas>
+        </div>
+
+        <div class="bio">
+            <h2 style="text-decoration: underline;">OPERATIONS</h2>
+            <div class="game-card">
+                <h3>■ Arena Breakout (暗区突围)</h3>
+                <p>硬核撤离专家。专注于高价值物资提取与战术包抄。</p>
+            </div>
+            <div class="game-card">
+                <h3>■ KARDS</h3>
+                <p>前线指挥官。擅长利用闪电战与资源压制统治战场。</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <a href="tactical.html" class="nav-btn">G.R.I.M. 组织</a>
+        <a href="terminal.html" class="nav-btn">全球战术终端 (Live)</a>
+    </div>
+</div>
+
+<script>
+    // 寿命与存续计时器：精确到秒
+    function updateTimer() {
+        const birth = new Date('2012-03-30T00:00:00').getTime();
+        const now = new Date().getTime();
+        const diff = now - birth;
+
+        const yrs = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
+        const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24));
+        const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById('timer').innerHTML = 
+            `ACTIVE: ${yrs}Y ${days}D ${hrs}H ${mins}M ${secs}S`;
+    }
+    setInterval(updateTimer, 1000);
+
+    // 属性图
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['STR', 'AGI', 'INT', 'VIT', 'EXP', 'TECH'],
+            datasets: [{
+                data: [85, 70, 95, 80, 88, 92],
+                backgroundColor: 'rgba(0,0,0,0.1)',
+                borderColor: '#000',
+                borderWidth: 2
+            }]
+        },
+        options: { 
+            scales: { r: { ticks: { display: false }, grid: { color: '#eee' } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+</body>
+</html>
