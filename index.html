@@ -2,83 +2,102 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>个人档案</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Noto+Sans+SC:wght@300;500&display=swap" rel="stylesheet">
+    <title>个人档案 | COMMANDER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #000; --text: #fff; }
+        :root { --bg: #ffffff; --text: #000000; --accent: #eeeeee; }
         body { background-color: var(--bg); color: var(--text); font-family: 'Noto Sans SC', sans-serif; margin: 0; }
 
-        /* 顶部黑白人型拼接 */
-        .header-split { display: flex; height: 500px; width: 100%; border-bottom: 1px solid #222; }
-        .side-white { 
-            width: 50%; background: #fff; position: relative; 
+        /* 顶部黑白拼接：白色为主 */
+        .header-split { display: flex; height: 500px; width: 100%; border-bottom: 1px solid var(--accent); }
+        .side-black { 
+            width: 50%; background: #000; position: relative; 
             display: flex; justify-content: flex-end; align-items: flex-end;
         }
-        .side-black { 
-            width: 50%; background: #000; padding: 60px; 
+        .side-white { 
+            width: 50%; background: #fff; padding: 60px; 
             display: flex; flex-direction: column; justify-content: center;
         }
         
-        /* 人型几何剪影 */
-        .silhouette-black {
-            width: 200px; height: 350px; background: #000;
+        /* 几何人型拼接 */
+        .silhouette-white {
+            width: 200px; height: 350px; background: #fff;
             clip-path: polygon(50% 0%, 80% 10%, 90% 35%, 50% 45%, 10% 35%, 20% 10%);
             margin-right: -100px; z-index: 10;
         }
-        .silhouette-white {
-            width: 200px; height: 350px; background: #fff;
+        .silhouette-black {
+            width: 200px; height: 350px; background: #000;
             clip-path: polygon(50% 0%, 80% 10%, 90% 35%, 50% 45%, 10% 35%, 20% 10%);
             margin-left: -100px;
         }
 
-        /* 个人基本信息 */
-        .name { font-family: 'Noto Serif SC', serif; font-size: 48px; font-weight: 700; margin: 0; letter-spacing: 2px; }
-        .birth-info { font-size: 14px; color: #888; margin: 10px 0 30px; letter-spacing: 1px; }
-        .timer { font-family: monospace; font-size: 18px; border-left: 2px solid #fff; padding-left: 15px; }
+        /* 个人信息 */
+        .name { font-family: 'Noto Serif SC', serif; font-size: 48px; font-weight: 700; margin: 0; letter-spacing: 4px; }
+        .birth-info { font-size: 13px; color: #999; margin: 10px 0 25px; letter-spacing: 2px; }
+        .timer { font-family: 'Courier New', Courier, monospace; font-size: 18px; color: #000; font-weight: bold; border-left: 3px solid #000; padding-left: 15px; }
 
-        /* 游戏与数据属性 */
+        /* 游戏按钮与属性 */
         .main-content { display: grid; grid-template-columns: 1fr 1fr; padding: 80px; gap: 60px; }
+        .game-section h3 { font-family: 'Noto Serif SC', serif; font-size: 24px; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 10px; }
         
-        .game-section h3 { font-family: 'Noto Serif SC', serif; font-size: 24px; margin-bottom: 30px; border-bottom: 1px solid #222; padding-bottom: 10px; }
-        .game-item { font-size: 16px; margin: 20px 0; color: #ccc; letter-spacing: 1px; }
-        
-        .radar-container { display: flex; justify-content: center; align-items: center; }
-        canvas { max-width: 400px !important; max-height: 400px !important; }
+        .game-btn { 
+            display: block; width: 100%; padding: 15px; margin-bottom: 15px;
+            background: #fff; border: 1px solid #000; color: #000;
+            font-size: 14px; cursor: pointer; text-align: left; transition: 0.3s;
+            letter-spacing: 1px;
+        }
+        .game-btn:hover { background: #000; color: #fff; }
+        .game-desc { 
+            display: none; padding: 15px; background: #f9f9f9; 
+            border: 1px dashed #ccc; font-size: 13px; color: #666; margin-bottom: 20px; line-height: 1.6;
+        }
 
-        /* 底部20格矩阵 */
+        canvas { max-width: 380px !important; max-height: 380px !important; }
+
+        /* 底部20格矩阵：1和2放核心入口 */
         .matrix-footer { 
             display: grid; grid-template-columns: repeat(10, 1fr); gap: 12px; 
-            padding: 60px 80px; border-top: 1px solid #222;
+            padding: 60px 80px; border-top: 1px solid var(--accent);
         }
         .matrix-cell { 
-            aspect-ratio: 1; border: 1px solid #1a1a1a; display: flex; 
-            align-items: center; justify-content: center; font-size: 11px; color: #333;
+            aspect-ratio: 1; border: 1px solid #eee; display: flex; 
+            align-items: center; justify-content: center; font-size: 11px; color: #ccc;
         }
-        .matrix-cell.active { border-color: #fff; }
-        .matrix-cell.active a { color: #fff; text-decoration: none; font-weight: 500; text-align: center; line-height: 1.4; }
+        .matrix-cell.active { border-color: #000; background: #fff; }
+        .matrix-cell.active a { color: #000; text-decoration: none; font-weight: 700; text-align: center; font-size: 11px; }
+        .matrix-cell.active:hover { background: #000; }
+        .matrix-cell.active:hover a { color: #fff; }
 
     </style>
 </head>
 <body>
 
 <section class="header-split">
-    <div class="side-white">
-        <div class="silhouette-black"></div>
-    </div>
     <div class="side-black">
-        <div class="silhouette-white" style="position: absolute; left: 0; top: 100px;"></div>
+        <div class="silhouette-white"></div>
+    </div>
+    <div class="side-white">
+        <div class="silhouette-black" style="position: absolute; left: 0; top: 100px;"></div>
         <h1 class="name">COMMANDER</h1>
-        <div class="birth-info">出生日期：2012年3月30日</div>
-        <div id="live-timer" class="timer">计算中...</div>
+        <div class="birth-info">EST. 2012.03.30</div>
+        <div id="live-timer" class="timer">加载计时系统中...</div>
     </div>
 </section>
 
 <section class="main-content">
     <div class="game-section">
-        <h3>游戏档案</h3>
-        <div class="game-item">■ 暗区突围 (Arena Breakout)</div>
-        <div class="game-item">■ KARDS</div>
+        <h3>档案详情 (GAMES)</h3>
+        
+        <button class="game-btn" onclick="toggleDesc('ab')">■ 暗区突围 (Arena Breakout)</button>
+        <div id="ab" class="game-desc">
+            一款硬核沉浸式射击手游。玩家将作为雇佣兵进入名为“暗区”的危险区域进行搜刮与战斗，核心目标是成功撤离并带出战利品。极高的拟真度与经济系统考验着玩家的生存智慧。
+        </div>
+
+        <button class="game-btn" onclick="toggleDesc('kards')">■ KARDS</button>
+        <div id="kards" class="game-desc">
+            二战题材策略卡牌游戏。结合了传统卡牌玩法与创新的前线机制，玩家通过指挥陆、海、空三军进行作战，不仅考验卡组深度，更考验对战局的宏观把控能力。
+        </div>
     </div>
 
     <div class="radar-container">
@@ -87,19 +106,19 @@
 </section>
 
 <div class="matrix-footer">
-    <div class="matrix-cell">01</div><div class="matrix-cell">02</div><div class="matrix-cell">03</div><div class="matrix-cell">04</div>
-    <div class="grid-item matrix-cell">05</div><div class="matrix-cell">06</div><div class="matrix-cell">07</div><div class="matrix-cell">08</div>
-    
     <div class="matrix-cell active"><a href="#">GRIM<br>官网</a></div>
-    <div class="matrix-cell active"><a href="#">GRIM<br>终端</a></div>
+    <div class="matrix-cell active"><a href="#">战术<br>终端</a></div>
     
-    <div class="matrix-cell">11</div><div class="matrix-cell">12</div><div class="matrix-cell">13</div><div class="matrix-cell">14</div>
-    <div class="matrix-cell">15</div><div class="matrix-cell">16</div><div class="matrix-cell">17</div><div class="matrix-cell">18</div>
-    <div class="matrix-cell">19</div><div class="matrix-cell">20</div>
+    <div class="matrix-cell">03</div><div class="matrix-cell">04</div><div class="matrix-cell">05</div>
+    <div class="matrix-cell">06</div><div class="matrix-cell">07</div><div class="matrix-cell">08</div>
+    <div class="matrix-cell">09</div><div class="matrix-cell">10</div><div class="matrix-cell">11</div>
+    <div class="matrix-cell">12</div><div class="matrix-cell">13</div><div class="matrix-cell">14</div>
+    <div class="matrix-cell">15</div><div class="matrix-cell">16</div><div class="matrix-cell">17</div>
+    <div class="matrix-cell">18</div><div class="matrix-cell">19</div><div class="matrix-cell">20</div>
 </div>
 
 <script>
-    // 精确年龄计时器
+    // 1. 精确到秒的实时计时器
     function updateTimer() {
         const birth = new Date('2012-03-30T00:00:00');
         const now = new Date();
@@ -111,13 +130,23 @@
             years--;
         }
 
+        // 格式化时间
+        const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
+
         document.getElementById('live-timer').innerHTML = 
-            `已存续：${years}岁<br>总计：${days}天`;
+            `已存续：${years}岁 | 第 ${days} 天<br>` +
+            `<span style="font-size: 14px; color: #666;">当前时间：${timeStr}</span>`;
     }
     setInterval(updateTimer, 1000);
     updateTimer();
 
-    // 属性六边形图
+    // 2. 游戏介绍切换逻辑
+    function toggleDesc(id) {
+        const desc = document.getElementById(id);
+        desc.style.display = (desc.style.display === 'block') ? 'none' : 'block';
+    }
+
+    // 3. 属性雷达图 (白色背景，黑色线条)
     const ctx = document.getElementById('statChart').getContext('2d');
     new Chart(ctx, {
         type: 'radar',
@@ -125,18 +154,19 @@
             labels: ['攻击力', '防御力', '智力', '体力', '经验', '技术'],
             datasets: [{
                 data: [0, 1, 7, 3, 5, 7],
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                borderColor: '#ffffff',
+                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                borderColor: '#000000',
                 borderWidth: 1.5,
-                pointRadius: 0
+                pointBackgroundColor: '#000000',
+                pointRadius: 3
             }]
         },
         options: {
             scales: {
                 r: {
-                    angleLines: { color: '#222' },
-                    grid: { color: '#222' },
-                    pointLabels: { color: '#888', font: { size: 14 } },
+                    angleLines: { color: '#eee' },
+                    grid: { color: '#eee' },
+                    pointLabels: { color: '#000', font: { size: 14, weight: 'bold' } },
                     ticks: { display: false },
                     min: 0, max: 8
                 }
