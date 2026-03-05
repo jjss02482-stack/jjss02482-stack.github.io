@@ -2,59 +2,117 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>俯视像素瘸帮成员</title>
+<title>像素躲避小游戏</title>
 <style>
-  body { margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh; }
-  #game {
-    position: relative;
-    width: 400px;
-    height: 400px;
-    background-image: url('https://i.imgur.com/9s6YcGZ.png'); /* 曼哈顿俯视像素背景图（示例） */
-    background-size: cover;
-    border: 2px solid #333;
-  }
-  #player {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background-color: #ff0; /* 黄色瘸帮成员像素 */
-    top: 190px;
-    left: 190px;
-    border:1px solid #000;
-  }
+  body { margin:0; background:#111; display:flex; justify-content:center; align-items:center; height:100vh; }
+  canvas { background:#222; display:block; }
 </style>
 </head>
 <body>
-<div id="game">
-  <div id="player"></div>
-</div>
+<canvas id="game" width="400" height="400"></canvas>
 
 <script>
-const player = document.getElementById('player');
-const step = 10;
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
 
-// 恢复上次位置
-let posX = parseInt(localStorage.getItem('playerX')) || 190;
-let posY = parseInt(localStorage.getItem('playerY')) || 190;
-player.style.left = posX + 'px';
-player.style.top = posY + 'px';
+let player = { x:200, y:200, size:20, hp:100 };
+let shake = 0;
 
-document.addEventListener('keydown', e => {
-  switch(e.key){
-    case 'ArrowUp':
-    case 'w': posY = Math.max(0, posY - step); break;
-    case 'ArrowDown':
-    case 's': posY = Math.min(380, posY + step); break;
-    case 'ArrowLeft':
-    case 'a': posX = Math.max(0, posX - step); break;
-    case 'ArrowRight':
-    case 'd': posX = Math.min(380, posX + step); break;
-  }
-  player.style.left = posX + 'px';
-  player.style.top = posY + 'px';
-  localStorage.setItem('playerX', posX);
-  localStorage.setItem('playerY', posY);
-});
+// 控制键
+const keys = {};
+document.addEventListener('keydown', e=>keys[e.key]=true);
+document.addEventListener('keyup', e=>keys[e.key]=false);
+
+// 攻击线条数组
+let attacks = [];
+
+// 生成攻击函数
+function spawnAttack() {
+    // 先生成预告圆
+    let cx = Math.random()*360+20;
+    let cy = Math.random()*360+20;
+    attacks.push({x:cx, y:cy, t:0, type:'warn'});
+}
+setInterval(spawnAttack, 2000); // 每2秒生成一次攻击
+
+// 游戏循环
+function update() {
+    // 玩家移动
+    if(keys['w']||keys['ArrowUp']) player.y-=3;
+    if(keys['s']||keys['ArrowDown']) player.y+=3;
+    if(keys['a']||keys['ArrowLeft']) player.x-=3;
+    if(keys['d']||keys['ArrowRight']) player.x+=3;
+    player.x = Math.max(0, Math.min(380, player.x));
+    player.y = Math.max(0, Math.min(380, player.y));
+
+    // 更新攻击
+    attacks.forEach(a=>{
+        a.t++;
+        if(a.type==='warn' && a.t>60){ // 1秒后发射
+            a.type='line';
+            a.vx = (player.x - a.x)/30;
+            a.vy = (player.y - a.y)/30;
+        }
+        if(a.type==='line'){
+            a.x += a.vx;
+            a.y += a.vy;
+            // 撞墙
+            if(a.x<0||a.x>400||a.y<0||a.y>400){
+                shake = 5;
+            }
+            // 撞到玩家
+            if(player.x < a.x+10 && player.x+20 > a.x && player.y < a.y+10 && player.y+20 > a.y){
+                player.hp -= 5;
+                shake = 5;
+            }
+        }
+    });
+
+    if(shake>0) shake--;
+}
+
+// 绘制
+function draw() {
+    ctx.clearRect(0,0,400,400);
+
+    // 抖动效果
+    let offsetX = shake? Math.random()*shake*2-shake :0;
+    let offsetY = shake? Math.random()*shake*2-shake :0;
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+
+    // 绘制玩家
+    ctx.fillStyle = 'yellow';
+    ctx.fillRect(player.x, player.y, player.size, player.size);
+
+    // 绘制攻击
+    attacks.forEach(a=>{
+        if(a.type==='warn'){
+            ctx.strokeStyle='blue';
+            ctx.beginPath();
+            ctx.arc(a.x+5,a.y+5,15,0,Math.PI*2);
+            ctx.stroke();
+        } else if(a.type==='line'){
+            ctx.fillStyle='blue';
+            ctx.fillRect(a.x,a.y,10,10);
+        }
+    });
+
+    // 绘制血条
+    ctx.fillStyle = 'red';
+    ctx.fillRect(10,10, player.hp*2, 20);
+    ctx.strokeStyle='white';
+    ctx.strokeRect(10,10,200,20);
+
+    ctx.restore();
+}
+
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+loop();
 </script>
 </body>
 </html>
