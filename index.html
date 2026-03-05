@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>像素躲避小游戏</title>
+<title>像素躲避小游戏 - X/Y 轴攻击</title>
 <style>
   body { margin:0; background:#111; display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; color:white; font-family:sans-serif;}
   canvas { background:#222; display:block; }
@@ -10,7 +10,6 @@
 </style>
 </head>
 <body>
-
 <h1>像素躲避小游戏</h1>
 <button id="startBtn">开始游戏</button>
 <canvas id="game" width="400" height="400" style="display:none;"></canvas>
@@ -21,20 +20,9 @@ const ctx = canvas.getContext('2d');
 const startBtn = document.getElementById('startBtn');
 
 let gameRunning = false;
-
-// 玩家
 let player = { x:200, y:200, size:20, hp:100, invincible:false, invTime:0 };
-
-// 键盘控制
 const keys = {};
-document.addEventListener('keydown', e=>keys[e.key]=true);
-document.addEventListener('keyup', e=>keys[e.key]=false);
-
-// 攻击数组
 let attacks = [];
-
-// 游戏参数
-const step = 3;
 let shake = 0;
 
 // 开始游戏
@@ -49,95 +37,110 @@ startBtn.onclick = ()=>{
     player.y = 200;
 };
 
-// 生成攻击（从边缘发射线条）
+// 键盘监听
+document.addEventListener('keydown', e=>keys[e.key]=true);
+document.addEventListener('keyup', e=>keys[e.key]=false);
+
+// 攻击类型：预告线 + 正式线条
 function spawnAttack() {
     if(!gameRunning) return;
-
-    // 计算发射起点在边缘
-    let side = Math.floor(Math.random()*4); // 0上 1右 2下 3左
-    let attack = { t:0, type:'line' };
-    switch(side){
-        case 0: attack.x=Math.random()*400; attack.y=-10; break; // 上
-        case 1: attack.x=410; attack.y=Math.random()*400; break; // 右
-        case 2: attack.x=Math.random()*400; attack.y=410; break; // 下
-        case 3: attack.x=-10; attack.y=Math.random()*400; break; // 左
-    }
-    // 计算速度指向玩家
-    let dx = player.x - attack.x;
-    let dy = player.y - attack.y;
-    let dist = Math.sqrt(dx*dx+dy*dy);
-    attack.vx = (dx/dist)*4; // 速度4像素/帧
-    attack.vy = (dy/dist)*4;
-    attacks.push(attack);
+    let isHorizontal = Math.random()<0.5; // 横线或竖线
+    let pos = Math.floor(Math.random()*16)*25; // 网格位置
+    attacks.push({ type:'warn', axis:isHorizontal?'x':'y', pos:pos, timer:0 });
 }
-setInterval(spawnAttack, 1500); // 1.5秒一次攻击
+setInterval(spawnAttack, 2000);
 
-// 游戏循环
-function update() {
+// 更新逻辑
+function update(){
     if(!gameRunning) return;
 
     // 玩家移动
-    if(keys['w']||keys['ArrowUp']) player.y-=step;
-    if(keys['s']||keys['ArrowDown']) player.y+=step;
-    if(keys['a']||keys['ArrowLeft']) player.x-=step;
-    if(keys['d']||keys['ArrowRight']) player.x+=step;
+    if(keys['w']||keys['ArrowUp']) player.y-=3;
+    if(keys['s']||keys['ArrowDown']) player.y+=3;
+    if(keys['a']||keys['ArrowLeft']) player.x-=3;
+    if(keys['d']||keys['ArrowRight']) player.x+=3;
     player.x = Math.max(0, Math.min(380, player.x));
     player.y = Math.max(0, Math.min(380, player.y));
 
     // 玩家无敌计时
     if(player.invincible){
         player.invTime--;
-        if(player.invTime<=0){
-            player.invincible=false;
-        }
+        if(player.invTime<=0) player.invincible=false;
     }
 
-    // 更新攻击
+    // 攻击更新
     attacks.forEach(a=>{
-        a.x += a.vx;
-        a.y += a.vy;
-
-        // 撞墙抖动
-        if(a.x<0||a.x>400||a.y<0||a.y>400){
-            shake=5;
+        a.timer++;
+        if(a.type==='warn' && a.timer>60){ // 1秒预告后发射
+            a.type='line';
+            a.speed = 5;
+            if(a.axis==='x'){ // 横线从上或下发射
+                a.y = Math.random()<0.5?-10:410;
+                a.vy = a.y<0? a.speed : -a.speed;
+            } else { // 竖线从左或右发射
+                a.x = Math.random()<0.5?-10:410;
+                a.vx = a.x<0? a.speed : -a.speed;
+            }
         }
-
-        // 撞到玩家
-        if(!player.invincible && player.x < a.x+10 && player.x+20 > a.x && player.y < a.y+10 && player.y+20 > a.y){
-            player.hp -= 10;
-            player.invincible = true;
-            player.invTime = 60; // 1秒无敌
-            shake = 5;
+        // 移动线条
+        if(a.type==='line'){
+            if(a.vx) a.x += a.vx;
+            if(a.vy) a.y += a.vy;
+            // 撞墙抖动
+            if(a.x<0||a.x>400||a.y<0||a.y>400) shake=5;
+            // 撞到玩家
+            if(!player.invincible && player.x< a.x+400 && player.x+20 > a.x && player.y< a.y+400 && player.y+20> a.y){
+                player.hp-=10;
+                player.invincible=true;
+                player.invTime=60;
+                shake=5;
+            }
         }
     });
+
+    if(shake>0) shake--;
 }
 
 // 绘制
-function draw() {
+function draw(){
     if(!gameRunning) return;
     ctx.clearRect(0,0,400,400);
-
-    // 抖动效果
     let offsetX = shake? Math.random()*shake*2-shake :0;
     let offsetY = shake? Math.random()*shake*2-shake :0;
-    if(shake>0) shake--;
-
     ctx.save();
     ctx.translate(offsetX, offsetY);
 
-    // 绘制玩家
-    ctx.fillStyle = 'yellow';
+    // 玩家
+    ctx.fillStyle='yellow';
     ctx.fillRect(player.x, player.y, player.size, player.size);
 
-    // 绘制攻击线条
-    ctx.fillStyle = 'blue';
+    // 攻击
     attacks.forEach(a=>{
-        ctx.fillRect(a.x, a.y, 10, 10);
+        if(a.type==='warn'){
+            ctx.strokeStyle='blue';
+            ctx.lineWidth=5;
+            ctx.beginPath();
+            if(a.axis==='x'){
+                ctx.moveTo(0,a.pos+2.5);
+                ctx.lineTo(400,a.pos+2.5);
+            } else {
+                ctx.moveTo(a.pos+2.5,0);
+                ctx.lineTo(a.pos+2.5,400);
+            }
+            ctx.stroke();
+        } else if(a.type==='line'){
+            ctx.fillStyle='blue';
+            if(a.vx){
+                ctx.fillRect(a.x,0,10,400);
+            } else {
+                ctx.fillRect(0,a.y,400,10);
+            }
+        }
     });
 
     // 血条
     ctx.fillStyle='red';
-    ctx.fillRect(10,10, player.hp*2, 20);
+    ctx.fillRect(10,10,player.hp*2,20);
     ctx.strokeStyle='white';
     ctx.strokeRect(10,10,200,20);
 
@@ -157,7 +160,8 @@ function draw() {
     }
 }
 
-function loop() {
+// 游戏循环
+function loop(){
     update();
     draw();
     requestAnimationFrame(loop);
