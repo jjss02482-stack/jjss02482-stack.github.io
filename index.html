@@ -2,17 +2,25 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>像素移动人物 Demo</title>
+<title>俯视像素瘸帮成员</title>
 <style>
-  body { margin: 0; background: #222; display: flex; justify-content: center; align-items: center; height: 100vh; }
-  #game { position: relative; width: 400px; height: 400px; background: #555; }
+  body { margin:0; background:#000; display:flex; justify-content:center; align-items:center; height:100vh; }
+  #game {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    background-image: url('https://i.imgur.com/9s6YcGZ.png'); /* 曼哈顿俯视像素背景图（示例） */
+    background-size: cover;
+    border: 2px solid #333;
+  }
   #player {
     position: absolute;
     width: 20px;
     height: 20px;
-    background: #0f0;
+    background-color: #ff0; /* 黄色瘸帮成员像素 */
     top: 190px;
     left: 190px;
+    border:1px solid #000;
   }
 </style>
 </head>
@@ -23,7 +31,7 @@
 
 <script>
 const player = document.getElementById('player');
-const step = 10; // 每次移动10像素
+const step = 10;
 
 // 恢复上次位置
 let posX = parseInt(localStorage.getItem('playerX')) || 190;
