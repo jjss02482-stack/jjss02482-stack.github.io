@@ -1,67 +1,52 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>0330 | 个人档案</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { background: #fff; color: #000; font-family: sans-serif; margin: 0; text-align: center; }
-        .hero { padding: 100px 20px; border-bottom: 10px solid #000; }
-        h1 { font-size: 80px; margin: 0; letter-spacing: 10px; }
-        .timer { font-family: monospace; font-size: 20px; margin-top: 20px; font-weight: bold; }
-        .content { display: flex; justify-content: space-around; padding: 50px; flex-wrap: wrap; }
-        .box { width: 400px; border: 2px solid #000; padding: 20px; margin: 10px; text-align: left; }
-        .footer-nav { display: flex; height: 100px; border-top: 2px solid #000; }
-        .footer-nav a { flex: 1; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #fff; font-weight: bold; }
-        .bg-black { background: #000; }
-        .bg-gray { background: #333; }
-    </style>
+<meta charset="UTF-8">
+<title>像素移动人物 Demo</title>
+<style>
+  body { margin: 0; background: #222; display: flex; justify-content: center; align-items: center; height: 100vh; }
+  #game { position: relative; width: 400px; height: 400px; background: #555; }
+  #player {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #0f0;
+    top: 190px;
+    left: 190px;
+  }
+</style>
 </head>
 <body>
-
-<div class="hero">
-    <p>EST. 2012.03.30</p>
-    <h1>0330</h1>
-    <div id="live-timer" class="timer">系统启动中...</div>
-</div>
-
-<div class="content">
-    <div class="box">
-        <h2>战术属性 / STATS</h2>
-        <canvas id="myChart"></canvas>
-    </div>
-    <div class="box">
-        <h2>任务记录 / MISSIONS</h2>
-        <p><strong>暗区突围 (Arena Breakout):</strong> 硬核撤离与资源博弈。</p>
-        <p><strong>KARDS:</strong> 二战策略，卡牌阵线压制。</p>
-        <p>掌握 Python 自动化与 C++ 基础架构。</p>
-    </div>
-</div>
-
-<div class="footer-nav">
-    <a href="tactical.html" class="bg-black">G.R.I.M. 组织百科</a>
-    <a href="chat.html" class="bg-gray">全球战术终端 (LIVE)</a>
+<div id="game">
+  <div id="player"></div>
 </div>
 
 <script>
-    function updateTimer() {
-        const birth = new Date('2012-03-30T00:00:00');
-        const now = new Date();
-        const diff = now - birth;
-        const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-        const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24));
-        const timeStr = now.toLocaleTimeString();
-        document.getElementById('live-timer').innerText = `已存续: ${years}年 ${days}天 | ${timeStr}`;
-    }
-    setInterval(updateTimer, 1000);
-    new Chart(document.getElementById('myChart'), {
-        type: 'radar',
-        data: {
-            labels: ['攻击', '防御', '智力', '体力', '经验', '技术'],
-            datasets: [{ data: [8, 6, 9, 7, 8, 9], borderColor: '#000', backgroundColor: 'rgba(0,0,0,0.1)' }]
-        },
-        options: { plugins: { legend: { display: false } } }
-    });
+const player = document.getElementById('player');
+const step = 10; // 每次移动10像素
+
+// 恢复上次位置
+let posX = parseInt(localStorage.getItem('playerX')) || 190;
+let posY = parseInt(localStorage.getItem('playerY')) || 190;
+player.style.left = posX + 'px';
+player.style.top = posY + 'px';
+
+document.addEventListener('keydown', e => {
+  switch(e.key){
+    case 'ArrowUp':
+    case 'w': posY = Math.max(0, posY - step); break;
+    case 'ArrowDown':
+    case 's': posY = Math.min(380, posY + step); break;
+    case 'ArrowLeft':
+    case 'a': posX = Math.max(0, posX - step); break;
+    case 'ArrowRight':
+    case 'd': posX = Math.min(380, posX + step); break;
+  }
+  player.style.left = posX + 'px';
+  player.style.top = posY + 'px';
+  localStorage.setItem('playerX', posX);
+  localStorage.setItem('playerY', posY);
+});
 </script>
 </body>
 </html>
