@@ -2,66 +2,97 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>0330 | 个人档案</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>纽约 2015 - 序章</title>
     <style>
-        body { background: #fff; color: #000; font-family: sans-serif; margin: 0; text-align: center; }
-        .hero { padding: 100px 20px; border-bottom: 10px solid #000; }
-        h1 { font-size: 80px; margin: 0; letter-spacing: 10px; }
-        .timer { font-family: monospace; font-size: 20px; margin-top: 20px; font-weight: bold; }
-        .content { display: flex; justify-content: space-around; padding: 50px; flex-wrap: wrap; }
-        .box { width: 400px; border: 2px solid #000; padding: 20px; margin: 10px; text-align: left; }
-        .footer-nav { display: flex; height: 100px; border-top: 2px solid #000; }
-        .footer-nav a { flex: 1; display: flex; align-items: center; justify-content: center; text-decoration: none; color: #fff; font-weight: bold; }
-        .bg-black { background: #000; }
-        .bg-gray { background: #333; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Microsoft YaHei', sans-serif; }
+
+        /* 塔科夫风格背景：大厦轻微摇晃 + 呼吸感 */
+        .background-container {
+            position: fixed;
+            width: 110%; height: 110%;
+            left: -5%; top: -5%;
+            background: url('https://r.jina.ai/i/0f3333333333333') no-repeat center center; /* 此处可换成你生成的本地大图路径 */
+            background-size: cover;
+            animation: cameraSway 15s infinite ease-in-out, lightningStrike 6s infinite;
+            z-index: 1;
+        }
+
+        /* 蒙版：增加压抑感 */
+        .overlay {
+            position: fixed; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.8) 100%);
+            z-index: 2;
+        }
+
+        /* 标题与按钮容器 */
+        .ui-content {
+            position: relative;
+            z-index: 10;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            height: 100vh;
+        }
+
+        .title {
+            font-size: 85px; color: #fff; font-weight: 900;
+            letter-spacing: 20px; text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            margin-bottom: 5px;
+            animation: flicker 4s infinite;
+        }
+
+        .subtitle {
+            font-size: 18px; color: #888; letter-spacing: 10px; margin-bottom: 80px;
+        }
+
+        .start-btn {
+            padding: 18px 80px; font-size: 20px; color: #fff;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.3);
+            cursor: pointer; letter-spacing: 8px;
+            transition: 0.5s; backdrop-filter: blur(5px);
+            text-decoration: none; /* 去掉超链接下划线 */
+        }
+
+        .start-btn:hover {
+            background: #fff; color: #000;
+            box-shadow: 0 0 40px rgba(255,255,255,0.6);
+            transform: scale(1.05);
+        }
+
+        /* --- 动画：相机摇晃 --- */
+        @keyframes cameraSway {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            50% { transform: translate(-10px, -15px) scale(1.02); }
+        }
+
+        /* --- 动画：随机闪电闪屏 --- */
+        @keyframes lightningStrike {
+            0%, 94%, 100% { filter: brightness(1) contrast(1); }
+            95% { filter: brightness(3) contrast(1.2); }
+            97% { filter: brightness(1.5); }
+            98% { filter: brightness(4) white-balance(20); }
+        }
+
+        /* --- 动画：文字微闪 --- */
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.9; }
+            98% { opacity: 1; }
+            99% { opacity: 0.5; }
+        }
     </style>
 </head>
 <body>
 
-<div class="hero">
-    <p>EST. 2012.03.30</p>
-    <h1>0330</h1>
-    <div id="live-timer" class="timer">系统启动中...</div>
-</div>
+    <div class="background-container"></div>
+    <div class="overlay"></div>
 
-<div class="content">
-    <div class="box">
-        <h2>战术属性 / STATS</h2>
-        <canvas id="myChart"></canvas>
+    <div class="ui-content">
+        <div class="title">NEW YORK 2015</div>
+        <div class="subtitle">曼哈顿禁区：生存协议</div>
+        <a href="chat.html" class="start-btn">开始游戏</a>
     </div>
-    <div class="box">
-        <h2>任务记录 / MISSIONS</h2>
-        <p><strong>暗区突围 (Arena Breakout):</strong> 硬核撤离与资源博弈。</p>
-        <p><strong>KARDS:</strong> 二战策略，卡牌阵线压制。</p>
-        <p>掌握 Python 自动化与 C++ 基础架构。</p>
-    </div>
-</div>
 
-<div class="footer-nav">
-    <a href="tactical.html" class="bg-black">G.R.I.M. 组织百科</a>
-    <a href="chat.html" class="bg-gray">全球战术终端 (LIVE)</a>
-</div>
-
-<script>
-    function updateTimer() {
-        const birth = new Date('2012-03-30T00:00:00');
-        const now = new Date();
-        const diff = now - birth;
-        const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-        const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 365.25)) / (1000 * 60 * 60 * 24));
-        const timeStr = now.toLocaleTimeString();
-        document.getElementById('live-timer').innerText = `已存续: ${years}年 ${days}天 | ${timeStr}`;
-    }
-    setInterval(updateTimer, 1000);
-    new Chart(document.getElementById('myChart'), {
-        type: 'radar',
-        data: {
-            labels: ['攻击', '防御', '智力', '体力', '经验', '技术'],
-            datasets: [{ data: [8, 6, 9, 7, 8, 9], borderColor: '#000', backgroundColor: 'rgba(0,0,0,0.1)' }]
-        },
-        options: { plugins: { legend: { display: false } } }
-    });
-</script>
 </body>
 </html>
