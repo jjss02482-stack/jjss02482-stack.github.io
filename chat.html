@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>NEW YORK 2015 - 战术终端（平衡更新版）</title>
+    <title>NEW YORK 2015 - 战术终端（天子警察 & 30章剧情版）</title>
     <style>
         :root { 
             --accent-blue: #0055ff; --bg-white: #ffffff; --panel-gray: #f4f4f4; 
@@ -85,11 +85,12 @@
 </div>
 
 <script>
-// --- 原有全局变量 ---
+// --- 全局变量 ---
 let player = { 
     name: "", faction: "", hp: 100, hpMax: 100, food: 100, water: 100, money: 0, wanted: 0, 
     loc: "中城区", inv: [], mission: null, day: 1, partnerTurns: 0,
-    stamina: 100, car: null, storyProgress: { "DRUG": 1 }, ally: null, allyTurns: 0
+    stamina: 100, car: null, storyProgress: { "DRUG": 1 }, ally: null, allyTurns: 0,
+    reiderCooldown: 0 // 新增：雷德尔电话冷却记录
 };
 
 const AREAS = { "中城区": 1, "华尔街": 2, "哈林区": 3, "布鲁克林": 2, "航母禁区": 5 };
@@ -102,7 +103,6 @@ const MARKET_DATA = [
     { id:5, name: "纯净水", price: 60, desc: "H2O +40" }
 ];
 
-// [载具数据更名]
 const VEHICLES = [
     { name: "通用皮卡", price: 1500, staminaFree: true, armored: false },
     { name: "维多利亚皇冠警车", price: 3000, staminaFree: true, armored: false },
@@ -113,13 +113,38 @@ const STORY_DRUG = [
     { ch: 1, title: "雷德尔：街头线报", loc: "哈林区", reward: 2000, msg: "追踪曼哈顿底层的毒品交易。" },
     { ch: 2, title: "雷德尔：仓库火拼", loc: "布鲁克林", reward: 5000, msg: "查封藏匿在港口的非法货物。" },
     { ch: 3, title: "雷德尔：高层名单", loc: "华尔街", reward: 8000, msg: "获取毒枭与官员勾结的证据。" },
-    { ch: 4, title: "【终章】雷德尔：禁区审判", loc: "航母禁区", reward: 20000, msg: "在禁区母舰上彻底摧毁供货链！" }
+    { ch: 4, title: "雷德尔：证人保护", loc: "中城区", reward: 4000, msg: "护送关键证人前往安全屋。" },
+    { ch: 5, title: "雷德尔：秘密突袭", loc: "布鲁克林", reward: 6000, msg: "摧毁市中心的地下加工厂。" },
+    { ch: 6, title: "雷德尔：黑警疑云", loc: "华尔街", reward: 7000, msg: "调查分局内部的内鬼证据。" },
+    { ch: 7, title: "雷德尔：哈林暗影", loc: "哈林区", reward: 9000, msg: "解决威胁证人的街头头目。" },
+    { ch: 8, title: "雷德尔：证据转移", loc: "中城区", reward: 10000, msg: "将名单加密盘送往总部。" },
+    { ch: 9, title: "雷德尔：困兽之斗", loc: "布鲁克林", reward: 12000, msg: "在包围圈中守住关键证据。" },
+    { ch: 10, title: "雷德尔：禁区审判", loc: "航母禁区", reward: 20000, msg: "在禁区母舰上彻底摧毁供货链！" },
+    { ch: 11, title: "金融风暴：异常波动", loc: "华尔街", reward: 3000, msg: "拦截跨国银行的非法资金流。" },
+    { ch: 12, title: "金融风暴：离岸账户", loc: "中城区", reward: 4500, msg: "潜入律师事务所获取离案名单。" },
+    { ch: 13, title: "金融风暴：午夜暗杀", loc: "布鲁克林", reward: 5500, msg: "清理来灭口的职业杀手。" },
+    { ch: 14, title: "金融风暴：虚假合同", loc: "华尔街", reward: 6500, msg: "搜集被篡改的政府基建合同。" },
+    { ch: 15, title: "金融风暴：洗钱港口", loc: "布鲁克林", reward: 7500, msg: "查封伪装成海产贸易的钱庄。" },
+    { ch: 16, title: "金融风暴：高管叛逃", loc: "中城区", reward: 8500, msg: "在机场拦截准备出逃的CFO。" },
+    { ch: 17, title: "金融风暴：数据格式化", loc: "华尔街", reward: 11000, msg: "阻止银行后台系统删除证据。" },
+    { ch: 18, title: "金融风暴：影子CEO", loc: "哈林区", reward: 13000, msg: "在平民窟寻找真正的幕后控股人。" },
+    { ch: 19, title: "金融风暴：最后勒索", loc: "布鲁克林", reward: 15000, msg: "与对方代理人进行危险的面谈。" },
+    { ch: 20, title: "金融风暴：血染金库", loc: "华尔街", reward: 30000, msg: "决战华尔街地下深处的服务器机房。" },
+    { ch: 21, title: "寒冬：边境摩擦", loc: "布鲁克林", reward: 4000, msg: "调查军方仓库丢失的生化试剂。" },
+    { ch: 22, title: "寒冬：叛逃小组", loc: "哈林区", reward: 5000, msg: "追踪携带机密的叛逃特种兵。" },
+    { ch: 23, title: "寒冬：无线电静默", loc: "中城区", reward: 6000, msg: "修复被切断的军用信号发射塔。" },
+    { ch: 24, title: "寒冬：坠机现场", loc: "布鲁克林", reward: 8000, msg: "抢在黑帮前夺回无人机黑匣子。" },
+    { ch: 25, title: "寒冬：基因片段", loc: "哈林区", reward: 10000, msg: "从秘密实验室取回病毒样本。" },
+    { ch: 26, title: "寒冬：铁腕镇压", loc: "华尔街", reward: 12000, msg: "清剿非法占领交易所的雇佣兵。" },
+    { ch: 27, title: "寒冬：内部清理", loc: "中城区", reward: 14000, msg: "处决已经被敌方收买的指挥官。" },
+    { ch: 28, title: "寒冬：防空指令", loc: "华尔街", reward: 16000, msg: "重启被非法接管的近程防御导弹。" },
+    { ch: 29, title: "寒冬：最后突击", loc: "哈林区", reward: 18000, msg: "攻占叛军在北区的最后堡垒。" },
+    { ch: 30, title: "【大结局】寒冬：断头台", loc: "航母禁区", reward: 50000, msg: "彻底终结航母上的邪念，迎来纽约的新生！" }
 ];
 
 function initGame(f) {
     player.name = prompt("ENTER IDENTIFICATION / 输入代号:", "GHOST") || "ANON";
     player.faction = f;
-    // [平衡性调整：警察血量上限为50]
     if(f === 'POLICE') {
         player.hp = 50;
         player.hpMax = 50;
@@ -182,9 +207,9 @@ function movePlayer(target, cost) {
 
 function openStoryBoard() {
     let progress = player.storyProgress.DRUG;
-    if(progress > 4) return addLog("雷德尔剧情线已完结。");
+    if(progress > 30) return addLog("全剧情任务已完结。");
     let task = STORY_DRUG[progress - 1];
-    let html = `<h4>STORY: ANTI-DRUG</h4><div class="item-card">
+    let html = `<h4>STORY OBJECTIVE</h4><div class="item-card">
                 <span><b>CH-${task.ch}: ${task.title}</b><br><small>${task.msg}</small></span>
                 <span style="color:green">$${task.reward}</span></div>
                 <button onclick="acceptStory()" style="width:100%">ACCEPT / 接取剧情任务</button>`;
@@ -217,9 +242,7 @@ function executeMission() {
                 player.storyProgress.DRUG++;
                 addLog("<span class='story-msg'>STORY PROGRESS UPDATED / 剧情推进。</span>");
             }
-            // 警察阵营在警官协助期间不增加通缉
             if(player.faction !== 'POLICE' && Math.random() < 0.3) player.wanted = Math.min(5, player.wanted + 1);
-            
             player.mission = null;
         } else {
             let dmg = player.inv.includes("防弹衣") ? 15 : 30;
@@ -227,11 +250,8 @@ function executeMission() {
             addLog(`💀 MISSION FAILED. VITALS -${dmg}%`);
             if(player.partnerTurns <= 0) player.wanted = Math.min(5, player.wanted + 1);
         }
-        
-        // 回合消耗
         if(player.allyTurns > 0) player.allyTurns--;
         if(player.partnerTurns > 0) player.partnerTurns--;
-        
         updateUI();
     }, 1000);
 }
@@ -305,13 +325,22 @@ function openPhone() {
 function pressDial(n) { dialNum += n; document.getElementById('dial-display').innerText = dialNum; }
 
 function call() {
-    if(dialNum === "000") {
-        // [调整：小弟持续1回合]
+    // --- 新增：雷德尔专属拨号 (666) ---
+    if(dialNum === "666") {
+        if(player.reiderCooldown > 0) {
+            addLog(`雷德尔: "急什么？我的人还在路上，冷却中 (${player.reiderCooldown} 天/小时)"`);
+        } else {
+            player.partnerTurns = 3; // 效果比911更强，持续3回合
+            player.reiderCooldown = 2; // 设置2天冷却
+            addLog("<span class='story-msg'>雷德尔: '两名高级警官已经出发，他们会处理一切。'</span>");
+            addLog("<span class='police-msg'>NYPD支援已抵达：获得双倍警力保护（持续3回合）。</span>");
+        }
+    } 
+    else if(dialNum === "000") {
         player.allyTurns = 1;
         player.ally = (player.faction === "POLICE") ? "警犬 K-9" : "雇佣兵";
         addLog(`UNIT ASSIGNED: ${player.ally} 已加入 (持续1回合)。`);
     } else if(dialNum === "911") {
-        // [新逻辑：911 呼叫平衡]
         let callChance = (player.faction === 'POLICE') ? 1.0 : 0.5;
         if(Math.random() < callChance) {
             player.partnerTurns = 2;
@@ -329,6 +358,10 @@ function passDay() {
     player.food -= 15; 
     player.water -= 20; 
     player.stamina = 100;
+    
+    // --- 新增：冷却逻辑计算 ---
+    if(player.reiderCooldown > 0) player.reiderCooldown--;
+    
     addLog("🌅 NEXT CYCLE."); 
     if(player.food <= 0 || player.water <= 0) {
         player.hp -= 10; addLog("⚠️ STARVATION: HP -10!");
