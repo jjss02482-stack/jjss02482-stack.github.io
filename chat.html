@@ -1,304 +1,197 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<title>G.R.I.M. 内部终端</title>
+    <meta charset="UTF-8">
+    <title>纽约霸主：生存与杀戮 - 终极版</title>
+    <style>
+        :root { --neon-green: #00ff00; --dark-bg: #0a0a0a; --wanted-red: #ff0000; --police-blue: #0088ff; }
+        body { background-color: var(--dark-bg); color: #ccc; font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        #game-container { background: #000; border: 2px solid #333; width: 900px; padding: 25px; box-shadow: 0 0 30px rgba(0,255,0,0.1); position: relative; }
+        h1 { text-align: center; color: var(--neon-green); text-transform: uppercase; letter-spacing: 5px; border-bottom: 2px solid #222; padding-bottom: 10px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; background: #111; padding: 15px; border-radius: 5px; }
+        .stat-item { font-size: 14px; }
+        .stat-value { color: var(--neon-green); font-weight: bold; }
+        
+        #log { height: 280px; overflow-y: auto; border: 1px solid #222; padding: 15px; background: #050505; margin-bottom: 20px; font-size: 13px; line-height: 1.6; border-left: 3px solid var(--neon-green); }
+        .police-msg { color: var(--police-blue); font-weight: bold; }
 
-<style>
-
-body{
-margin:0;
-background:#000;
-color:#fff;
-font-family:Courier New;
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-overflow:hidden;
-}
-
-/* 锁屏 */
-
-#lock{text-align:center;}
-#lock h1{font-size:60px;}
-
-.pass-wrap{
-display:flex;
-justify-content:center;
-gap:6px;
-}
-
-input{
-background:#000;
-border:1px solid #fff;
-color:#fff;
-padding:10px;
-font-size:18px;
-}
-
-.eye{
-cursor:pointer;
-padding:10px;
-border:1px solid #fff;
-}
-
-button{
-background:#000;
-border:1px solid #fff;
-color:#fff;
-padding:10px 20px;
-cursor:pointer;
-margin-top:10px;
-}
-
-button:hover{
-background:#fff;
-color:#000;
-}
-
-/* 主终端 */
-
-#terminal{
-display:none;
-flex-direction:column;
-width:90%;
-height:90%;
-position:relative;
-}
-
-header{
-font-size:60px;
-text-align:center;
-animation:breath 3s infinite;
-}
-
-@keyframes breath{
-0%{opacity:.3}
-50%{opacity:1}
-100%{opacity:.3}
-}
-
-.panel{
-display:flex;
-gap:10px;
-justify-content:center;
-flex-wrap:wrap;
-}
-
-#screen{
-flex:1;
-border:1px solid #fff;
-padding:10px;
-overflow:auto;
-white-space:pre-wrap;
-background:rgba(0,0,0,.85);
-}
-
-/* 雷达地球 */
-
-#globeCanvas{
-position:absolute;
-bottom:10px;
-left:10px;
-border:1px solid #fff;
-opacity:.35;
-pointer-events:none;
-}
-
-textarea{
-width:100%;
-height:200px;
-background:#000;
-color:#fff;
-border:1px solid #fff;
-}
-
-</style>
+        .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        button { background: #1a1a1a; color: var(--neon-green); border: 1px solid var(--neon-green); padding: 12px; cursor: pointer; font-family: inherit; font-weight: bold; transition: 0.2s; text-transform: uppercase; font-size: 11px; }
+        button:hover { background: var(--neon-green); color: #000; box-shadow: 0 0 10px var(--neon-green); }
+        
+        #modal-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10; padding: 20px; box-sizing: border-box; }
+        #modal-content { border: 1px solid var(--neon-green); background: #000; height: 90%; padding: 20px; overflow-y: auto; text-align: center; }
+        
+        .dial-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 210px; margin: 20px auto; }
+        .dial-btn { width: 60px; height: 60px; border-radius: 50%; font-size: 20px; border: 1px solid var(--neon-green); }
+        #dial-display { font-size: 24px; color: var(--neon-green); margin-bottom: 20px; height: 30px; letter-spacing: 5px; border-bottom: 1px solid #333; }
+        .faction-card { border: 1px solid #444; padding: 15px; margin: 10px 0; cursor: pointer; }
+    </style>
 </head>
-
 <body>
 
-<!-- 锁屏 -->
+<div id="game-container">
+    <h1>🌆 New York Overlord: Z</h1>
 
-<div id="lock">
+    <div id="setup-screen">
+        <h3 style="text-align:center;">选择你的出身背景</h3>
+        <div class="faction-card" onclick="initGame('POLICE')"><b>👮 NYPD 秩序守护者 (法律加成)</b></div>
+        <div class="faction-card" onclick="initGame('MILITARY')"><b>🎖️ 国民警卫队 (重火力)</b></div>
+        <div class="faction-card" onclick="initGame('GANG')"><b>💀 “骷髅会”帮派 (黑市折扣)</b></div>
+    </div>
 
-<h1>需要解锁二级权限</h1>
+    <div id="main-ui" style="display:none;">
+        <div class="stats-grid">
+            <div class="stat-item">代号: <span id="stat-name" class="stat-value"></span></div>
+            <div class="stat-item">阵营: <span id="stat-faction" class="stat-value"></span></div>
+            <div class="stat-item">通缉: <span id="stat-wanted" style="color:red;"></span></div>
+            <div class="stat-item">钱包: <span id="stat-money" class="stat-value"></span></div>
+            <div class="stat-item">HP: <span id="stat-hp" class="stat-value"></span>%</div>
+            <div class="stat-item">饱食: <span id="stat-food" class="stat-value"></span></div>
+            <div class="stat-item">位置: <span id="stat-loc" class="stat-value"></span></div>
+            <div class="stat-item">队友: <span id="stat-partner" style="color:var(--police-blue);">无</span></div>
+        </div>
 
-<div class="pass-wrap">
-<input id="pass" type="password" placeholder="输入密码">
-<div class="eye" id="eye">👁</div>
-</div>
+        <div id="log"></div>
 
-<button id="unlockBtn">解锁</button>
-<button onclick="location.href='index.html'">← 返回主页</button>
+        <div class="menu-grid">
+            <button onclick="openMove()">🗺️ 移动</button>
+            <button onclick="openMissions()">📱 任务</button>
+            <button onclick="executeMission()">⚡ 执行任务</button>
+            <button onclick="openMarket()">🛒 黑市</button>
+            <button onclick="openInventory()">🎒 背包</button>
+            <button onclick="openPhone()">📞 拨号</button>
+            <button onclick="passDay()">💤 休息</button>
+        </div>
+    </div>
 
-<div id="msg"></div>
-
-</div>
-
-<!-- 主终端 -->
-
-<div id="terminal">
-
-<header>G.R.I.M.</header>
-
-<div class="panel">
-<button onclick="brief()">暗区简报</button>
-<button onclick="showRanks()">军衔系统</button>
-<button onclick="diary()">日记本</button>
-<button onclick="location.href='index.html'">返回主页</button>
-</div>
-
-<div id="screen">内部终端已启动…</div>
-
-<canvas id="globeCanvas" width="120" height="120"></canvas>
-
+    <div id="modal-overlay">
+        <div id="modal-content">
+            <h2 id="modal-title"></h2>
+            <div id="modal-body"></div>
+            <button onclick="closeModal()" style="width:100%; margin-top:20px; border-color: #f00; color: #f00;">返回</button>
+        </div>
+    </div>
 </div>
 
 <script>
+let player = { 
+    name: "", faction: "", hp: 100, food: 100, water: 100, 
+    money: 200, wanted: 0, loc: "中城区", inv: [], 
+    mission: null, day: 1, partnerTurns: 0 
+};
+let dialNum = "";
 
-window.onload=function(){
-
-const PASSWORD="J.0330jpn";
-
-const pass=document.getElementById("pass");
-const eye=document.getElementById("eye");
-const msg=document.getElementById("msg");
-const lock=document.getElementById("lock");
-const terminal=document.getElementById("terminal");
-const screen=document.getElementById("screen");
-
-/* 密码显示 */
-
-eye.onclick=()=>{
-pass.type=pass.type==="password"?"text":"password";
+const SECRETS = {
+    "911": { 
+        call: () => {
+            if (Math.random() < 0.8) {
+                player.partnerTurns = 2;
+                addLog(`<span class="police-msg">【911响应】一名幸存的警员接手了请求：“伙计，我正好在附近，我能陪你干两趟活。”</span>`);
+            } else {
+                addLog(`...电话那头只有嘈杂的求救声和枪响，没人理会你。`);
+            }
+        }
+    },
+    "666": { call: () => { addLog("👹 恶魔之声：‘用你的灵魂换取金钱...’"); player.hp -= 20; player.money += 400; }},
+    "1999": { call: () => { addLog("📻 听到旧时代的广播：‘今日道指上涨...’。你在脚下发现$200。"); player.money += 200; }}
 };
 
-/* 回车解锁 */
-
-pass.addEventListener("keydown",e=>{
-if(e.key==="Enter") unlock();
-});
-
-/* 解锁 */
-
-document.getElementById("unlockBtn").onclick=unlock;
-
-function unlock(){
-
-if(pass.value===PASSWORD){
-
-lock.style.display="none";
-terminal.style.display="flex";
-startGlobe();
-
-}else{
-
-msg.textContent="❌ 无权限";
-
+function initGame(f) {
+    player.name = prompt("输入代号:", "Ghost");
+    player.faction = f;
+    if(f==='GANG') player.money=800;
+    if(f==='MILITARY') player.inv.push("M4步枪");
+    document.getElementById('setup-screen').style.display='none';
+    document.getElementById('main-ui').style.display='block';
+    addLog(`系统：曼哈顿生存协议已启动。`);
+    updateUI();
 }
 
+function updateUI() {
+    document.getElementById('stat-name').innerText = player.name;
+    document.getElementById('stat-faction').innerText = player.faction;
+    document.getElementById('stat-wanted').innerText = "★".repeat(player.wanted);
+    document.getElementById('stat-hp').innerText = player.hp;
+    document.getElementById('stat-money').innerText = "$" + player.money;
+    document.getElementById('stat-food').innerText = player.food;
+    document.getElementById('stat-loc').innerText = player.loc;
+    document.getElementById('stat-partner').innerText = player.partnerTurns > 0 ? `警员协同 (${player.partnerTurns}次)` : "无";
+    if(player.hp <= 0) { alert("你死在了废墟中..."); location.reload(); }
 }
 
-/* 军衔数据 */
-
-const ranks=[
-{name:"实习",desc:"习见阶段，你要通过完成任务转正"},
-{name:"二等兵",desc:"完成初级训练，可以接取部分任务。"},
-{name:"一等兵",desc:"拥有标准武器申领权"},
-{name:"上等兵",desc:"精英士兵"},
-{name:"军校教官",desc:"负责训练"},
-{name:"准尉",desc:"战术顾问"},
-{name:"下士",desc:"战术骨干"},
-{name:"中士",desc:"班组核心"},
-{name:"上士",desc:"资深专家"},
-{name:"军士长",desc:"士兵领袖"},
-{name:"中尉",desc:"排级指挥"},
-{name:"上尉",desc:"连级核心"},
-{name:"准将",desc:"战区统筹"},
-{name:"少将",desc:"高级权限"},
-{name:"中将",desc:"布置任务"},
-{name:"上将",desc:"决策层"},
-{name:"五星上将",desc:"最高权限"}
-];
-
-/* 功能 */
-
-window.brief=function(){
-screen.textContent="【暗区简报】\n\n电视台已被白狼联队占领\n深渊小队近日伙食变好";
-};
-
-window.showRanks=function(){
-let out="【军衔系统】\n\n";
-ranks.forEach((r,i)=>{
-out+=(i+1)+"."+r.name+"\n"+r.desc+"\n\n";
-});
-screen.textContent=out;
-};
-
-window.diary=function(){
-
-screen.innerHTML=`
-【日记本】
-
-<textarea id="note"></textarea>
-<br>
-<button onclick="saveNote()">保存</button>
-`;
-
-note.value=localStorage.getItem("grim_note")||"";
-
-};
-
-window.saveNote=function(){
-localStorage.setItem("grim_note",note.value);
-alert("已保存");
-};
-
-/* 地球动画 */
-
-function startGlobe(){
-
-const c=document.getElementById("globeCanvas");
-const ctx=c.getContext("2d");
-
-let angle=0;
-
-function draw(){
-
-ctx.clearRect(0,0,120,120);
-ctx.strokeStyle="#fff";
-
-ctx.beginPath();
-ctx.arc(60,60,40,0,Math.PI*2);
-ctx.stroke();
-
-for(let i=-2;i<=2;i++){
-ctx.beginPath();
-ctx.ellipse(60,60,40,15+i*5,0,0,Math.PI*2);
-ctx.stroke();
+function addLog(m) {
+    const l = document.getElementById('log');
+    l.innerHTML += `<div>[Day ${player.day}] ${m}</div>`;
+    l.scrollTop = l.scrollHeight;
 }
 
-for(let i=0;i<4;i++){
-let a=angle+i*Math.PI/2;
-ctx.beginPath();
-ctx.ellipse(60,60,10,40,a,0,Math.PI*2);
-ctx.stroke();
+// --- 拨号系统 ---
+function openPhone() {
+    dialNum = "";
+    let html = `<div id="dial-display">_</div><div class="dial-pad">` + 
+        [1,2,3,4,5,6,7,8,9,"*",0,"#"].map(n => `<button class="dial-btn" onclick="pressDial('${n}')">${n}</button>`).join("") +
+        `</div><button onclick="call()" style="width:210px; background:#008800; color:white; border:none; padding:10px;">拨通</button>`;
+    openModal("加密通讯终端", html);
 }
 
-angle+=0.02;
-requestAnimationFrame(draw);
+function pressDial(n) { dialNum += n; document.getElementById('dial-display').innerText = dialNum; }
 
+function call() {
+    addLog(`📞 拨号中: ${dialNum}...`);
+    if(SECRETS[dialNum]) SECRETS[dialNum].call();
+    else addLog("...线路忙，请稍后再拨。");
+    closeModal(); updateUI();
 }
 
-draw();
+// --- 任务系统 (核心修改点) ---
+function executeMission() {
+    if(!player.mission) return addLog("⚠ 你没有待执行的任务。");
+    if(player.loc !== player.mission.loc) return addLog(`📍 任务目标在 ${player.mission.loc}！`);
 
+    addLog(`执行任务: ${player.mission.title}...`);
+    
+    // 成功率逻辑
+    let successChance = 0.6;
+    if (player.inv.includes("M4步枪")) successChance += 0.2;
+    if (player.partnerTurns > 0) {
+        successChance += 0.25; // 警察在场大幅提升概率
+        addLog(`<span class="police-msg">警员为你提供掩护，任务成功率提升！</span>`);
+    }
+
+    setTimeout(() => {
+        if(Math.random() < successChance) {
+            addLog(`✅ 任务大成功！赚取 $${player.mission.reward}`);
+            player.money += player.mission.reward;
+            if(player.partnerTurns > 0) player.partnerTurns--; 
+            player.mission = null;
+        } else {
+            addLog(`💀 任务失败，你受伤了！`);
+            player.hp -= 30;
+            if(player.partnerTurns > 0) {
+                addLog(`<span class="police-msg">警员为了掩护你撤退，先行离开了。</span>`);
+                player.partnerTurns = 0;
+            }
+        }
+        updateUI();
+    }, 1000);
 }
 
-};
-
+// --- 基础导航 ---
+function openModal(t, b) { document.getElementById('modal-title').innerText = t; document.getElementById('modal-body').innerHTML = b; document.getElementById('modal-overlay').style.display = 'block'; }
+function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+function openMove() {
+    let locs = ["中城区", "华尔街", "哈林区", "航母禁区"];
+    openModal("移动至...", locs.map(l => `<button onclick="player.loc='${l}'; addLog('抵达${l}'); closeModal(); updateUI();" style="display:block; width:100%; margin:5px 0;">${l}</button>`).join(""));
+}
+function openMissions() {
+    player.mission = { title: "搜寻医疗包", loc: "哈林区", reward: 500 };
+    addLog(`📡 新任务: 在 ${player.mission.loc} ${player.mission.title}`);
+}
+function passDay() { player.day++; player.food -= 10; addLog("🌅 新的一天，警察和威胁同在。"); updateUI(); }
+function openMarket() { openModal("影子集市", "<button onclick='if(player.money>=1000){player.money-=1000; player.inv.push(\"M4步枪\"); updateUI(); closeModal();}'>$1000 购买 M4步枪</button>"); }
+function openInventory() { openModal("战术背包", player.inv.length ? player.inv.join(", ") : "空"); }
 </script>
-
 </body>
 </html>
