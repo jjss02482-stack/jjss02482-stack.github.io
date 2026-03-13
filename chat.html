@@ -2,12 +2,12 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>NEW YORK 2015 - 战术终端（扩展增强版）</title>
+    <title>NEW YORK 2015 - 战术终端（平衡更新版）</title>
     <style>
         :root { 
             --accent-blue: #0055ff; --bg-white: #ffffff; --panel-gray: #f4f4f4; 
             --text-dark: #1a1a1a; --police-blue: #0033aa; --wanted-red: #ff0000; 
-            --story-gold: #d4af37; /* 新增剧情颜色 */
+            --story-gold: #d4af37;
         }
 
         body { background-color: var(--bg-white); color: var(--text-dark); font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
@@ -20,9 +20,9 @@
 
         #log { height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 15px; background: #fafafa; margin-bottom: 20px; font-size: 13px; line-height: 1.8; border-left: 4px solid var(--accent-blue); color: #333; }
         .police-msg { color: var(--police-blue); font-weight: bold; }
-        .story-msg { color: var(--story-gold); font-weight: bold; background: #000; padding: 2px 5px; } /* 新增 */
+        .story-msg { color: var(--story-gold); font-weight: bold; background: #000; padding: 2px 5px; }
 
-        .menu-grid { display: grid; grid-template-columns: repeat(4, 24%); gap: 1.3%; } /* 微调间距以容纳更多按钮 */
+        .menu-grid { display: grid; grid-template-columns: repeat(4, 24%); gap: 1.3%; }
         button { background: #fff; color: #000; border: 1px solid #000; padding: 14px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 11px; transition: all 0.2s; text-transform: uppercase; }
         button:hover { background: #000; color: #fff; }
         button:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; background: #f9f9f9; }
@@ -51,12 +51,14 @@
     <div id="main-ui" style="display:none;">
         <div class="stats-grid">
             <div class="stat-item">ID: <span id="stat-name" class="stat-value"></span></div>
-            <div class="stat-item">STAMINA: <span id="stat-stam" style="color:orange;">100</span>/100</div> <div class="stat-item">WANTED: <span id="stat-wanted" style="color:var(--wanted-red);"></span></div>
+            <div class="stat-item">STAMINA: <span id="stat-stam" style="color:orange;">100</span>/100</div> 
+            <div class="stat-item">WANTED: <span id="stat-wanted" style="color:var(--wanted-red);"></span></div>
             <div class="stat-item">SECTOR: <span id="stat-loc" class="stat-value"></span></div>
             <div class="stat-item">VITALS: <span id="stat-hp" class="stat-value">100</span>%</div>
             <div class="stat-item">SUPPLY: <span id="stat-survive" class="stat-value">100/100</span></div>
             <div class="stat-item">CREDITS: <span id="stat-money" class="stat-value"></span></div>
-            <div class="stat-item">VEHICLE: <span id="stat-car" style="color:purple;">WALKING</span></div> </div>
+            <div class="stat-item">VEHICLE: <span id="stat-car" style="color:purple;">WALKING</span></div> 
+        </div>
 
         <div id="log"></div>
 
@@ -64,8 +66,10 @@
             <button onclick="openMove()">🗺️ SECTOR / 区域移动</button>
             <button onclick="openMissions()">📱 COMMS / 接收任务</button>
             <button onclick="executeMission()">⚡ ACTION / 执行任务</button>
-            <button onclick="openStoryBoard()">📖 STORY / 剧情任务</button> <button onclick="openMarket()">🛒 TRADE / 影子集市</button>
-            <button onclick="openVehicleMarket()">🏎️ GARAGE / 载具中心</button> <button onclick="openInventory()">🎒 GEAR / 战术背包</button>
+            <button onclick="openStoryBoard()">📖 STORY / 剧情任务</button> 
+            <button onclick="openMarket()">🛒 TRADE / 影子集市</button>
+            <button onclick="openVehicleMarket()">🏎️ GARAGE / 载具中心</button> 
+            <button onclick="openInventory()">🎒 GEAR / 战术背包</button>
             <button onclick="openPhone()">📞 DIAL / 拨号系统</button>
             <button onclick="passDay()">💤 REST / 休息一天</button>
         </div>
@@ -83,10 +87,9 @@
 <script>
 // --- 原有全局变量 ---
 let player = { 
-    name: "", faction: "", hp: 100, food: 100, water: 100, money: 0, wanted: 0, 
+    name: "", faction: "", hp: 100, hpMax: 100, food: 100, water: 100, money: 0, wanted: 0, 
     loc: "中城区", inv: [], mission: null, day: 1, partnerTurns: 0,
-    // [新添变量]
-    stamina: 100, car: null, storyProgress: { "DRUG": 1 }, ally: null 
+    stamina: 100, car: null, storyProgress: { "DRUG": 1 }, ally: null, allyTurns: 0
 };
 
 const AREAS = { "中城区": 1, "华尔街": 2, "哈林区": 3, "布鲁克林": 2, "航母禁区": 5 };
@@ -99,14 +102,13 @@ const MARKET_DATA = [
     { id:5, name: "纯净水", price: 60, desc: "H2O +40" }
 ];
 
-// [新添载具数据]
+// [载具数据更名]
 const VEHICLES = [
     { name: "通用皮卡", price: 1500, staminaFree: true, armored: false },
-    { name: "警用巡逻车", price: 3000, staminaFree: true, armored: false },
+    { name: "维多利亚皇冠警车", price: 3000, staminaFree: true, armored: false },
     { name: "特种防弹车", price: 10000, staminaFree: true, armored: true }
 ];
 
-// [新添剧情数据]
 const STORY_DRUG = [
     { ch: 1, title: "雷德尔：街头线报", loc: "哈林区", reward: 2000, msg: "追踪曼哈顿底层的毒品交易。" },
     { ch: 2, title: "雷德尔：仓库火拼", loc: "布鲁克林", reward: 5000, msg: "查封藏匿在港口的非法货物。" },
@@ -114,10 +116,17 @@ const STORY_DRUG = [
     { ch: 4, title: "【终章】雷德尔：禁区审判", loc: "航母禁区", reward: 20000, msg: "在禁区母舰上彻底摧毁供货链！" }
 ];
 
-// --- 原有逻辑整合 (保持不动) ---
 function initGame(f) {
     player.name = prompt("ENTER IDENTIFICATION / 输入代号:", "GHOST") || "ANON";
     player.faction = f;
+    // [平衡性调整：警察血量上限为50]
+    if(f === 'POLICE') {
+        player.hp = 50;
+        player.hpMax = 50;
+    } else {
+        player.hp = 100;
+        player.hpMax = 100;
+    }
     player.money = (f === 'GANG') ? 1000 : 200;
     if(f === 'MILITARY') player.inv.push("突击步枪");
     if(f === 'POLICE') player.inv.push("医疗包");
@@ -134,7 +143,6 @@ function updateUI() {
     document.getElementById('stat-survive').innerText = `${player.food}/${player.water}`;
     document.getElementById('stat-money').innerText = `$${player.money}`;
     document.getElementById('stat-loc').innerText = player.loc;
-    // [新添UI同步]
     document.getElementById('stat-stam').innerText = player.stamina;
     document.getElementById('stat-car').innerText = player.car ? player.car.name : "WALKING";
     
@@ -147,7 +155,6 @@ function addLog(msg) {
     l.scrollTop = l.scrollHeight;
 }
 
-// --- [新添逻辑：移动与体力系统] ---
 function openMove() {
     let html = "<h4>SECTOR NAV / 区域移动</h4>";
     Object.keys(AREAS).forEach(l => {
@@ -162,8 +169,6 @@ function movePlayer(target, cost) {
     player.stamina -= cost;
     player.loc = target;
     addLog(`MOVED TO ${target}.`);
-    
-    // 禁区判定
     if(target === "航母禁区") {
         if(player.car && player.car.armored) {
             addLog("🛡️ 车辆装甲抵挡了禁区火力。");
@@ -175,7 +180,6 @@ function movePlayer(target, cost) {
     closeModal(); updateUI();
 }
 
-// --- [新添逻辑：特殊剧情任务] ---
 function openStoryBoard() {
     let progress = player.storyProgress.DRUG;
     if(progress > 4) return addLog("雷德尔剧情线已完结。");
@@ -194,7 +198,6 @@ function acceptStory() {
     closeModal();
 }
 
-// --- 原有任务执行逻辑 (增量扩展) ---
 function executeMission() {
     if(!player.mission) return addLog("⚠ NO ACTIVE MISSION.");
     if(player.loc !== player.mission.loc) return addLog(`⚠ PROCEED TO ${player.mission.loc} FIRST.`);
@@ -203,7 +206,8 @@ function executeMission() {
     addLog(`EXECUTING: ${player.mission.title}...`);
     player.stamina -= 30;
     let chance = 0.6 + (player.inv.includes("突击步枪") ? 0.3 : 0);
-    if(player.ally) chance += 0.2; // 阵营成员加成
+    if(player.allyTurns > 0) chance += 0.2; 
+    if(player.partnerTurns > 0) chance += 0.25;
 
     setTimeout(() => {
         if(Math.random() < chance) {
@@ -213,17 +217,25 @@ function executeMission() {
                 player.storyProgress.DRUG++;
                 addLog("<span class='story-msg'>STORY PROGRESS UPDATED / 剧情推进。</span>");
             }
+            // 警察阵营在警官协助期间不增加通缉
+            if(player.faction !== 'POLICE' && Math.random() < 0.3) player.wanted = Math.min(5, player.wanted + 1);
+            
             player.mission = null;
         } else {
             let dmg = player.inv.includes("防弹衣") ? 15 : 30;
             player.hp -= dmg;
             addLog(`💀 MISSION FAILED. VITALS -${dmg}%`);
+            if(player.partnerTurns <= 0) player.wanted = Math.min(5, player.wanted + 1);
         }
+        
+        // 回合消耗
+        if(player.allyTurns > 0) player.allyTurns--;
+        if(player.partnerTurns > 0) player.partnerTurns--;
+        
         updateUI();
     }, 1000);
 }
 
-// --- [新添逻辑：载具中心] ---
 function openVehicleMarket() {
     let html = "<h4>VEHICLE DEALER / 载具中心</h4>";
     VEHICLES.forEach((v, idx) => {
@@ -242,7 +254,6 @@ function buyVehicle(idx) {
     }
 }
 
-// --- 原有商店与背包逻辑 (保持不动) ---
 function openMarket() {
     let disc = player.faction === "GANG" ? 0.8 : 1.0;
     let html = "<h4>SHADOW TRADE</h4>";
@@ -274,7 +285,7 @@ function openInventory() {
 }
 
 function useItem(name) {
-    if(name === "医疗包") player.hp = Math.min(100, player.hp + 40);
+    if(name === "医疗包") player.hp = Math.min(player.hpMax, player.hp + 40);
     else if(name === "牛肉罐头") player.food = Math.min(100, player.food + 40);
     else if(name === "纯净水") player.water = Math.min(100, player.water + 40);
     else { addLog(`EQUIPPED: ${name}.`); closeModal(); return; }
@@ -283,7 +294,6 @@ function useItem(name) {
     openInventory(); updateUI();
 }
 
-// --- 拨号系统 (增量扩展阵营暗号) ---
 let dialNum = "";
 function openPhone() {
     dialNum = "";
@@ -293,12 +303,23 @@ function openPhone() {
     openModal("TERMINAL", html);
 }
 function pressDial(n) { dialNum += n; document.getElementById('dial-display').innerText = dialNum; }
+
 function call() {
-    if(dialNum === "000") { // [新增阵营暗号]
+    if(dialNum === "000") {
+        // [调整：小弟持续1回合]
+        player.allyTurns = 1;
         player.ally = (player.faction === "POLICE") ? "警犬 K-9" : "雇佣兵";
-        addLog(`UNIT ASSIGNED: ${player.ally} 已加入。`);
+        addLog(`UNIT ASSIGNED: ${player.ally} 已加入 (持续1回合)。`);
     } else if(dialNum === "911") {
-        player.partnerTurns = 2; addLog("DISPATCH: OFFICER EN ROUTE.");
+        // [新逻辑：911 呼叫平衡]
+        let callChance = (player.faction === 'POLICE') ? 1.0 : 0.5;
+        if(Math.random() < callChance) {
+            player.partnerTurns = 2;
+            addLog("<span class='police-msg'>DISPATCH: 'OFFICER EN ROUTE.' 警官将在接下来的2个任务中协助你。</span>");
+            if(player.faction === 'POLICE') addLog("<span class='police-msg'>INFO: 官方行动期间不会受到通缉。</span>");
+        } else {
+            addLog("...NO RESPONSE.");
+        }
     } else { addLog("...NO SIGNAL."); }
     closeModal(); updateUI();
 }
@@ -307,10 +328,10 @@ function passDay() {
     player.day++; 
     player.food -= 15; 
     player.water -= 20; 
-    player.stamina = 100; // 每天重置体力
-    addLog("🌅 NEXT CYCLE: 体力已恢复。"); 
+    player.stamina = 100;
+    addLog("🌅 NEXT CYCLE."); 
     if(player.food <= 0 || player.water <= 0) {
-        player.hp -= 10; addLog("⚠️ STARVATION: 饥饿导致 HP 下降！");
+        player.hp -= 10; addLog("⚠️ STARVATION: HP -10!");
     }
     updateUI(); 
 }
