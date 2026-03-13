@@ -4,192 +4,285 @@
     <meta charset="UTF-8">
     <title>纽约霸主：生存与杀戮</title>
     <style>
-        body { background-color: #1a1a1a; color: #00ff00; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        #game-container { background: #000; border: 2px solid #333; width: 800px; padding: 20px; box-shadow: 0 0 20px rgba(0,255,0,0.2); }
-        .stats-bar { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
-        #log { height: 300px; overflow-y: auto; border: 1px solid #222; padding: 10px; background: #050505; margin-bottom: 15px; font-size: 14px; color: #ccc; }
-        .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        button { background: #222; color: #00ff00; border: 1px solid #00ff00; padding: 10px; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #00ff00; color: #000; }
-        button:disabled { border-color: #444; color: #444; cursor: not-allowed; }
-        .faction-select { text-align: center; }
-        .wanted { color: #ff0000; font-weight: bold; }
-        .area-tag { color: #ffff00; }
-        .mission-item { border: 1px solid #444; padding: 10px; margin: 5px 0; cursor: pointer; }
-        .mission-item:hover { border-color: #00ff00; }
+        :root {
+            --neon-green: #00ff00;
+            --dark-bg: #0a0a0a;
+            --wanted-red: #ff0000;
+        }
+        body { background-color: var(--dark-bg); color: #ccc; font-family: 'Courier New', Courier, monospace; display: flex; justify-content: center; padding: 20px; margin: 0; }
+        #game-container { background: #000; border: 2px solid #333; width: 900px; padding: 25px; box-shadow: 0 0 30px rgba(0,255,0,0.1); position: relative; }
+        h1 { text-align: center; color: var(--neon-green); text-transform: uppercase; letter-spacing: 5px; border-bottom: 2px solid #222; padding-bottom: 10px; }
+        
+        /* 状态栏设计 */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; background: #111; padding: 15px; border-radius: 5px; }
+        .stat-item { font-size: 14px; }
+        .stat-value { color: var(--neon-green); font-weight: bold; }
+        .wanted-stars { color: var(--wanted-red); font-size: 18px; letter-spacing: 2px; }
+
+        /* 日志区域 */
+        #log { height: 320px; overflow-y: auto; border: 1px solid #222; padding: 15px; background: #050505; margin-bottom: 20px; font-size: 13px; line-height: 1.6; border-left: 3px solid var(--neon-green); }
+        .log-day { color: #888; font-weight: bold; }
+        .log-event { margin-bottom: 8px; border-bottom: 1px solid #111; }
+
+        /* 交互区域 */
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        button { background: #1a1a1a; color: var(--neon-green); border: 1px solid var(--neon-green); padding: 12px; cursor: pointer; font-family: inherit; font-weight: bold; transition: 0.2s; text-transform: uppercase; }
+        button:hover { background: var(--neon-green); color: #000; box-shadow: 0 0 10px var(--neon-green); }
+        button:disabled { border-color: #444; color: #444; cursor: not-allowed; background: #0a0a0a; }
+
+        /* 子菜单弹出层 */
+        #modal-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10; padding: 20px; box-sizing: border-box; }
+        #modal-content { border: 1px solid var(--neon-green); background: #000; height: 90%; padding: 20px; overflow-y: auto; }
+        .item-card { border: 1px solid #333; padding: 10px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* 阵营选择特化 */
+        .faction-card { border: 1px solid #444; padding: 20px; margin: 15px 0; cursor: pointer; transition: 0.3s; }
+        .faction-card:hover { border-color: var(--neon-green); background: #111; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <h1 style="text-align: center; color: #00ff00;">🌆 NEW YORK OVERLORD: Z</h1>
-    
-    <div id="start-screen" class="faction-select">
-        <h3>选择你的出生背景</h3>
-        <button onclick="startGame('POLICE')">👮 NYPD 秩序守护者<br><small>初始武器精良，消通缉快</small></button>
-        <button onclick="startGame('MILITARY')">🎖️ 国民警卫队<br><small>战力强悍，禁区通行证</small></button>
-        <button onclick="startGame('GANG')">💀 骷髅会帮派<br><small>开局富有，黑市折扣</small></button>
+    <h1>🌆 New York Overlord: Z</h1>
+
+    <div id="setup-screen">
+        <h3 style="text-align:center;">选择你的出身背景</h3>
+        <div class="faction-card" onclick="initGame('POLICE')">
+            <b style="color: #44f;">👮 NYPD 秩序守护者</b><br>
+            <small>初始配备警用格洛克和急救包。法律保护使你消除通缉更快，探索风险更低。</small>
+        </div>
+        <div class="faction-card" onclick="initGame('MILITARY')">
+            <b style="color: #4f4;">🎖️ 国民警卫队 / 黑色守望</b><br>
+            <small>战术专家。初始拥有步枪。在“航母禁区”拥有通行授权，但极其被帮派敌视。</small>
+        </div>
+        <div class="faction-card" onclick="initGame('GANG')">
+            <b style="color: #f44;">💀 “骷髅会”帮派成员</b><br>
+            <small>地下之王。初始现金极多。黑市享受 8 折优惠，但容易引起警方高度注意。</small>
+        </div>
     </div>
 
-    <div id="main-game" style="display: none;">
-        <div class="stats-bar">
-            <div>角色: <span id="p-name"></span> [<span id="p-faction"></span>]</div>
-            <div>等级: <span id="p-level">1</span></div>
-            <div class="wanted">通缉: <span id="p-wanted"></span></div>
+    <div id="main-ui" style="display:none;">
+        <div class="stats-grid">
+            <div class="stat-item">代号: <span id="stat-name" class="stat-value"></span></div>
+            <div class="stat-item">阵营: <span id="stat-faction" class="stat-value"></span></div>
+            <div class="stat-item">通缉等级: <span id="stat-wanted" class="wanted-stars"></span></div>
+            <div class="stat-item">当前位置: <span id="stat-loc" class="stat-value"></span></div>
+            
+            <div class="stat-item">生命值: <span id="stat-hp" class="stat-value">100</span>%</div>
+            <div class="stat-item">饱食/水: <span id="stat-survive" class="stat-value">100/100</span></div>
+            <div class="stat-item">感染度: <span id="stat-inf" class="stat-value">0</span>%</div>
+            <div class="stat-item">钱包: <span id="stat-money" class="stat-value"></span></div>
         </div>
-        <div class="stats-bar">
-            <div>HP: <span id="p-hp">100</span>%</div>
-            <div>饱食: <span id="p-food">100</span></div>
-            <div>水分: <span id="p-water">100</span></div>
-            <div>钱包: $<span id="p-money">0</span></div>
-        </div>
+
         <div id="log"></div>
-        <div id="action-area">
-            <div id="menu-main" class="menu">
-                <button onclick="showAreas()">🗺️ 区域探索</button>
-                <button onclick="showMissions()">📱 联系派活</button>
-                <button onclick="doMission()">⚡ 执行任务</button>
-                <button onclick="showBlackMarket()">🛒 影子集市</button>
-                <button onclick="showInventory()">🎒 整理背包</button>
-                <button onclick="nextDay()">💤 休息一天</button>
-            </div>
-            <div id="sub-menu" style="display: none; margin-top: 10px;">
-                <div id="sub-content"></div>
-                <button onclick="backToMain()" style="width: 100%; margin-top: 10px; border-color: #ff0000; color: #ff0000;">返回</button>
-            </div>
+
+        <div class="menu-grid">
+            <button onclick="openMove()">🗺️ 区域移动</button>
+            <button onclick="openMissions()">📱 联系派活</button>
+            <button onclick="executeMission()">⚡ 执行任务</button>
+            <button onclick="openMarket()">🛒 影子集市</button>
+            <button onclick="openInventory()">🎒 战术背包</button>
+            <button onclick="passDay()">💤 休息一天</button>
+        </div>
+    </div>
+
+    <div id="modal-overlay">
+        <div id="modal-content">
+            <h2 id="modal-title"></h2>
+            <div id="modal-body"></div>
+            <button onclick="closeModal()" style="width:100%; margin-top:20px; border-color: #f00; color: #f00;">返回</button>
         </div>
     </div>
 </div>
 
 <script>
-// --- 游戏配置 ---
-const CONFIG = {
+// --- 核心配置 ---
+const DATA = {
     AREAS: { "中城区": 1, "华尔街": 2, "哈林区": 3, "布鲁克林": 2, "航母禁区": 5 },
-    FACTIONS: {
-        POLICE: { name: "NYPD", kit: { money: 100, inv: ["警用格洛克", "急救包"] } },
-        MILITARY: { name: "国民警卫队", kit: { money: 50, inv: ["M4步枪", "自热饭"] } },
-        GANG: { name: "骷髅会", kit: { money: 600, inv: ["蝴蝶刀", "名表"] } }
+    MARKET: [
+        { id:0, name: "消音手枪", price: 500, type: "weapon", desc: "增加任务成功率 15%" },
+        { id:1, name: "突击步枪", price: 1200, type: "weapon", desc: "增加任务成功率 35%" },
+        { id:2, name: "防弹衣", price: 800, type: "armor", desc: "任务失败时少扣 20 HP" },
+        { id:3, name: "抗生素", price: 300, type: "med", desc: "降低 25% 感染度" },
+        { id:4, name: "高级罐头", price: 100, type: "food", desc: "饱食度 +50" },
+        { id:5, name: "纯净水", price: 80, type: "water", desc: "水分 +50" }
+    ],
+    FACTION_MODS: {
+        POLICE: { name: "NYPD", money: 150, inv: ["警用格洛克", "急救包"] },
+        MILITARY: { name: "国民警卫队", money: 50, inv: ["M4步枪", "自热饭"] },
+        GANG: { name: "骷髅会", money: 800, inv: ["蝴蝶刀", "非法兴奋剂"] }
     }
 };
 
 let player = {
-    name: "Survivor", faction: "", hp: 100, food: 100, water: 100,
-    money: 0, level: 1, wanted: 0, location: "中城区",
-    inventory: [], activeMission: null, day: 1
+    name: "", faction: "", hp: 100, food: 100, water: 100,
+    inf: 0, money: 0, wanted: 0, loc: "中城区",
+    inv: [], mission: null, day: 1
 };
 
-// --- 核心逻辑 ---
-function startGame(fKey) {
+// --- 初始化游戏 ---
+function initGame(fKey) {
+    const name = prompt("输入你的代号:", "小丑");
+    if (!name) return;
+    player.name = name;
     player.faction = fKey;
-    player.money = CONFIG.FACTIONS[fKey].kit.money;
-    player.inventory = [...CONFIG.FACTIONS[fKey].kit.inv];
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('main-game').style.display = 'block';
-    updateHUD();
-    addLog(`欢迎来到末日曼哈顿，${CONFIG.FACTIONS[fKey].name}的新兵。`);
+    player.money = DATA.FACTION_MODS[fKey].money;
+    player.inv = [...DATA.FACTION_MODS[fKey].inv];
+    
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('main-ui').style.display = 'block';
+    addLog(`系统：你以 ${DATA.FACTION_MODS[fKey].name} 身份进入纽约。`);
+    updateUI();
+}
+
+// --- 界面控制 ---
+function updateUI() {
+    document.getElementById('stat-name').innerText = player.name;
+    document.getElementById('stat-faction').innerText = DATA.FACTION_MODS[player.faction].name;
+    document.getElementById('stat-wanted').innerText = "★".repeat(player.wanted);
+    document.getElementById('stat-loc').innerText = player.loc;
+    document.getElementById('stat-hp').innerText = player.hp;
+    document.getElementById('stat-survive').innerText = `${player.food}/${player.water}`;
+    document.getElementById('stat-inf').innerText = player.inf;
+    document.getElementById('stat-money').innerText = `$${player.money}`;
+    
+    if (player.hp <= 0) { alert("你已死亡！"); location.reload(); }
 }
 
 function addLog(msg) {
     const log = document.getElementById('log');
-    log.innerHTML += `<div>[Day ${player.day}] ${msg}</div>`;
+    log.innerHTML += `<div class="log-event"><span class="log-day">D${player.day}</span> ${msg}</div>`;
     log.scrollTop = log.scrollHeight;
 }
 
-function updateHUD() {
-    document.getElementById('p-faction').innerText = player.faction;
-    document.getElementById('p-hp').innerText = player.hp;
-    document.getElementById('p-food').innerText = player.food;
-    document.getElementById('p-water').innerText = player.water;
-    document.getElementById('p-money').innerText = player.money;
-    document.getElementById('p-wanted').innerText = "⭐".repeat(player.wanted) || "安全";
+function openModal(title, content) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-body').innerHTML = content;
+    document.getElementById('modal-overlay').style.display = 'block';
 }
 
-function showAreas() {
-    let html = "<h4>移动至新街区:</h4>";
-    for(let a in CONFIG.AREAS) {
-        html += `<button onclick="move('${a}')">${a} (危险:${CONFIG.AREAS[a]})</button> `;
+function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+
+// --- 游戏功能 ---
+function openMove() {
+    let html = "";
+    for (let a in DATA.AREAS) {
+        html += `<button onclick="doMove('${a}')" style="display:block; width:100%; margin:5px 0;">${a} (危险系数: ${DATA.AREAS[a]})</button>`;
     }
-    showSub(html);
+    openModal("选择移动街区", html);
 }
 
-function move(area) {
-    player.location = area;
-    addLog(`你抵达了 <span class="area-tag">${area}</span>。`);
-    if(area === "航母禁区" && player.faction !== "MILITARY") {
-        player.hp -= 20;
-        addLog("🚨 警告：你遭到了军事哨塔的自动攻击！HP-20");
+function doMove(a) {
+    player.loc = a;
+    addLog(`你移动到了 ${a}。`);
+    if (a === "航母禁区" && player.faction !== "MILITARY") {
+        player.hp -= 25;
+        addLog("🚨 警告：检测到非法入侵！防卫机枪向你扫射，HP-25。");
     }
-    backToMain();
-    updateHUD();
+    closeModal(); updateUI();
 }
 
-function showMissions() {
-    let html = "<h4>可用任务:</h4>";
-    const verbs = ["清理", "突袭", "营救", "走私"];
-    const targets = ["药店", "安全屋", "军火车", "叛徒"];
+function openMissions() {
+    const verbs = ["洗劫", "调查", "突袭", "营救", "爆破"];
+    const targets = ["军火库", "制毒点", "幸存者营地", "沦陷警署", "摩天大楼"];
+    let html = "";
+    for (let i=0; i<3; i++) {
+        let t = verbs[Math.floor(Math.random()*5)] + targets[Math.floor(Math.random()*5)];
+        let area = Object.keys(DATA.AREAS)[Math.floor(Math.random()*5)];
+        let reward = Math.floor(Math.random()*500 + 300);
+        html += `<div class="item-card" onclick="takeMission('${t}', '${area}', ${reward})">
+            <span><b>${t}</b><br><small>位置: ${area}</small></span>
+            <span style="color:var(--neon-green)">$${reward}</span>
+        </div>`;
+    }
+    openModal("加密通话 - 任务指派", html);
+}
+
+function takeMission(t, a, r) {
+    player.mission = { title: t, loc: a, reward: r };
+    addLog(`📡 接收任务: ${t}。请尽快前往 ${a}。`);
+    closeModal(); updateUI();
+}
+
+function executeMission() {
+    if (!player.mission) return addLog("你没有正在进行中的任务。");
+    if (player.loc !== player.mission.loc) return addLog(`📍 任务点在 ${player.mission.loc}，你还在 ${player.loc}！`);
     
-    for(let i=0; i<3; i++) {
-        let title = verbs[Math.floor(Math.random()*verbs.length)] + targets[Math.floor(Math.random()*targets.length)];
-        let area = Object.keys(CONFIG.AREAS)[Math.floor(Math.random()*5)];
-        let reward = Math.floor(Math.random()*400) + 200;
-        html += `<div class="mission-item" onclick="acceptMission('${title}', '${area}', ${reward})">
-                 [${area}] ${title} - 酬金: $${reward}</div>`;
-    }
-    showSub(html);
-}
-
-function acceptMission(t, a, r) {
-    player.activeMission = { title: t, area: a, reward: r };
-    addLog(`接受任务: ${t}。请前往 ${a}。`);
-    backToMain();
-}
-
-function doMission() {
-    if(!player.activeMission) return addLog("你没有活跃任务！");
-    if(player.location !== player.activeMission.area) return addLog(`你得先去 ${player.activeMission.area}！`);
-    
-    addLog(`正在执行任务: ${player.activeMission.title}...`);
+    addLog(`执行中: ${player.mission.title}...`);
     setTimeout(() => {
-        if(Math.random() > 0.3) {
-            addLog(`✅ 成功！赚取 $${player.activeMission.reward}`);
-            player.money += player.activeMission.reward;
-            if(player.faction === "GANG") player.wanted = Math.min(5, player.wanted + 1);
-            player.activeMission = null;
+        let successRate = 0.65 + (player.inv.includes("突击步枪") ? 0.3 : 0);
+        if (Math.random() < successRate) {
+            addLog(`✅ 任务成功！赚取 $${player.mission.reward}`);
+            player.money += player.mission.reward;
+            if (player.faction === "GANG") player.wanted = Math.min(5, player.wanted + 1);
+            player.mission = null;
         } else {
-            player.hp -= 30;
-            addLog("💀 任务失败，你受伤了！HP-30");
+            let dmg = player.inv.includes("防弹衣") ? 20 : 40;
+            player.hp -= dmg;
+            addLog(`💀 任务搞砸了！你遭到了伏击，HP -${dmg}`);
+            player.wanted = Math.min(5, player.wanted + 1);
         }
-        updateHUD();
-        checkDeath();
-    }, 1000);
+        updateUI();
+    }, 1200);
 }
 
-function nextDay() {
+function openMarket() {
+    let discount = player.faction === "GANG" ? 0.8 : 1.0;
+    let html = "";
+    DATA.MARKET.forEach(item => {
+        let price = Math.floor(item.price * discount);
+        html += `<div class="item-card">
+            <span><b>${item.name}</b><br><small>${item.desc}</small></span>
+            <button onclick="buyItem(${item.id})" ${player.money < price ? 'disabled' : ''}>$${price} 购买</button>
+        </div>`;
+    });
+    openModal("影子集市", html);
+}
+
+function buyItem(id) {
+    let item = DATA.MARKET[id];
+    let price = Math.floor(item.price * (player.faction === "GANG" ? 0.8 : 1.0));
+    if (player.money >= price) {
+        player.money -= price;
+        player.inv.push(item.name);
+        addLog(`✅ 购买成功: ${item.name}`);
+        openMarket(); updateUI();
+    }
+}
+
+function openInventory() {
+    let html = "";
+    if (player.inv.length === 0) html = "背包空空如也。";
+    player.inv.forEach((item, index) => {
+        html += `<div class="item-card">
+            <span>${item}</span>
+            <button onclick="useItem(${index})">使用/装备</button>
+        </div>`;
+    });
+    openModal("我的背包", html);
+}
+
+function useItem(idx) {
+    let name = player.inv[idx];
+    if (name === "高级罐头") player.food = Math.min(100, player.food + 50);
+    else if (name === "纯净水") player.water = Math.min(100, player.water + 50);
+    else if (name === "急救包") player.hp = Math.min(100, player.hp + 40);
+    else if (name === "抗生素") player.inf = Math.max(0, player.inf - 25);
+    else { addLog(`你现在装备了 ${name}。`); closeModal(); return; }
+    
+    player.inv.splice(idx, 1);
+    addLog(`使用了 ${name}。`);
+    openInventory(); updateUI();
+}
+
+function passDay() {
     player.day++;
     player.food -= 10;
     player.water -= 15;
-    player.hp = Math.min(100, player.hp + 10);
-    addLog("🌅 新的一天开始了。");
-    updateHUD();
-    checkDeath();
-}
-
-function showSub(content) {
-    document.getElementById('menu-main').style.display = 'none';
-    document.getElementById('sub-menu').style.display = 'block';
-    document.getElementById('sub-content').innerHTML = content;
-}
-
-function backToMain() {
-    document.getElementById('menu-main').style.display = 'grid';
-    document.getElementById('sub-menu').style.display = 'none';
-}
-
-function checkDeath() {
-    if(player.hp <= 0 || player.food <= -20) {
-        alert("你死了！游戏结束。");
-        location.reload();
-    }
+    player.hp = Math.min(100, player.hp + 15);
+    if (player.faction === "POLICE") player.wanted = Math.max(0, player.wanted - 1);
+    addLog("🌅 又是充满杀戮的一天。");
+    updateUI();
 }
 </script>
 </body>
