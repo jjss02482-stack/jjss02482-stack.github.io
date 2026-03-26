@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>G.R.I.M. TACTICAL TERMINAL // USMC FORCE v6.2</title>
+<title>G.R.I.M. 战术手册 // 两栖渗透力量 v6.3</title>
 <style>
   * {
     margin: 0;
@@ -19,7 +19,6 @@
     scroll-behavior: smooth;
   }
 
-  /* 滚动条（硬朗但低调） */
   ::-webkit-scrollbar {
     width: 6px;
     background: #1a0a0a;
@@ -29,7 +28,6 @@
     border-radius: 0;
   }
 
-  /* 背景画布 - 简化版，减少刺眼元素 */
   #combat-canvas {
     position: fixed;
     top: 0;
@@ -42,7 +40,6 @@
     background: radial-gradient(circle at 30% 30%, #0a0508 0%, #010101 100%);
   }
 
-  /* 顶部硬核军衔条 + 美国元素 */
   .hard-header {
     position: fixed;
     top: 0;
@@ -93,7 +90,6 @@
     letter-spacing: -2px;
   }
 
-  /* 右侧硬派数据面板 — 简化干净 */
   .usmc-panel {
     position: fixed;
     bottom: 20px;
@@ -130,7 +126,6 @@
     margin: 6px 0;
   }
 
-  /* 鼠标雷达环 (降低亮度) */
   #radar-blade {
     position: fixed;
     width: 90px;
@@ -145,7 +140,6 @@
     background: radial-gradient(circle, rgba(180,0,0,0.15) 0%, rgba(0,0,0,0) 80%);
   }
 
-  /* 主内容层 */
   .content-layer {
     position: relative;
     z-index: 50;
@@ -160,7 +154,6 @@
     padding: 40px 24px;
   }
 
-  /* 硬核卡片：更简约厚重 */
   .combat-card {
     width: 85%;
     max-width: 1000px;
@@ -225,7 +218,6 @@
     50% { opacity: 1; text-shadow: 0 0 6px #cc4444; }
   }
 
-  /* 美式星条誓言区 (更强视觉) */
   .footer-creed-usa {
     height: 100vh;
     display: flex;
@@ -268,7 +260,6 @@
     background: repeating-linear-gradient(90deg, #ffffff, #ffffff 40px, #b22234 40px, #b22234 80px);
     margin-top: 35px;
   }
-  /* 角落美国徽章装饰 (简化) */
   .eagle-corner {
     position: fixed;
     bottom: 15px;
@@ -297,91 +288,89 @@
 </head>
 <body>
 
-<!-- 顶部状态栏 + 美国国旗标志 -->
+<!-- 顶部状态栏：两栖精锐标识 -->
 <div class="hard-header">
-  <span>⚡ G.R.I.M. █ FORCE RECON █</span>
-  <div class="mil-badge"><i>CLASSIFIED // OPS-CORE</i></div>
+  <span>⚡ G.R.I.M. █ AMPHIBIOUS RECON █</span>
+  <div class="mil-badge"><i>CLASSIFIED // 两栖打击群</i></div>
   <div class="us-flag-icon">
     <span>🇺🇸</span> <span>SEMPER FI</span>
   </div>
   <span class="coords-hard" id="dynamicCoords">LAT: 35.6895 LON: 139.6917</span>
-  <span>🔻 OORAH 🔻</span>
+  <span>🔻 强者之列 🔻</span>
 </div>
 
-<!-- 背景画布：简化任务点+少量连线 -->
 <canvas id="combat-canvas"></canvas>
-
-<!-- 鼠标雷达刃 (柔和) -->
 <div id="radar-blade"></div>
 
-<!-- 右侧战术数据面板 (美式) -->
+<!-- 右侧战术数据面板（符合故事语境） -->
 <div class="usmc-panel">
   <div class="label">ACTIVE TARGETS</div>
   <div class="value" id="hardTargetCount">0</div>
   <div class="eagle-stripe"></div>
-  <div class="label">READINESS</div>
+  <div class="label">两栖战备率</div>
   <div class="value" id="combatReadiness">100%</div>
   <hr>
-  <div class="label">MARSOC UNIT</div>
+  <div class="label">协同单元</div>
   <div class="value" id="unitCode">GRIM-7</div>
-  <div class="label">KILL CHAIN</div>
+  <div class="label">情报链状态</div>
   <div class="value" id="killChain">STANDBY</div>
 </div>
 
-<!-- 角落鹰徽装饰 -->
 <div class="eagle-corner"></div>
 
 <div class="content-layer">
   <section class="section">
     <div style="text-align: center;">
       <h1 class="header-title">G.R.I.M.</h1>
-      <p class="header-subtitle">GLOBAL RECON &amp; INTERVENTION MARINES</p>
-      <p class="scroll-hint">▼ SCROLL TO ENGAGE ▼</p>
+      <p class="header-subtitle">全球侦查与渗透海军陆战队</p>
+      <p class="scroll-hint">▼ 战术手册 ▼</p>
     </div>
   </section>
 
+  <!-- 卡片1：情报先行（完全贴合故事） -->
   <section class="section">
     <div class="combat-card">
-      <h2>01. 铁血情报</h2>
-      <p>INTEL IS AMMUNITION. G.R.I.M. 情报局通过量子加密与卫星蜂群网络对全球高价值目标执行不间断追踪。任何威胁在暴露之前已被标定，随机任务节点代表实时猎杀坐标——延迟即为死亡。每一帧数据都浸透美利坚战争机器的高效冷酷。</p>
+      <h2>01. 情报先行</h2>
+      <p>在G.R.I.M.，我们信奉“情报先行，精准打击”。每一次成功的行动都源于周密的情报搜集与风险评估。踏入任务区域前，你必须对敌方部署、地形地貌及潜在威胁了如指掌。我们不打无准备之仗，更拒绝无谓的牺牲。利用一切可用资源，构建完整的战场态势图。</p>
     </div>
   </section>
 
+  <!-- 卡片2：协同作战（强调两栖与小队信任） -->
   <section class="section">
     <div class="combat-card">
-      <h2>02. 致命协同</h2>
-      <p>单兵即是收割者，小队化为钢铁风暴。突击组与指挥中枢通过神经战术链路实现零延迟同步，在极端混乱环境中精确执行饱和打击。我们的信条：OVERWHELM. ANNIHILATE. 不留任何退路。所有闪烁节点都是联合打击的锚点。</p>
+      <h2>02. 协同作战</h2>
+      <p>作为一支精锐的两栖力量，单兵作战能力固然重要，但小队的无缝协同才是制胜关键。突袭组必须与情报部保持实时通讯，确保战术行动与战略目标高度一致。在执行任务时，明确的分工、简洁的指令和绝对的信任是生存的基石。请时刻牢记，你的后背交给了战友，你的每一次行动都影响着整个小队的安危。</p>
     </div>
   </section>
 
+  <!-- 卡片3：装备哲学（官方标准个人优化） -->
   <section class="section">
     <div class="combat-card">
-      <h2>03. 自由开火哲学</h2>
-      <p>标准装备只是起点，杀戮效率定义上限。每一名外勤战士被授权对武器系统进行终极改装——你的步枪必须成为你意志的延伸。自定义弹道、极限射速、随心所欲。美军核心精神：适应性即优势，火力即真理。</p>
+      <h2>03. 装备哲学</h2>
+      <p>G.R.I.M.遵循“官方标准，个人优化”的装备哲学。你必须确保所有制式装备处于最佳状态，并熟练掌握其操作。我们鼓励你根据任务需求和个人习惯，对装备进行自费升级与定制，以最大化你的作战效能。但请记住，无论装备如何精良，熟练的技战术才是决定战局的根本。</p>
     </div>
   </section>
 
+  <!-- 底部誓言区：勇气纪律 + 口号“保持冷静，继续前行” -->
   <section class="footer-creed-usa">
-    <h1>NO MERCY</h1>
-    <h1>NO RETREAT</h1>
-    <p>DEATH BEFORE DISHONOR • SEMPER FIDELIS</p>
+    <h1>勇气 · 纪律</h1>
+    <h1>强者之列</h1>
+    <p>保持冷静 · 继续前行</p>
     <div class="us-flag-stripe"></div>
   </section>
 </div>
 
 <script>
   (function() {
-    // ========= 简化版任务点系统 ==========
+    // ========= 简化版任务点系统 + 美式背景暗纹 ==========
     const canvas = document.getElementById('combat-canvas');
     const ctx = canvas.getContext('2d');
     
-    // 减少数量，降低闪烁亮度
-    const TARGET_COUNT = 22;        // 更少任务点
+    const TARGET_COUNT = 22;
     let targets = [];
     let mouseX = -500, mouseY = -500;
     const radarBlade = document.getElementById('radar-blade');
     
-    // UI 元素
     const hardTargetSpan = document.getElementById('hardTargetCount');
     const combatReadinessSpan = document.getElementById('combatReadiness');
     const unitCodeSpan = document.getElementById('unitCode');
@@ -391,14 +380,13 @@
       return min + Math.random() * (max - min);
     }
     
-    // 初始化任务点 — 运动更平缓，脉冲更柔和
     function initTargets() {
       targets = [];
       for (let i = 0; i < TARGET_COUNT; i++) {
         targets.push({
           x: Math.random(),
           y: Math.random(),
-          vx: (Math.random() - 0.5) * 0.003,   // 速度减半
+          vx: (Math.random() - 0.5) * 0.003,
           vy: (Math.random() - 0.5) * 0.003,
           size: 3.5 + Math.random() * 4,
           pulseSpeed: 0.8 + Math.random() * 0.9,
@@ -409,7 +397,6 @@
       }
     }
     
-    // 更新位置
     function updateTargets() {
       for (let t of targets) {
         t.x += t.vx;
@@ -418,15 +405,12 @@
         if (t.x >= 1) { t.x = 1; t.vx = -Math.abs(t.vx); }
         if (t.y <= 0) { t.y = 0; t.vy = Math.abs(t.vy); }
         if (t.y >= 1) { t.y = 1; t.vy = -Math.abs(t.vy); }
-        
-        // 限制最大速度，避免过快
         let maxSpeed = 0.006;
         if (Math.abs(t.vx) > maxSpeed) t.vx = t.vx > 0 ? maxSpeed : -maxSpeed;
         if (Math.abs(t.vy) > maxSpeed) t.vy = t.vy > 0 ? maxSpeed : -maxSpeed;
       }
     }
     
-    // 绘制简约网格（减少线条密度）
     function drawSimpleGrid(w, h) {
       ctx.beginPath();
       ctx.strokeStyle = '#712a2a';
@@ -444,7 +428,6 @@
         ctx.lineTo(w, y);
         ctx.stroke();
       }
-      // 极简斜线，降低干扰
       ctx.beginPath();
       ctx.strokeStyle = '#5a2a2a';
       for (let i = -h; i < w+h; i+= 100) {
@@ -455,7 +438,6 @@
       }
     }
     
-    // 绘制任务点（柔和脉冲，无刺眼十字）
     function drawTargets(w, h, now) {
       for (let t of targets) {
         const px = t.x * w;
@@ -463,13 +445,11 @@
         const pulse = 0.7 + 0.4 * Math.sin(now * 0.005 * t.pulseSpeed + t.phase);
         const radius = t.size * (0.7 + pulse * 0.3);
         
-        // 柔和光晕 (低透明度)
         ctx.beginPath();
         ctx.arc(px, py, radius + 4, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(180, 40, 40, 0.2)`;
         ctx.fill();
         
-        // 核心红点
         ctx.beginPath();
         ctx.arc(px, py, radius * 0.8, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(210, 50, 50, 0.85)`;
@@ -479,7 +459,6 @@
         ctx.fillStyle = `#ffaaaa`;
         ctx.fill();
         
-        // 仅高价值目标加小十字（简约）
         if (t.isHighValue) {
           ctx.beginPath();
           ctx.lineWidth = 1.2;
@@ -497,9 +476,8 @@
       }
     }
     
-    // 极简连线 —— 只连接非常近的点，减少线条数量
     function drawMinimalLinks(w, h) {
-      const maxDistSq = 0.09 * 0.09;  // 更严格的距离，连线更少
+      const maxDistSq = 0.09 * 0.09;
       for (let i = 0; i < targets.length; i++) {
         for (let j = i+1; j < targets.length; j++) {
           const a = targets[i];
@@ -509,7 +487,7 @@
           const distSq = dx*dx + dy*dy;
           if (distSq < maxDistSq) {
             const intensity = 1 - (distSq / maxDistSq);
-            const alpha = 0.2 + intensity * 0.25;  // 低透明度
+            const alpha = 0.2 + intensity * 0.25;
             ctx.beginPath();
             ctx.moveTo(a.x * w, a.y * h);
             ctx.lineTo(b.x * w, b.y * h);
@@ -521,7 +499,6 @@
       }
     }
     
-    // 鼠标扫描器（更柔和）
     function drawSoftScanner(w, h, now) {
       if (mouseX > 0 && mouseX < w && mouseY > 0 && mouseY < h) {
         ctx.beginPath();
@@ -544,7 +521,6 @@
       }
     }
     
-    // 极少噪点，不刺眼
     function drawMinimalNoise(w, h) {
       if (Math.random() < 0.15) {
         for (let i = 0; i < 3; i++) {
@@ -554,9 +530,7 @@
       }
     }
     
-    // 静态美国元素：背景暗纹星条旗（极淡）
     function drawUsBackgroundOverlay(w, h) {
-      // 左下角星条暗纹
       ctx.globalAlpha = 0.06;
       ctx.fillStyle = '#b22234';
       for (let i = 0; i < 5; i++) {
@@ -575,20 +549,18 @@
       ctx.globalAlpha = 1.0;
     }
     
-    // 更新右侧面板（简洁）
     let readiness = 98;
     function updateStats() {
       hardTargetSpan.innerText = TARGET_COUNT;
       readiness += (Math.random() - 0.5) * 0.6;
       readiness = Math.min(100, Math.max(92, readiness));
       combatReadinessSpan.innerText = Math.floor(readiness) + '%';
-      const units = ['FORECON-1', 'MARSOC 2/5', 'RAIDER BN', 'GRIM-7'];
+      const units = ['两栖群-7', 'GRIM-7', '先锋连', '突击群'];
       if (Math.random() < 0.04) unitCodeSpan.innerText = units[Math.floor(Math.random() * units.length)];
-      const killStates = ['ACTIVE', 'LOCKED', 'HUNTER', 'STANDBY'];
-      if (Math.random() < 0.08) killChainSpan.innerText = killStates[Math.floor(Math.random() * killStates.length)];
+      const chainStates = ['ACTIVE', '情报同步', '协同就绪', 'STANDBY'];
+      if (Math.random() < 0.08) killChainSpan.innerText = chainStates[Math.floor(Math.random() * chainStates.length)];
     }
     
-    // 动态坐标
     function updateCoords() {
       const coordsEl = document.getElementById('dynamicCoords');
       if (coordsEl) {
@@ -598,7 +570,6 @@
       }
     }
     
-    // 鼠标事件
     function onMouseMove(e) {
       mouseX = e.clientX;
       mouseY = e.clientY;
@@ -621,7 +592,6 @@
       const w = canvas.width = window.innerWidth;
       const h = canvas.height = window.innerHeight;
       
-      // 半透明清屏，产生柔和拖尾
       ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
       ctx.fillRect(0, 0, w, h);
       
