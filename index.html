@@ -2,220 +2,190 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>G.R.I.M. TERMINAL - TOP SECRET</title>
+    <title>G.R.I.M. GLOBAL OPERATIONAL MAP</title>
     <style>
         :root {
-            --red: #ff0000;
-            --dim-red: #4d0000;
-            --bg: #050505;
-            --font: 'Share Tech Mono', 'Courier New', monospace;
+            --red-bright: #ff0000;
+            --red-mid: #990000;
+            --red-dark: #330000;
+            --bg: #000;
         }
 
         body, html {
-            background: var(--bg);
-            color: var(--red);
-            font-family: var(--font);
             margin: 0; padding: 0;
-            overflow: hidden; /* 保持单页沉浸感 */
+            background: var(--bg);
+            color: var(--red-bright);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
             height: 100vh;
-            text-transform: uppercase;
         }
 
-        /* 背景：动态网格坐标系 */
-        .grid-bg {
-            position: fixed;
-            top: 0; left: 0; width: 200%; height: 200%;
-            background-image: 
-                linear-gradient(var(--dim-red) 1px, transparent 1px),
-                linear-gradient(90deg, var(--dim-red) 1px, transparent 1px);
-            background-size: 50px 50px;
-            transform: perspective(500px) rotateX(60deg);
-            animation: grid-move 20s linear infinite;
-            z-index: -2;
-            opacity: 0.2;
-        }
-
-        /* 扫描线与噪点遮罩 */
-        .overlay {
+        /* 核心背景：世界地图点阵 */
+        /* 使用SVG Data URI 还原点阵化全球地图 */
+        .world-map {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
-            background-size: 100% 2px, 3px 100%;
-            z-index: 999;
-            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 500'%3E%3Ccircle cx='200' cy='150' r='1.5' fill='%23400' /%3E%3Cpath d='M250 150 L260 140 L280 150 L270 170 Z' fill='%23600' /%3E%3C!-- 简化模拟点阵 --%3E%3Ccircle cx='500' cy='250' r='2' fill='%23900' opacity='0.5'/%3E%3C/svg%3E"), 
+                              url('https://upload.wikimedia.org/wikipedia/commons/b/bb/World_map_dots_red.png'); /* 借用高清点阵底图 */
+            background-size: cover;
+            background-position: center;
+            opacity: 0.4;
+            filter: brightness(0.8) contrast(1.2);
+            z-index: -2;
         }
 
-        /* 侧边不断滚动的原始代码流 */
-        .data-stream {
+        /* 视频中的红色扩散圆圈（任务目标点） */
+        .ping {
+            position: absolute;
+            width: 10px; height: 10px;
+            background: var(--red-bright);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--red-bright);
+        }
+        .ping::after {
+            content: '';
+            position: absolute;
+            width: 100%; height: 100%;
+            border: 2px solid var(--red-bright);
+            border-radius: 50%;
+            animation: ripple 2s infinite ease-out;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(6); opacity: 0; }
+        }
+
+        /* 全屏扫描线 (Scanlines) */
+        .scanlines {
             position: fixed;
-            right: 10px; top: 0;
-            width: 150px; height: 100%;
-            font-size: 8px; line-height: 8px;
-            overflow: hidden;
-            opacity: 0.3;
-            color: var(--red);
-            white-space: pre;
-            z-index: -1;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.5) 51%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 10;
         }
 
-        /* 主容器 */
-        .main-frame {
-            padding: 40px;
-            display: grid;
-            grid-template-columns: 1fr 3fr;
-            gap: 30px;
-            height: 100vh;
-            box-sizing: border-box;
-        }
-
-        /* 左侧：档案头像与基本信息 */
-        .profile-side {
-            border-right: 1px solid var(--red);
-            padding-right: 20px;
-        }
-
-        .avatar-box {
-            width: 100%; aspect-ratio: 1/1;
-            border: 1px solid var(--red);
-            position: relative;
-            background: url('https://api.placeholder.com/200/200') center/cover; /* 占位图 */
-            filter: grayscale(1) contrast(1.5) sepia(100%) hue-rotate(-50deg);
-        }
-
-        .avatar-box::after {
-            content: "ID: G-9928-RM";
-            position: absolute; bottom: 5px; left: 5px;
-            font-size: 10px; background: var(--red); color: black;
-        }
-
-        /* 右侧：核心手册内容 */
-        .content-area {
-            overflow-y: auto;
-            padding-right: 20px;
-            scrollbar-width: thin;
-            scrollbar-color: var(--red) transparent;
-        }
-
-        h1.glitch {
-            font-size: 3rem;
-            margin: 0;
-            position: relative;
-            text-shadow: 0.05em 0 0 rgba(255,0,0,.75), -0.025em -0.05em 0 rgba(0,255,0,.75), 0.025em 0.05em 0 rgba(0,0,255,.75);
-            animation: glitch 500ms infinite;
-        }
-
-        .section-block {
-            margin-bottom: 40px;
-            border: 1px solid var(--dim-red);
+        /* 顶部遮罩（模仿视频顶部的黑色渐变和文字） */
+        .top-info {
+            position: fixed;
+            top: 0; width: 100%; height: 80px;
+            background: linear-gradient(to bottom, rgba(0,0,0,1), transparent);
             padding: 20px;
-            background: rgba(20, 0, 0, 0.6);
-            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            z-index: 5;
+            font-size: 12px;
+            letter-spacing: 2px;
         }
 
-        .section-block::before {
-            content: "ACCESSING...";
-            position: absolute; top: -10px; left: 10px;
-            background: var(--bg); padding: 0 10px; font-size: 12px;
+        /* 中央Logo区域 */
+        .fcbi-logo {
+            position: absolute;
+            top: 40%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2;
+        }
+        .circle-border {
+            width: 180px; height: 180px;
+            border: 2px double var(--red-bright);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
         }
 
-        .highlight { color: #fff; background: var(--red); padding: 0 5px; }
-
-        /* 动画关键帧 */
-        @keyframes grid-move {
-            from { background-position: 0 0; }
-            to { background-position: 0 1000px; }
-        }
-
-        @keyframes glitch {
-            0% { text-shadow: 0.05em 0 0 rgba(255,0,0,.75); }
-            15% { text-shadow: -0.05em -0.025em 0 rgba(0,255,0,.75); }
-            50% { text-shadow: 0.025em 0.05em 0 rgba(0,0,255,.75); }
-            100% { text-shadow: -0.025em 0 0 rgba(255,0,0,.75); }
-        }
-
-        /* 打字机动画控制 */
-        .typewriter {
+        /* 底部操作日志（自动滚动的文字） */
+        .bottom-console {
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            height: 250px;
+            background: linear-gradient(to top, rgba(20,0,0,0.9), transparent);
+            padding: 20px;
+            box-sizing: border-box;
+            font-size: 14px;
+            line-height: 1.8;
             overflow: hidden;
-            white-space: pre-wrap;
-            border-right: 2px solid var(--red);
-            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
         }
 
-        @keyframes typing { from { max-height: 0; } to { max-height: 1000px; } }
-        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--red); } }
+        .terminal-text {
+            max-width: 800px;
+            margin: 0 auto;
+            border-left: 2px solid var(--red-bright);
+            padding-left: 20px;
+        }
+
+        .glitch-text {
+            animation: text-flicker 0.1s infinite;
+        }
+
+        @keyframes text-flicker {
+            0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 0.9; }
+        }
+
     </style>
 </head>
 <body>
 
-<div class="grid-bg"></div>
-<div class="overlay"></div>
-<div class="data-stream" id="stream"></div>
+    <div class="world-map"></div>
+    <div class="scanlines"></div>
 
-<div class="main-frame">
-    <aside class="profile-side">
-        <div class="avatar-box"></div>
-        <div style="margin-top:20px; font-size: 12px;">
-            <p>组织：G.R.I.M.</p>
-            <p>职能：两栖侦查/渗透</p>
-            <p>权限等级：<span style="color:white">LEVEL 5 (RESTRICTED)</span></p>
-            <p>状态：ACTIVE</p>
+    <div class="ping" style="top: 30%; left: 20%;"></div>
+    <div class="ping" style="top: 55%; left: 45%;"></div>
+    <div class="ping" style="top: 40%; left: 80%;"></div>
+
+    <div class="top-info">
+        <div>| FATHOM | CONTROL |</div>
+        <div>URL: AQTW.QQ.COM [ENCRYPTED]</div>
+        <div>BLOCK | INTERVENTION |</div>
+    </div>
+
+    <div class="fcbi-logo">
+        <div class="circle-border">
+            <div style="font-weight: bold; letter-spacing: 5px;">
+                G.R.I.M.<br>
+                <span style="font-size: 10px;">TACTICAL UNIT</span>
+            </div>
         </div>
-        <hr style="border: 0.5px solid var(--red);">
-        <div id="radar-sim" style="height: 100px; border: 1px solid var(--dim-red); position: relative; overflow: hidden;">
-            <div style="position: absolute; width: 100%; height: 2px; background: var(--red); top: 0; animation: scan 2s linear infinite;"></div>
+        <div style="font-size: 24px; font-weight: bold; letter-spacing: 10px;">塞缪尔 · 莱恩</div>
+        <div style="font-size: 12px; margin-top: 10px; color: #fff; background: var(--red-mid); display: inline-block; padding: 2px 10px;">
+            特别行动司 | 国际外勤调查组
         </div>
-    </aside>
+    </div>
 
-    <main class="content-area">
-        <h1 class="glitch">G.R.I.M. PROTOCOL</h1>
-        <p style="letter-spacing: 5px;">全球侦查与渗透海军陆战队核心指南</p>
-
-        <div class="section-block">
-            <h3>01. 欢迎加入强者之列</h3>
-            <p class="typewriter">本手册汇集了G.R.I.M.在长期两栖作战与超限战中积累的核心战术。它不仅是你的行动指南，更是你生存的保障。我们不接受弱者，只欢迎那些能在深渊中呼吸的人。</p>
+    <div class="bottom-console">
+        <div class="terminal-text" id="log">
+            <div style="color: #666;">REC • 8月13日</div>
+            <div>我已抵达目标区域。线人“信鸽”失联第十七日。</div>
+            <div>山谷地貌比情报显示更复杂。雾气终日不散，村落布局极其规整，像是由同一个设计师在梦中反复涂改而成...</div>
+            <div class="glitch-text" style="color: white;">[警告：检测到精神污染风险，思维同步率下降...]</div>
         </div>
+    </div>
 
-        <div class="section-block">
-            <h3>02. 情报先行 (INTEL DOMINANCE)</h3>
-            <p>信奉“情报先行，精准打击”。每一次成功的行动都源于周密的情报搜集与风险评估。在踏入任务区域前，你必须对 <span class="highlight">敌方部署、地形地貌及潜在威胁</span> 了如指掌。我们拒绝无谓的牺牲。</p>
-        </div>
-
-        <div class="section-block">
-            <h3>03. 小队协同 (TEAM SYNERGY)</h3>
-            <p>单兵作战固然重要，但 <span class="highlight">无缝协同</span> 才是制胜关键。突袭组必须与情报部保持实时通讯。请时刻牢记，你的后背交给了战友，你的每一次行动都影响着整个小队的安危。</p>
-        </div>
-
-        <div class="section-block" style="border-style: dashed;">
-            <h3>04. 装备哲学 (EQUIPMENT)</h3>
-            <p>“官方标准，个人优化”。确保所有制式装备处于最佳状态。我们鼓励根据任务需求进行 <span class="highlight">自费升级与定制</span>。但请记住，工具终究是工具，熟练的技战术才是决定战局的根本。</p>
-        </div>
-
-        <div class="section-block" style="background: var(--red); color: black;">
-            <h3 style="color: black;">05. 核心信条 (CREED)</h3>
-            <p style="font-weight: bold; font-size: 1.5rem; text-align: center;">保持冷静，继续前行 / KEEP CALM, MOVE ON</p>
-        </div>
-    </main>
-</div>
-
-<script>
-    // 生成右侧背景的随机代码流
-    const stream = document.getElementById('stream');
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*()";
-    function generateStream() {
-        let text = "";
-        for(let i=0; i<2000; i++) {
-            text += chars.charAt(Math.floor(Math.random() * chars.length)) + (i % 10 === 0 ? "\n" : "");
-        }
-        stream.innerText = text;
-    }
-    setInterval(generateStream, 100);
-
-    // 简易雷达扫描动画逻辑
-    const style = document.createElement('style');
-    style.innerHTML = `@keyframes scan { from { top: 0; } to { top: 100%; } }`;
-    document.head.appendChild(style);
-</script>
-
+    <script>
+        // 模拟打字机自动生成日志
+        const logContent = [
+            "正在扫描战场态势图...",
+            "同步卫星馈送信号：100%",
+            "检测到未知信号源于林场深处。",
+            "G.R.I.M. 渗透指令已下达。",
+            "注意：地形可能存在非物理性偏转。"
+        ];
+        
+        const logContainer = document.getElementById('log');
+        setInterval(() => {
+            const newLine = document.createElement('div');
+            newLine.style.fontSize = "10px";
+            newLine.style.color = "#900";
+            newLine.innerText = "> " + logContent[Math.floor(Math.random() * logContent.length)];
+            logContainer.appendChild(newLine);
+            if(logContainer.childNodes.length > 15) logContainer.removeChild(logContainer.firstChild);
+        }, 2000);
+    </script>
 </body>
 </html>
