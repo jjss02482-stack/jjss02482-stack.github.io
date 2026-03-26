@@ -2,15 +2,20 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>G.R.I.M. TACTICAL TERMINAL v5.0</title>
+    <title>G.R.I.M. TACTICAL TERMINAL v5.1</title>
     <style>
+        /* === CSS VARIABLES === */
         :root {
             --red: #ff0000;
             --dark-red: #4d0000;
             --bg: #000;
+            --white: #fff;
+            --highlight: rgba(255,0,0,0.2);
+            --card-bg: rgba(15,0,0,0.85);
         }
 
-        body, html {
+        /* === BASE STYLES === */
+        html, body {
             margin: 0; padding: 0;
             background-color: var(--bg);
             color: var(--red);
@@ -19,26 +24,30 @@
             scroll-behavior: smooth;
         }
 
-        /* 顶部状态栏 */
+        h1,h2,p { margin: 0; }
+        p { line-height: 2; text-align: justify; }
+
+        /* === STATUS HEADER === */
         .status-header {
             position: fixed;
             top: 0; width: 100%; height: 50px;
             border-bottom: 1px solid var(--dark-red);
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 30px; box-sizing: border-box;
             z-index: 1000; font-size: 12px; letter-spacing: 2px;
         }
 
-        /* 背景：纯 CSS 3D 旋转地球 */
+        /* === 3D GLOBE BACKGROUND === */
         .globe-container {
             position: fixed;
             top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate3d(-50%, -50%, 0);
             width: 500px; height: 500px;
             perspective: 1000px;
             z-index: -1;
-            opacity: 0.5;
+            opacity: 0.4;
         }
 
         .globe {
@@ -48,7 +57,6 @@
             animation: rotateGlobe 30s linear infinite;
         }
 
-        /* 经纬线圈 */
         .circle {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -66,14 +74,15 @@
             to { transform: rotateY(360deg); }
         }
 
-        /* 随机闪烁任务点 (CSS 动画模拟) */
+        /* === MISSION POINTS === */
         .mission-point {
             position: absolute;
             width: 15px; height: 15px;
-            background: white;
+            background: var(--white);
             border-radius: 50%;
-            box-shadow: 0 0 15px white;
+            box-shadow: 0 0 15px var(--white);
             animation: blink 2s infinite;
+            will-change: transform, opacity;
         }
         .p1 { top: 20%; left: 30%; animation-delay: 0.5s; }
         .p2 { top: 60%; left: 70%; animation-delay: 1.2s; }
@@ -84,12 +93,8 @@
             50% { opacity: 1; transform: scale(1.2); }
         }
 
-        /* 内容区 */
-        .content {
-            position: relative;
-            z-index: 10;
-            padding-top: 100px;
-        }
+        /* === CONTENT SECTIONS === */
+        .content { position: relative; z-index: 10; padding-top: 100px; }
 
         .section {
             min-height: 100vh;
@@ -97,20 +102,26 @@
             justify-content: center;
             align-items: center;
             padding: 50px;
+            box-sizing: border-box;
         }
 
         .card {
-            width: 80%;
-            max-width: 800px;
-            background: rgba(15, 0, 0, 0.85);
+            width: 80%; max-width: 800px;
+            background: var(--card-bg);
             border: 1px solid var(--red);
             padding: 40px;
-            box-shadow: 0 0 40px rgba(255, 0, 0, 0.2);
+            box-shadow: 0 0 40px var(--highlight);
         }
 
         h2 { font-size: 3rem; border-left: 10px solid var(--red); padding-left: 20px; margin-bottom: 30px; }
-        p { font-size: 1.2rem; line-height: 2; text-align: justify; }
 
+        /* === HERO TEXT === */
+        .hero-text { text-align: center; }
+        .hero-text h1 { font-size: 6rem; letter-spacing: 20px; text-shadow: 5px 5px var(--dark-red); }
+        .hero-text p { font-size: 1.5rem; letter-spacing: 5px; }
+        .scroll-hint { margin-top: 200px; animation: blink 1.5s infinite; }
+
+        /* === FOOTER CREED === */
         .footer-creed {
             height: 100vh;
             display: flex;
@@ -120,17 +131,29 @@
             background: var(--red);
             color: black;
         }
+        .footer-creed h1 { font-size: 8vw; margin: 0; }
+        .footer-creed p { font-weight: bold; letter-spacing: 15px; margin-top: 30px; }
+
+        /* === RESPONSIVE DESIGN === */
+        @media (max-width: 768px) {
+            .card { width: 90%; padding: 20px; }
+            h2 { font-size: 2rem; }
+            .hero-text h1 { font-size: 4rem; letter-spacing: 10px; }
+            .scroll-hint { margin-top: 100px; }
+            .globe-container { width: 300px; height: 300px; }
+        }
     </style>
 </head>
 <body>
-
-    <div class="status-header">
+    <!-- STATUS HEADER -->
+    <div class="status-header" role="banner">
         <span>G.R.I.M. STATUS: OPERATIONAL</span>
         <span>LAT: 35.6895 LON: 139.6917</span>
         <span>SIGNAL: [EXCELLENT]</span>
     </div>
 
-    <div class="globe-container">
+    <!-- 3D GLOBE -->
+    <div class="globe-container" aria-hidden="true">
         <div class="globe">
             <div class="circle"></div>
             <div class="circle"></div>
@@ -143,50 +166,51 @@
         </div>
     </div>
 
+    <!-- CONTENT -->
     <div class="content">
-        <section class="section">
-            <div style="text-align: center;">
-                <h1 style="font-size: 6rem; margin: 0; letter-spacing: 20px; text-shadow: 5px 5px var(--dark-red);">G.R.I.M.</h1>
-                <p style="font-size: 1.5rem; letter-spacing: 5px;">全球侦查与渗透海军陆战队</p>
-                <p style="margin-top: 200px; animation: blink 1.5s infinite;">▼ SCROLL TO ACCESS DATA ▼</p>
+        <section class="section" aria-label="欢迎页">
+            <div class="hero-text">
+                <h1>G.R.I.M.</h1>
+                <p>全球侦查与渗透海军陆战队</p>
+                <p class="scroll-hint">▼ SCROLL TO ACCESS DATA ▼</p>
             </div>
         </section>
 
-        <section class="section">
+        <section class="section" aria-label="情报先行">
             <div class="card">
                 <h2>01. 情报先行</h2>
                 <p>在 G.R.I.M.，我们不打无准备之仗。情报部利用量子加密链路对全球目标进行 24/7 监控。在每一场渗透开始前，战场的每一个微小细节都已被解构。</p>
             </div>
         </section>
 
-        <section class="section">
+        <section class="section" aria-label="协同作战">
             <div class="card">
                 <h2>02. 协同作战</h2>
                 <p>单兵是刺向敌人的利刃，小队是掌控局势的重锤。突击组与情报部通过神经链路保持实时同步，确保在极度混乱的战场环境下依然能够达成绝对的战术执行力。</p>
             </div>
         </section>
 
-        <section class="section">
+        <section class="section" aria-label="装备哲学">
             <div class="card">
                 <h2>03. 装备哲学</h2>
                 <p>官方提供标准，个人定义上限。我们鼓励每一名外勤人员根据自身作战习惯对制式装备进行极限优化。记住，你的枪是你身体的延伸，而不是累赘。</p>
             </div>
         </section>
 
-        <section class="footer-creed">
-            <h1 style="font-size: 8vw; margin: 0;">KEEP CALM</h1>
-            <h1 style="font-size: 8vw; margin: 0;">MOVE ON</h1>
-            <p style="font-weight: bold; letter-spacing: 15px; margin-top: 30px;">强者之列 · 永不退缩</p>
+        <section class="footer-creed" aria-label="信条">
+            <h1>KEEP CALM</h1>
+            <h1>MOVE ON</h1>
+            <p>强者之列 · 永不退缩</p>
         </section>
     </div>
 
+    <!-- JS: 动态坐标 -->
     <script>
-        // 实时坐标更新 (补全动态感)
         setInterval(() => {
-            const spans = document.querySelectorAll('.status-header span');
+            const span = document.querySelector('.status-header span:nth-child(2)');
             const lat = (Math.random() * 180 - 90).toFixed(4);
             const lon = (Math.random() * 360 - 180).toFixed(4);
-            spans[1].innerText = `LAT: ${lat} LON: ${lon}`;
+            span.textContent = `LAT: ${lat} LON: ${lon}`;
         }, 2000);
     </script>
 </body>
