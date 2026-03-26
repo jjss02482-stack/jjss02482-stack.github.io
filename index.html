@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>G.R.I.M. 战术手册 // 两栖渗透力量 v6.3</title>
+<title>G.R.I.M. 机密战术档案 // 解密等级: 最高</title>
 <style>
   * {
     margin: 0;
@@ -13,21 +13,67 @@
   }
 
   body {
-    background-color: #030303;
-    font-family: 'Stencil Std', 'Impact', 'Arial Black', 'Courier New', monospace;
+    background-color: #0a0202;
+    font-family: 'Courier New', 'American Typewriter', 'Special Elite', monospace;
     overflow-x: hidden;
     scroll-behavior: smooth;
+    position: relative;
   }
 
+  /* CRT 扫描线效果 */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.15) 0px,
+      rgba(0, 0, 0, 0.15) 2px,
+      transparent 2px,
+      transparent 6px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* 老旧电视闪烁动画 */
+  @keyframes flicker {
+    0% { opacity: 0.97; }
+    100% { opacity: 1; }
+  }
+  body {
+    animation: flicker 0.15s infinite alternate;
+  }
+
+  /* 整体深红色滤镜 */
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(80, 20, 20, 0.2);
+    pointer-events: none;
+    z-index: 9998;
+    mix-blend-mode: multiply;
+  }
+
+  /* 自定义滚动条 */
   ::-webkit-scrollbar {
-    width: 6px;
-    background: #1a0a0a;
+    width: 8px;
+    background: #2c0a0a;
   }
   ::-webkit-scrollbar-thumb {
-    background: #8b3c3c;
+    background: #8b2c2c;
     border-radius: 0;
+    box-shadow: inset 0 0 3px #3a0000;
   }
 
+  /* 背景画布（深红暗调） */
   #combat-canvas {
     position: fixed;
     top: 0;
@@ -37,16 +83,18 @@
     display: block;
     z-index: 0;
     pointer-events: none;
-    background: radial-gradient(circle at 30% 30%, #0a0508 0%, #010101 100%);
+    background: radial-gradient(circle at 30% 30%, #1a0505 0%, #020000 100%);
+    filter: sepia(0.3) hue-rotate(-10deg);
   }
 
-  .hard-header {
+  /* 顶部机密栏 */
+  .classified-header {
     position: fixed;
     top: 0;
     width: 100%;
-    height: 58px;
-    background: rgba(0, 0, 0, 0.96);
-    border-bottom: 2px solid #b22222;
+    height: 62px;
+    background: rgba(8, 0, 0, 0.94);
+    border-bottom: 3px solid #8b1a1a;
     backdrop-filter: blur(2px);
     display: flex;
     justify-content: space-between;
@@ -54,96 +102,102 @@
     padding: 0 25px;
     z-index: 1100;
     font-family: 'Courier New', monospace;
-    font-weight: 900;
+    font-weight: bold;
     letter-spacing: 1px;
     text-transform: uppercase;
-    box-shadow: 0 0 8px rgba(180, 0, 0, 0.4);
+    box-shadow: 0 0 12px rgba(120, 0, 0, 0.5);
   }
-  .hard-header span {
-    color: #ff6666;
-    text-shadow: 0 0 2px #8b0000;
+  .classified-header span, .classified-header div {
+    color: #cc7a7a;
+    text-shadow: 0 0 3px #5a0000;
   }
-  .mil-badge {
-    background: #1f1a1a;
-    padding: 4px 10px;
-    border-left: 3px solid #ff0000;
+  .top-secret {
+    background: #2a0000;
+    padding: 4px 12px;
+    border-left: 3px solid #ff4444;
     font-size: 12px;
-    font-weight: bold;
+    letter-spacing: 2px;
   }
-  .coords-hard {
-    background: #0a0000;
+  .coords-vintage {
+    background: #1a0404;
     padding: 3px 10px;
-    border: 1px solid #9b2c2c;
+    border: 1px solid #8b3c3c;
     font-family: monospace;
+    font-size: 12px;
   }
-  .us-flag-icon {
+  .us-crest {
     display: flex;
-    gap: 4px;
+    gap: 6px;
     align-items: center;
-    background: #0f0f1a;
-    padding: 2px 8px;
-    border-radius: 0;
+    background: #150000;
+    padding: 3px 12px;
     font-size: 14px;
+    letter-spacing: 2px;
   }
-  .us-flag-icon span {
+  .us-crest span {
     font-size: 18px;
-    letter-spacing: -2px;
   }
 
-  .usmc-panel {
+  /* 右侧数据面板（机密档案风格） */
+  .archive-panel {
     position: fixed;
     bottom: 20px;
     right: 20px;
     z-index: 1150;
-    background: rgba(0, 0, 0, 0.85);
-    border-left: 4px solid #b22222;
+    background: rgba(8, 0, 0, 0.88);
+    border-left: 4px solid #9b2c2c;
     padding: 12px 18px;
-    font-family: 'Impact', monospace;
+    font-family: 'Courier New', monospace;
     text-align: right;
     pointer-events: none;
     backdrop-filter: blur(4px);
-    min-width: 160px;
+    min-width: 170px;
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.5);
   }
-  .usmc-panel .label {
-    color: #bb8888;
+  .archive-panel .label {
+    color: #bb6b6b;
     font-size: 10px;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
+    font-weight: bold;
   }
-  .usmc-panel .value {
-    font-size: 24px;
+  .archive-panel .value {
+    font-size: 22px;
     font-weight: 900;
-    color: #ff4d4d;
+    color: #cc5a5a;
     line-height: 1;
+    text-shadow: 0 0 2px #8b0000;
   }
-  .usmc-panel hr {
+  .archive-panel hr {
     border-color: #8b3c3c;
     margin: 5px 0;
   }
-  .eagle-stripe {
-    background: linear-gradient(90deg, #002664, #ffffff, #b22234);
+  .red-stripe {
+    background: #8b1a1a;
     height: 2px;
     width: 100%;
     margin: 6px 0;
   }
 
-  #radar-blade {
+  /* 鼠标雷达环（老旧扫描） */
+  #radar-ring {
     position: fixed;
-    width: 90px;
-    height: 90px;
-    border: 2px solid #cc5555;
+    width: 100px;
+    height: 100px;
+    border: 2px solid #aa4a4a;
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 1300;
     opacity: 0;
-    transition: opacity 0.1s;
-    box-shadow: 0 0 8px #cc5555;
-    background: radial-gradient(circle, rgba(180,0,0,0.15) 0%, rgba(0,0,0,0) 80%);
+    transition: opacity 0.08s;
+    box-shadow: 0 0 10px #aa4a4a;
+    background: radial-gradient(circle, rgba(150,40,40,0.2) 0%, rgba(0,0,0,0) 80%);
   }
 
+  /* 主内容区 */
   .content-layer {
     position: relative;
     z-index: 50;
-    padding-top: 80px;
+    padding-top: 90px;
   }
 
   .section {
@@ -154,159 +208,199 @@
     padding: 40px 24px;
   }
 
-  .combat-card {
+  /* 老式档案卡片 */
+  .vintage-card {
     width: 85%;
     max-width: 1000px;
-    background: rgba(5, 0, 0, 0.88);
-    border: 1px solid #a33;
+    background: rgba(10, 2, 2, 0.92);
+    border: 1px solid #8b2c2c;
     padding: 40px 50px;
-    box-shadow: 8px 8px 0px rgba(100, 0, 0, 0.3);
-    transition: 0.2s linear;
+    box-shadow: 12px 12px 0px rgba(60, 0, 0, 0.4);
+    transition: 0.2s;
     backdrop-filter: blur(2px);
+    position: relative;
   }
-  .combat-card:hover {
-    transform: translate(1px, 1px);
-    box-shadow: 4px 4px 0px #8b2c2c;
+  .vintage-card::before {
+    content: "// CLASSIFIED //";
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: #2a0000;
+    color: #cc7a7a;
+    font-size: 10px;
+    padding: 2px 12px;
+    letter-spacing: 2px;
+    font-family: monospace;
+    border: 1px solid #8b2c2c;
+  }
+  .vintage-card:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 8px 8px 0px #4a0000;
     border-color: #cc5555;
   }
   h2 {
-    font-size: 2.8rem;
-    font-family: 'Stencil Std', 'Impact', monospace;
-    border-left: 8px solid #b22222;
+    font-size: 2.5rem;
+    font-family: 'Courier New', 'American Typewriter', monospace;
+    border-left: 6px solid #b22222;
     padding-left: 20px;
     margin-bottom: 24px;
     letter-spacing: 2px;
-    color: #ff6a6a;
+    color: #cc7a7a;
     text-transform: uppercase;
     text-shadow: 2px 2px 0px #2a0000;
   }
   p {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     line-height: 1.7;
     font-family: 'Courier New', monospace;
-    font-weight: 600;
-    color: #ccb3b3;
+    font-weight: 500;
+    color: #c9a5a5;
     text-align: justify;
   }
   .header-title {
-    font-size: 6.5rem;
-    font-family: 'Impact', 'Arial Black', monospace;
-    letter-spacing: 10px;
-    text-shadow: 5px 5px 0px #4a0000;
+    font-size: 6rem;
+    font-family: 'Courier New', 'American Typewriter', monospace;
+    letter-spacing: 8px;
+    text-shadow: 5px 5px 0px #3a0000;
     text-align: center;
-    color: #dd4444;
+    color: #b55a5a;
+    font-weight: 900;
   }
   .header-subtitle {
-    font-size: 1.5rem;
-    letter-spacing: 4px;
+    font-size: 1.3rem;
+    letter-spacing: 3px;
     text-align: center;
     margin-top: 15px;
-    border-top: 1px solid #aa3a3a;
+    border-top: 1px solid #8b3c3c;
     display: inline-block;
     padding-top: 15px;
     font-weight: bold;
   }
   .scroll-hint {
     margin-top: 130px;
-    animation: gentleBlink 1.4s infinite;
+    animation: pulseRed 1.4s infinite;
     font-size: 0.9rem;
     font-weight: bold;
     letter-spacing: 3px;
+    color: #cc7a7a;
   }
-  @keyframes gentleBlink {
-    0%, 100% { opacity: 0.6; text-shadow: 0 0 1px red; }
-    50% { opacity: 1; text-shadow: 0 0 6px #cc4444; }
+  @keyframes pulseRed {
+    0%, 100% { opacity: 0.5; text-shadow: 0 0 2px #a22; }
+    50% { opacity: 1; text-shadow: 0 0 8px #c44; }
   }
 
-  .footer-creed-usa {
+  /* 底部誓言区（老旧美式） */
+  .footer-oath {
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #8b1a1a 0%, #4a0a0a 100%);
-    color: white;
+    background: linear-gradient(135deg, #3a0a0a 0%, #1a0101 100%);
+    color: #cc9a9a;
     text-align: center;
-    border-top: 5px solid #002664;
-    border-bottom: 5px solid #ffffff;
+    border-top: 4px solid #8b2c2c;
+    border-bottom: 4px solid #8b2c2c;
     position: relative;
   }
-  .footer-creed-usa::before {
+  .footer-oath::before {
     content: "⚔️ ★ ⚔️";
     position: absolute;
     top: 30px;
     font-size: 28px;
     letter-spacing: 10px;
-    color: #ffcc88;
-    opacity: 0.5;
+    color: #aa5a5a;
+    opacity: 0.4;
   }
-  .footer-creed-usa h1 {
-    font-size: 6vw;
-    font-family: 'Stencil Std', 'Impact', monospace;
+  .footer-oath h1 {
+    font-size: 5vw;
+    font-family: 'Courier New', monospace;
     margin: 0;
     letter-spacing: 0.2em;
-    text-shadow: 4px 4px 0px #2a0000;
+    text-shadow: 3px 3px 0px #2a0000;
   }
-  .footer-creed-usa p {
-    font-weight: 900;
+  .footer-oath p {
+    font-weight: bold;
     letter-spacing: 4px;
     margin-top: 25px;
-    font-size: 1.4rem;
-    color: #ffc9c9;
+    font-size: 1.3rem;
+    color: #bb7a7a;
   }
   .us-flag-stripe {
-    width: 80%;
+    width: 70%;
     height: 4px;
     background: repeating-linear-gradient(90deg, #ffffff, #ffffff 40px, #b22234 40px, #b22234 80px);
     margin-top: 35px;
+    opacity: 0.6;
   }
-  .eagle-corner {
+
+  /* 美国鹰章（老式） */
+  .vintage-eagle {
     position: fixed;
-    bottom: 15px;
-    left: 15px;
-    width: 48px;
-    height: 48px;
-    opacity: 0.5;
+    bottom: 18px;
+    left: 18px;
+    width: 52px;
+    height: 52px;
+    opacity: 0.45;
     z-index: 1100;
     pointer-events: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path fill="%23b22234" d="M32,4 L40,24 L62,24 L45,38 L52,58 L32,46 L12,58 L19,38 L2,24 L24,24 Z" stroke="%23ffcc00" stroke-width="1.5" fill="%23dd4444"/><circle cx="32" cy="28" r="6" fill="%23ffffff" stroke="%23333"/></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path fill="%238b1a1a" d="M32,4 L40,24 L62,24 L45,38 L52,58 L32,46 L12,58 L19,38 L2,24 L24,24 Z" stroke="%23cc8844" stroke-width="1.2" fill="%238b3c3c"/><circle cx="32" cy="28" r="5" fill="%23aa6a3a" stroke="%23ffaa55"/></svg>');
     background-size: contain;
     background-repeat: no-repeat;
+    filter: sepia(0.4);
+  }
+
+  /* 解密印章 */
+  .declass-stamp {
+    position: fixed;
+    bottom: 40px;
+    right: 30px;
+    font-family: monospace;
+    font-size: 10px;
+    color: #8b3c3c;
+    background: rgba(0,0,0,0.4);
+    padding: 3px 8px;
+    letter-spacing: 2px;
+    z-index: 1100;
+    pointer-events: none;
+    transform: rotate(-5deg);
+    border: 1px dashed #aa4a4a;
   }
 
   @media (max-width: 780px) {
-    .header-title { font-size: 3.5rem; letter-spacing: 4px; }
-    .combat-card { padding: 25px 20px; }
+    .header-title { font-size: 3.2rem; letter-spacing: 4px; }
+    .vintage-card { padding: 25px 20px; }
     h2 { font-size: 1.8rem; }
     p { font-size: 0.95rem; }
-    .hard-header { padding: 0 12px; font-size: 9px; }
-    .usmc-panel { padding: 8px 12px; bottom: 12px; right: 12px; }
-    .usmc-panel .value { font-size: 20px; }
-    .eagle-corner { width: 36px; height: 36px; }
+    .classified-header { padding: 0 12px; font-size: 9px; }
+    .archive-panel { padding: 8px 12px; bottom: 12px; right: 12px; }
+    .archive-panel .value { font-size: 18px; }
+    .vintage-eagle { width: 38px; height: 38px; }
+    .declass-stamp { font-size: 8px; bottom: 25px; right: 15px; }
   }
 </style>
 </head>
 <body>
 
-<!-- 顶部状态栏：两栖精锐标识 -->
-<div class="hard-header">
-  <span>⚡ G.R.I.M. █ AMPHIBIOUS RECON █</span>
-  <div class="mil-badge"><i>CLASSIFIED // 两栖打击群</i></div>
-  <div class="us-flag-icon">
-    <span>🇺🇸</span> <span>SEMPER FI</span>
+<!-- 顶部机密栏 -->
+<div class="classified-header">
+  <span>📡 G.R.I.M. // 全球侦查与渗透海军陆战队</span>
+  <div class="top-secret">⚠️ TOP SECRET // NOFORN ⚠️</div>
+  <div class="us-crest">
+    <span>🇺🇸</span> <span>E PLURIBUS UNUM</span>
   </div>
-  <span class="coords-hard" id="dynamicCoords">LAT: 35.6895 LON: 139.6917</span>
+  <span class="coords-vintage" id="dynamicCoords">LAT: 35.6895 LON: 139.6917</span>
   <span>🔻 强者之列 🔻</span>
 </div>
 
 <canvas id="combat-canvas"></canvas>
-<div id="radar-blade"></div>
+<div id="radar-ring"></div>
 
-<!-- 右侧战术数据面板（符合故事语境） -->
-<div class="usmc-panel">
+<!-- 右侧机密档案面板 -->
+<div class="archive-panel">
   <div class="label">ACTIVE TARGETS</div>
   <div class="value" id="hardTargetCount">0</div>
-  <div class="eagle-stripe"></div>
+  <div class="red-stripe"></div>
   <div class="label">两栖战备率</div>
   <div class="value" id="combatReadiness">100%</div>
   <hr>
@@ -316,20 +410,21 @@
   <div class="value" id="killChain">STANDBY</div>
 </div>
 
-<div class="eagle-corner"></div>
+<div class="vintage-eagle"></div>
+<div class="declass-stamp">DECLASSIFIED // EYES ONLY</div>
 
 <div class="content-layer">
   <section class="section">
     <div style="text-align: center;">
       <h1 class="header-title">G.R.I.M.</h1>
-      <p class="header-subtitle">全球侦查与渗透海军陆战队</p>
-      <p class="scroll-hint">▼ 战术手册 ▼</p>
+      <p class="header-subtitle">GLOBAL RECON & INTERVENTION MARINES</p>
+      <p class="scroll-hint">▼ 滚动以浏览机密档案 ▼</p>
     </div>
   </section>
 
   <!-- 卡片1：情报先行（完全贴合故事） -->
   <section class="section">
-    <div class="combat-card">
+    <div class="vintage-card">
       <h2>01. 情报先行</h2>
       <p>在G.R.I.M.，我们信奉“情报先行，精准打击”。每一次成功的行动都源于周密的情报搜集与风险评估。踏入任务区域前，你必须对敌方部署、地形地貌及潜在威胁了如指掌。我们不打无准备之仗，更拒绝无谓的牺牲。利用一切可用资源，构建完整的战场态势图。</p>
     </div>
@@ -337,7 +432,7 @@
 
   <!-- 卡片2：协同作战（强调两栖与小队信任） -->
   <section class="section">
-    <div class="combat-card">
+    <div class="vintage-card">
       <h2>02. 协同作战</h2>
       <p>作为一支精锐的两栖力量，单兵作战能力固然重要，但小队的无缝协同才是制胜关键。突袭组必须与情报部保持实时通讯，确保战术行动与战略目标高度一致。在执行任务时，明确的分工、简洁的指令和绝对的信任是生存的基石。请时刻牢记，你的后背交给了战友，你的每一次行动都影响着整个小队的安危。</p>
     </div>
@@ -345,14 +440,14 @@
 
   <!-- 卡片3：装备哲学（官方标准个人优化） -->
   <section class="section">
-    <div class="combat-card">
+    <div class="vintage-card">
       <h2>03. 装备哲学</h2>
       <p>G.R.I.M.遵循“官方标准，个人优化”的装备哲学。你必须确保所有制式装备处于最佳状态，并熟练掌握其操作。我们鼓励你根据任务需求和个人习惯，对装备进行自费升级与定制，以最大化你的作战效能。但请记住，无论装备如何精良，熟练的技战术才是决定战局的根本。</p>
     </div>
   </section>
 
   <!-- 底部誓言区：勇气纪律 + 口号“保持冷静，继续前行” -->
-  <section class="footer-creed-usa">
+  <section class="footer-oath">
     <h1>勇气 · 纪律</h1>
     <h1>强者之列</h1>
     <p>保持冷静 · 继续前行</p>
@@ -362,23 +457,19 @@
 
 <script>
   (function() {
-    // ========= 简化版任务点系统 + 美式背景暗纹 ==========
+    // ========= 老旧风格任务点系统（暗红调） ==========
     const canvas = document.getElementById('combat-canvas');
     const ctx = canvas.getContext('2d');
     
-    const TARGET_COUNT = 22;
+    const TARGET_COUNT = 24;  // 略微增加，但保持简洁
     let targets = [];
     let mouseX = -500, mouseY = -500;
-    const radarBlade = document.getElementById('radar-blade');
+    const radarRing = document.getElementById('radar-ring');
     
     const hardTargetSpan = document.getElementById('hardTargetCount');
     const combatReadinessSpan = document.getElementById('combatReadiness');
     const unitCodeSpan = document.getElementById('unitCode');
     const killChainSpan = document.getElementById('killChain');
-    
-    function randRange(min, max) {
-      return min + Math.random() * (max - min);
-    }
     
     function initTargets() {
       targets = [];
@@ -386,12 +477,11 @@
         targets.push({
           x: Math.random(),
           y: Math.random(),
-          vx: (Math.random() - 0.5) * 0.003,
-          vy: (Math.random() - 0.5) * 0.003,
-          size: 3.5 + Math.random() * 4,
-          pulseSpeed: 0.8 + Math.random() * 0.9,
+          vx: (Math.random() - 0.5) * 0.0028,
+          vy: (Math.random() - 0.5) * 0.0028,
+          size: 3 + Math.random() * 4,
+          pulseSpeed: 0.6 + Math.random() * 0.8,
           phase: Math.random() * Math.PI * 2,
-          alpha: 0.7,
           isHighValue: Math.random() > 0.85
         });
       }
@@ -405,17 +495,17 @@
         if (t.x >= 1) { t.x = 1; t.vx = -Math.abs(t.vx); }
         if (t.y <= 0) { t.y = 0; t.vy = Math.abs(t.vy); }
         if (t.y >= 1) { t.y = 1; t.vy = -Math.abs(t.vy); }
-        let maxSpeed = 0.006;
+        let maxSpeed = 0.005;
         if (Math.abs(t.vx) > maxSpeed) t.vx = t.vx > 0 ? maxSpeed : -maxSpeed;
         if (Math.abs(t.vy) > maxSpeed) t.vy = t.vy > 0 ? maxSpeed : -maxSpeed;
       }
     }
     
-    function drawSimpleGrid(w, h) {
+    function drawGrid(w, h) {
       ctx.beginPath();
-      ctx.strokeStyle = '#712a2a';
-      ctx.lineWidth = 0.8;
-      const step = 70;
+      ctx.strokeStyle = '#632a2a';
+      ctx.lineWidth = 0.7;
+      const step = 68;
       for (let x = 0; x < w; x += step) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -428,12 +518,13 @@
         ctx.lineTo(w, y);
         ctx.stroke();
       }
+      // 老旧斜纹
       ctx.beginPath();
-      ctx.strokeStyle = '#5a2a2a';
-      for (let i = -h; i < w+h; i+= 100) {
+      ctx.strokeStyle = '#4a1f1f';
+      for (let i = -h; i < w+h; i+= 95) {
         ctx.beginPath();
         ctx.moveTo(i, 0);
-        ctx.lineTo(i+50, h);
+        ctx.lineTo(i+45, h);
         ctx.stroke();
       }
     }
@@ -442,27 +533,29 @@
       for (let t of targets) {
         const px = t.x * w;
         const py = t.y * h;
-        const pulse = 0.7 + 0.4 * Math.sin(now * 0.005 * t.pulseSpeed + t.phase);
-        const radius = t.size * (0.7 + pulse * 0.3);
+        const pulse = 0.6 + 0.5 * Math.sin(now * 0.0045 * t.pulseSpeed + t.phase);
+        const radius = t.size * (0.7 + pulse * 0.4);
         
+        // 暗红光晕
         ctx.beginPath();
-        ctx.arc(px, py, radius + 4, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(180, 40, 40, 0.2)`;
+        ctx.arc(px, py, radius + 5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(120, 30, 30, 0.25)`;
         ctx.fill();
         
         ctx.beginPath();
         ctx.arc(px, py, radius * 0.8, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(210, 50, 50, 0.85)`;
+        ctx.fillStyle = `rgba(160, 40, 40, 0.9)`;
         ctx.fill();
         ctx.beginPath();
         ctx.arc(px, py, radius * 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = `#ffaaaa`;
+        ctx.fillStyle = `#aa5a5a`;
         ctx.fill();
         
+        // 仅高价值目标加十字标记（老旧风格）
         if (t.isHighValue) {
           ctx.beginPath();
-          ctx.lineWidth = 1.2;
-          ctx.strokeStyle = `#ff8844`;
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = `#aa6a4a`;
           ctx.moveTo(px - 10, py);
           ctx.lineTo(px - 4, py);
           ctx.moveTo(px + 4, py);
@@ -476,8 +569,8 @@
       }
     }
     
-    function drawMinimalLinks(w, h) {
-      const maxDistSq = 0.09 * 0.09;
+    function drawLinks(w, h) {
+      const maxDistSq = 0.1 * 0.1;
       for (let i = 0; i < targets.length; i++) {
         for (let j = i+1; j < targets.length; j++) {
           const a = targets[i];
@@ -491,7 +584,7 @@
             ctx.beginPath();
             ctx.moveTo(a.x * w, a.y * h);
             ctx.lineTo(b.x * w, b.y * h);
-            ctx.strokeStyle = `rgba(180, 60, 60, ${alpha})`;
+            ctx.strokeStyle = `rgba(150, 60, 60, ${alpha})`;
             ctx.lineWidth = 1;
             ctx.stroke();
           }
@@ -499,66 +592,63 @@
       }
     }
     
-    function drawSoftScanner(w, h, now) {
+    function drawScanner(w, h, now) {
       if (mouseX > 0 && mouseX < w && mouseY > 0 && mouseY < h) {
         ctx.beginPath();
-        ctx.arc(mouseX, mouseY, 70, 0, Math.PI*2);
-        ctx.strokeStyle = '#cc5c5c';
+        ctx.arc(mouseX, mouseY, 68, 0, Math.PI*2);
+        ctx.strokeStyle = '#aa5a5a';
         ctx.lineWidth = 1.2;
         ctx.stroke();
         ctx.beginPath();
-        ctx.arc(mouseX, mouseY, 35, 0, Math.PI*2);
-        ctx.strokeStyle = '#aa5555';
+        ctx.arc(mouseX, mouseY, 32, 0, Math.PI*2);
+        ctx.strokeStyle = '#aa5a5a';
         ctx.stroke();
         
-        const angle = (Date.now() * 0.005) % (Math.PI*2);
+        const angle = (Date.now() * 0.0045) % (Math.PI*2);
         ctx.beginPath();
         ctx.moveTo(mouseX, mouseY);
-        ctx.lineTo(mouseX + Math.cos(angle)*85, mouseY + Math.sin(angle)*85);
-        ctx.strokeStyle = '#dd6666';
+        ctx.lineTo(mouseX + Math.cos(angle)*80, mouseY + Math.sin(angle)*80);
+        ctx.strokeStyle = '#cc6a6a';
         ctx.lineWidth = 1;
         ctx.stroke();
       }
     }
     
-    function drawMinimalNoise(w, h) {
-      if (Math.random() < 0.15) {
-        for (let i = 0; i < 3; i++) {
-          ctx.fillStyle = `rgba(150, 30, 30, 0.2)`;
-          ctx.fillRect(Math.random() * w, Math.random() * h, 1, 1);
+    function addStaticNoise(w, h) {
+      if (Math.random() < 0.2) {
+        for (let i = 0; i < 8; i++) {
+          ctx.fillStyle = `rgba(100, 20, 20, 0.2)`;
+          ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
         }
       }
     }
     
-    function drawUsBackgroundOverlay(w, h) {
-      ctx.globalAlpha = 0.06;
-      ctx.fillStyle = '#b22234';
+    function drawVintageOverlay(w, h) {
+      // 老旧痕迹
+      ctx.globalAlpha = 0.08;
+      ctx.fillStyle = '#5a2a2a';
       for (let i = 0; i < 5; i++) {
-        ctx.fillRect(20, h - 100 - i*18, 180, 8);
+        ctx.fillRect(15, h - 95 - i*18, 170, 6);
       }
       ctx.fillStyle = '#ffffff';
       for (let i = 0; i < 4; i++) {
-        ctx.fillRect(20, h - 82 - i*18, 180, 8);
+        ctx.fillRect(15, h - 77 - i*18, 170, 4);
       }
-      ctx.fillStyle = '#002664';
-      ctx.fillRect(20, h - 110, 60, 60);
-      ctx.fillStyle = '#ffffff';
-      for (let s = 0; s < 8; s++) {
-        ctx.fillRect(30 + (s%5)*8, h - 95 + Math.floor(s/5)*12, 2, 2);
-      }
+      ctx.fillStyle = '#2a3a6a';
+      ctx.fillRect(15, h - 105, 55, 55);
       ctx.globalAlpha = 1.0;
     }
     
-    let readiness = 98;
+    let readiness = 96;
     function updateStats() {
       hardTargetSpan.innerText = TARGET_COUNT;
-      readiness += (Math.random() - 0.5) * 0.6;
-      readiness = Math.min(100, Math.max(92, readiness));
+      readiness += (Math.random() - 0.5) * 0.8;
+      readiness = Math.min(100, Math.max(90, readiness));
       combatReadinessSpan.innerText = Math.floor(readiness) + '%';
-      const units = ['两栖群-7', 'GRIM-7', '先锋连', '突击群'];
+      const units = ['两栖群-7', 'GRIM-7', '先锋连', '突击组'];
       if (Math.random() < 0.04) unitCodeSpan.innerText = units[Math.floor(Math.random() * units.length)];
-      const chainStates = ['ACTIVE', '情报同步', '协同就绪', 'STANDBY'];
-      if (Math.random() < 0.08) killChainSpan.innerText = chainStates[Math.floor(Math.random() * chainStates.length)];
+      const states = ['情报同步', '协同就绪', 'ACTIVE', 'STANDBY'];
+      if (Math.random() < 0.08) killChainSpan.innerText = states[Math.floor(Math.random() * states.length)];
     }
     
     function updateCoords() {
@@ -573,39 +663,39 @@
     function onMouseMove(e) {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      if (radarBlade) {
-        radarBlade.style.left = mouseX + 'px';
-        radarBlade.style.top = mouseY + 'px';
-        radarBlade.style.opacity = '0.65';
-        setTimeout(() => { if(radarBlade) radarBlade.style.opacity = '0'; }, 120);
+      if (radarRing) {
+        radarRing.style.left = mouseX + 'px';
+        radarRing.style.top = mouseY + 'px';
+        radarRing.style.opacity = '0.7';
+        setTimeout(() => { if(radarRing) radarRing.style.opacity = '0'; }, 130);
       }
     }
     function onMouseLeave() {
       mouseX = -1000;
       mouseY = -1000;
-      if (radarBlade) radarBlade.style.opacity = '0';
+      if (radarRing) radarRing.style.opacity = '0';
     }
     
-    let lastStatTime = 0;
+    let lastStat = 0;
     function render(now) {
       if (!canvas || !ctx) return;
       const w = canvas.width = window.innerWidth;
       const h = canvas.height = window.innerHeight;
       
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
       ctx.fillRect(0, 0, w, h);
       
-      drawSimpleGrid(w, h);
+      drawGrid(w, h);
       updateTargets();
-      drawMinimalLinks(w, h);
+      drawLinks(w, h);
       drawTargets(w, h, now);
-      drawSoftScanner(w, h, now);
-      drawMinimalNoise(w, h);
-      drawUsBackgroundOverlay(w, h);
+      drawScanner(w, h, now);
+      addStaticNoise(w, h);
+      drawVintageOverlay(w, h);
       
-      if (now - lastStatTime > 1200) {
+      if (now - lastStat > 1300) {
         updateStats();
-        lastStatTime = now;
+        lastStat = now;
       }
       
       requestAnimationFrame(render);
@@ -624,7 +714,7 @@
       window.addEventListener('resize', resizeCanvas);
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseleave', onMouseLeave);
-      setInterval(updateCoords, 2200);
+      setInterval(updateCoords, 2100);
       render(Date.now());
     }
     
