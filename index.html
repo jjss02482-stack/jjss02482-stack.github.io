@@ -3,484 +3,530 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>G.R.I.M. TACTICAL TERMINAL v5.1 | 暗网渗透界面</title>
+<title>G.R.I.M. TACTICAL TERMINAL // HARD CORE v6.0</title>
 <style>
-:root {
-  --primary-color: #ff0033;
-  --secondary-color: #6a0d1f;
-  --glow-color: rgba(255, 0, 50, 0.7);
-  --bg-dark: #000000;
-  --text-bright: #ff3366;
-  --header-height: 52px;
-  --card-max-width: 900px;
-}
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+  }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+  body {
+    background-color: #030303;
+    font-family: 'Stencil Std', 'Impact', 'Arial Black', 'Courier New', monospace;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
 
-html, body {
-  background-color: var(--bg-dark);
-  color: var(--primary-color);
-  font-family: 'Courier New', 'Fira Code', monospace;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-}
+  /* 硬朗金属滚动条 */
+  ::-webkit-scrollbar {
+    width: 6px;
+    background: #1a0000;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cc0000;
+    border-radius: 0px;
+    box-shadow: inset 0 0 3px #ff6600;
+  }
 
-/* 动态网格画布 (背景 + 随机任务点系统) */
-#cyber-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  z-index: 0;
-  pointer-events: none;  /* 让所有鼠标事件穿透，不影响点击滚动 */
-  background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
-}
+  /* 动态背景画布 */
+  #combat-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 30% 20%, #0a0505 0%, #000000 100%);
+  }
 
-/* 顶部状态栏 - 加glitch动态 */
-.status-header {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: var(--header-height);
-  border-bottom: 1px solid var(--primary-color);
-  background: rgba(0, 0, 0, 0.92);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 30px;
-  font-size: 13px;
-  letter-spacing: 2px;
-  z-index: 1000;
-  font-weight: bold;
-  text-transform: uppercase;
-  box-shadow: 0 0 12px rgba(255, 0, 50, 0.3);
-}
-.status-header span {
-  text-shadow: 0 0 3px #ff0033;
-}
-.coords {
-  font-family: monospace;
-  background: #1a0000;
-  padding: 4px 10px;
-  border-radius: 2px;
-  letter-spacing: 1px;
-  border-left: 1px solid var(--primary-color);
-  border-right: 1px solid var(--primary-color);
-}
+  /* 顶部硬核军衔条 */
+  .hard-header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 58px;
+    background: rgba(0, 0, 0, 0.95);
+    border-bottom: 3px solid #b22222;
+    backdrop-filter: blur(2px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 25px;
+    z-index: 1100;
+    font-family: 'Courier New', monospace;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    box-shadow: 0 0 12px rgba(180, 0, 0, 0.6);
+  }
+  .hard-header span {
+    color: #ff4444;
+    text-shadow: 0 0 5px #a10000;
+  }
+  .mil-badge {
+    background: #1f1a1a;
+    padding: 6px 12px;
+    border-left: 4px solid #ff0000;
+    font-size: 13px;
+    font-weight: bold;
+  }
+  .mil-badge i {
+    font-style: normal;
+    color: #ff7777;
+  }
+  .coords-hard {
+    background: #0a0000;
+    padding: 4px 12px;
+    font-family: monospace;
+    border: 1px solid #9b2c2c;
+    font-weight: bold;
+  }
 
-/* 右侧迷你数据面板 (酷炫附加) */
-.data-panel {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1100;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--primary-color);
-  padding: 10px 16px;
-  font-size: 12px;
-  font-family: monospace;
-  border-radius: 4px;
-  text-align: right;
-  box-shadow: 0 0 12px rgba(255,0,50,0.3);
-  pointer-events: none;
-  letter-spacing: 1px;
-}
-.data-panel .label {
-  color: #ff6680;
-  font-size: 10px;
-}
-.data-panel .value {
-  font-size: 16px;
-  font-weight: bold;
-  color: #ff3366;
-  text-shadow: 0 0 4px red;
-}
-#targetCount {
-  font-size: 20px;
-}
+  /* 右侧硬派数据面板 —— 美军风格标识 */
+  .usmc-panel {
+    position: fixed;
+    bottom: 25px;
+    right: 20px;
+    z-index: 1150;
+    background: rgba(0, 0, 0, 0.85);
+    border: 2px solid #b11f1f;
+    padding: 12px 18px;
+    font-family: 'Impact', monospace;
+    text-align: right;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+    box-shadow: 8px 8px 0px #3a0000;
+    min-width: 170px;
+  }
+  .usmc-panel .label {
+    color: #dd8888;
+    font-size: 10px;
+    letter-spacing: 2px;
+    font-family: monospace;
+  }
+  .usmc-panel .value {
+    font-size: 26px;
+    font-weight: 900;
+    color: #ff2a2a;
+    text-shadow: 0 0 5px red;
+    line-height: 1;
+  }
+  .usmc-panel hr {
+    border-color: #8b0000;
+    margin: 6px 0;
+  }
+  .eagle-stripe {
+    background: linear-gradient(90deg, #003399, #ffffff, #b22222);
+    height: 3px;
+    width: 100%;
+    margin: 5px 0;
+  }
 
-/* 鼠标跟随扫描环 (canvas 绘制, 但额外添加一个div效果更明显) */
-#radar-ring {
-  position: fixed;
-  width: 120px;
-  height: 120px;
-  border: 2px solid var(--primary-color);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 1200;
-  opacity: 0;
-  transition: opacity 0.1s;
-  box-shadow: 0 0 20px rgba(255,0,80,0.6);
-  background: radial-gradient(circle, rgba(255,0,50,0.1) 0%, rgba(0,0,0,0) 70%);
-}
+  /* 鼠标雷达环 (更尖锐) */
+  #radar-blade {
+    position: fixed;
+    width: 100px;
+    height: 100px;
+    border: 3px solid #ff3300;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1300;
+    opacity: 0;
+    transition: opacity 0.08s;
+    box-shadow: 0 0 20px #ff0000, inset 0 0 12px #ff0000;
+    background: radial-gradient(circle, rgba(200,0,0,0.2) 0%, rgba(0,0,0,0) 80%);
+  }
 
-/* 内容层 - 高于canvas */
-.content {
-  position: relative;
-  z-index: 20;
-  padding-top: calc(var(--header-height) + 20px);
-}
+  /* 主内容层 */
+  .content-layer {
+    position: relative;
+    z-index: 50;
+    padding-top: 80px;
+  }
 
-.section {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px 20px;
-}
+  .section {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 24px;
+  }
 
-.card {
-  width: 85%;
-  max-width: var(--card-max-width);
-  background: rgba(8, 0, 0, 0.82);
-  backdrop-filter: blur(3px);
-  border: 1px solid var(--primary-color);
-  padding: 40px 48px;
-  box-shadow: 0 0 35px rgba(255, 0, 40, 0.25);
-  transition: transform 0.2s ease, box-shadow 0.2s;
-  border-radius: 8px;
-}
-.card:hover {
-  box-shadow: 0 0 45px rgba(255, 0, 50, 0.45);
-  border-color: #ff4466;
-}
+  /* 硬核卡片：无圆角，金属撕裂感 */
+  .combat-card {
+    width: 85%;
+    max-width: 1000px;
+    background: rgba(5, 0, 0, 0.88);
+    border: 2px solid #cc2222;
+    padding: 45px 50px;
+    box-shadow: 12px 12px 0px rgba(80, 0, 0, 0.5);
+    transition: 0.2s linear;
+    backdrop-filter: blur(2px);
+  }
+  .combat-card:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 6px 6px 0px #8b0000;
+    border-color: #ff5555;
+  }
+  h2 {
+    font-size: 3rem;
+    font-family: 'Stencil Std', 'Impact', 'Arial Black', monospace;
+    border-left: 12px solid #ff1111;
+    padding-left: 24px;
+    margin-bottom: 28px;
+    letter-spacing: 3px;
+    color: #ff5e5e;
+    text-transform: uppercase;
+    text-shadow: 3px 3px 0px #3a0000;
+  }
+  p {
+    font-size: 1.25rem;
+    line-height: 1.8;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #ddbbbb;
+    text-align: justify;
+  }
+  .header-title {
+    font-size: 7rem;
+    font-family: 'Impact', 'Arial Black', monospace;
+    letter-spacing: 12px;
+    text-shadow: 8px 8px 0px #660000;
+    text-align: center;
+    color: #ff2222;
+    word-break: keep-all;
+  }
+  .header-subtitle {
+    font-size: 1.8rem;
+    letter-spacing: 5px;
+    text-align: center;
+    margin-top: 20px;
+    border-top: 2px solid #aa2e2e;
+    display: inline-block;
+    padding-top: 20px;
+    font-weight: bold;
+  }
+  .scroll-hint {
+    margin-top: 150px;
+    animation: toughBlink 1.2s infinite;
+    font-size: 1rem;
+    font-weight: bold;
+    letter-spacing: 4px;
+  }
+  /* 美式星条誓言区 */
+  .footer-creed-usa {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(145deg, #b22222 0%, #8b0000 100%);
+    color: white;
+    text-align: center;
+    border-top: 8px solid #002664;
+    border-bottom: 8px solid #ffffff;
+    position: relative;
+    box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
+  }
+  .footer-creed-usa::before {
+    content: "★ ★ ★";
+    position: absolute;
+    top: 20px;
+    font-size: 36px;
+    letter-spacing: 12px;
+    color: #ffd966;
+    opacity: 0.5;
+  }
+  .footer-creed-usa h1 {
+    font-size: 7vw;
+    font-family: 'Stencil Std', 'Impact', monospace;
+    margin: 0;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-shadow: 5px 5px 0px #330000;
+  }
+  .footer-creed-usa p {
+    font-weight: 900;
+    letter-spacing: 6px;
+    margin-top: 30px;
+    font-size: 1.6rem;
+    color: #ffcaca;
+  }
+  .us-flag-stripe {
+    width: 100%;
+    height: 6px;
+    background: repeating-linear-gradient(90deg, #ffffff, #ffffff 40px, #b22234 40px, #b22234 80px);
+    margin-top: 30px;
+  }
 
-h2 {
-  font-size: 2.8rem;
-  border-left: 8px solid var(--primary-color);
-  padding-left: 25px;
-  margin-bottom: 30px;
-  letter-spacing: 2px;
-  font-weight: 600;
-  text-shadow: 2px 2px 0px #3a0000;
-}
+  @keyframes toughBlink {
+    0%, 100% { opacity: 0.5; text-shadow: 0 0 2px red; }
+    50% { opacity: 1; text-shadow: 0 0 12px #ff4444; }
+  }
 
-p {
-  font-size: 1.2rem;
-  line-height: 1.8;
-  text-align: justify;
-  font-weight: 500;
-  color: #ffccd6;
-}
+  /* 硬核锯齿边框装饰 */
+  .corner-bracket {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 60px;
+    height: 60px;
+    border-left: 4px solid #ff4444;
+    border-bottom: 4px solid #ff4444;
+    z-index: 1100;
+    pointer-events: none;
+  }
+  .corner-bracket-top {
+    top: 80px;
+    right: 20px;
+    left: auto;
+    border-left: none;
+    border-right: 4px solid #ff4444;
+    border-top: 4px solid #ff4444;
+    border-bottom: none;
+  }
 
-.header-title {
-  font-size: 6rem;
-  margin: 0;
-  letter-spacing: 18px;
-  text-shadow: 6px 6px 0px var(--secondary-color);
-  text-align: center;
-  font-weight: 800;
-  animation: glitchPulse 3s infinite;
-}
-.header-subtitle {
-  font-size: 1.6rem;
-  letter-spacing: 6px;
-  text-align: center;
-  margin-top: 20px;
-  border-top: 1px dashed var(--primary-color);
-  display: inline-block;
-  width: auto;
-  padding-top: 18px;
-}
-.scroll-hint {
-  margin-top: 140px;
-  animation: blinkPulse 1.6s infinite;
-  text-align: center;
-  font-size: 1rem;
-  letter-spacing: 3px;
-}
-
-/* 底部誓言区 */
-.footer-creed {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: var(--primary-color);
-  color: #000000;
-  text-align: center;
-  box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
-}
-.footer-creed h1 {
-  font-size: 7vw;
-  margin: 0;
-  font-weight: 900;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  mix-blend-mode: overlay;
-  text-shadow: 2px 2px 0px #440000;
-}
-.footer-creed p {
-  font-weight: bold;
-  letter-spacing: 8px;
-  margin-top: 30px;
-  color: #110000;
-  font-size: 1.5rem;
-}
-
-/* 动态闪烁动画 */
-@keyframes blinkPulse {
-  0%, 100% { opacity: 0.4; text-shadow: 0 0 2px red; }
-  50% { opacity: 1; text-shadow: 0 0 10px red; }
-}
-@keyframes glitchPulse {
-  0% { text-shadow: 3px 3px 0px #4d0000; }
-  50% { text-shadow: -2px 2px 0px #ff3366, 2px -2px 0px #660000; }
-  100% { text-shadow: 3px 3px 0px #4d0000; }
-}
-
-/* 响应式调整 */
-@media (max-width: 768px) {
-  .status-header { padding: 0 15px; font-size: 9px; }
-  .header-title { font-size: 3rem; letter-spacing: 10px; }
-  .header-subtitle { font-size: 1rem; letter-spacing: 3px; }
-  .card { padding: 25px 20px; }
-  h2 { font-size: 1.8rem; }
-  p { font-size: 0.95rem; }
-  .data-panel { padding: 6px 12px; bottom: 10px; right: 10px; }
-  #targetCount { font-size: 16px; }
-}
+  @media (max-width: 780px) {
+    .header-title { font-size: 3.8rem; letter-spacing: 6px; }
+    .combat-card { padding: 25px 20px; }
+    h2 { font-size: 1.8rem; }
+    p { font-size: 1rem; }
+    .hard-header { padding: 0 12px; font-size: 10px; }
+    .usmc-panel { padding: 8px 14px; bottom: 12px; right: 12px; }
+    .usmc-panel .value { font-size: 20px; }
+  }
 </style>
 </head>
 <body>
 
-<!-- 固定顶部状态栏 -->
-<div class="status-header">
-  <span>⚡ G.R.I.M. STATUS: OPERATIONAL</span>
-  <span class="coords">LAT: 35.6895 LON: 139.6917</span>
-  <span>SIGNAL: [🔴 EXCELLENT]</span>
+<!-- 强硬顶部状态栏 -->
+<div class="hard-header">
+  <span>⚔️ G.R.I.M. ████ FORCE RECON ⚔️</span>
+  <div class="mil-badge"><i>CLASSIFIED // OMEGA PROTOCOL</i></div>
+  <span class="coords-hard" id="dynamicCoords">LAT: 35.6895 LON: 139.6917</span>
+  <span>🔻 OORAH 🔻</span>
 </div>
 
-<!-- 背景画布：随机任务点 + 动态网格 + 光效 -->
-<canvas id="cyber-canvas"></canvas>
+<!-- 画布：强硬版任务点+弹道网格 -->
+<canvas id="combat-canvas"></canvas>
 
-<!-- 鼠标跟随环 (酷炫元素) -->
-<div id="radar-ring"></div>
+<!-- 鼠标雷达刃 -->
+<div id="radar-blade"></div>
 
-<!-- 右侧动态情报面板 -->
-<div class="data-panel">
-  <div class="label">🎯 ACTIVE TARGETS</div>
-  <div class="value" id="targetCount">0</div>
-  <div class="label">🔗 LINK STABILITY</div>
-  <div class="value" id="linkStability">98.4%</div>
-  <div class="label">⏱️ TASK FORCE</div>
-  <div class="value" id="taskForce">GRIM-7</div>
+<!-- 右侧美式战术数据面板 -->
+<div class="usmc-panel">
+  <div class="label">TARGETS ACQUIRED</div>
+  <div class="value" id="hardTargetCount">0</div>
+  <div class="eagle-stripe"></div>
+  <div class="label">COMBAT READINESS</div>
+  <div class="value" id="combatReadiness">100%</div>
+  <hr>
+  <div class="label">MARSOC UNIT</div>
+  <div class="value" id="unitCode">GRIM-7</div>
+  <div class="label">KILL CHAIN STATUS</div>
+  <div class="value" id="killChain">ACTIVE</div>
 </div>
 
-<div class="content">
+<!-- 硬核装饰角 -->
+<div class="corner-bracket"></div>
+<div class="corner-bracket corner-bracket-top"></div>
+
+<div class="content-layer">
   <section class="section">
     <div style="text-align: center;">
       <h1 class="header-title">G.R.I.M.</h1>
-      <p class="header-subtitle">全球侦查与渗透海军陆战队</p>
-      <p class="scroll-hint">▼ SCROLL TO ACCESS DATA ▼</p>
+      <p class="header-subtitle">GLOBAL RECON &amp; INTERVENTION MARINES</p>
+      <p class="scroll-hint">▼ PUSH TO COMMIT ▼</p>
     </div>
   </section>
 
   <section class="section">
-    <div class="card">
-      <h2>01. 情报先行</h2>
-      <p>在 G.R.I.M.，我们不打无准备之仗。情报部利用量子加密链路对全球目标进行 24/7 监控。在每一场渗透开始前，战场的每一个微小细节都已被解构。随机任务点网络实时映射威胁坐标，AI 筛选优先级。</p>
+    <div class="combat-card">
+      <h2>01. 铁血情报</h2>
+      <p>INTEL IS AMMUNITION. G.R.I.M. 情报局通过量子加密与卫星蜂群网络对全球高价值目标执行不间断追踪。任何威胁在暴露之前已被标定，随机任务节点代表实时猎杀坐标——延迟即为死亡。每一帧数据都浸透美利坚战争机器的高效冷酷。</p>
     </div>
   </section>
 
   <section class="section">
-    <div class="card">
-      <h2>02. 协同作战</h2>
-      <p>单兵是刺向敌人的利刃，小队是掌控局势的重锤。突击组与情报部通过神经链路保持实时同步，确保在极度混乱的战场环境下依然能够达成绝对的战术执行力。每个闪烁节点都是战术支点。</p>
+    <div class="combat-card">
+      <h2>02. 致命协同</h2>
+      <p>单兵即是收割者，小队化为钢铁风暴。突击组与指挥中枢通过神经战术链路实现零延迟同步，在极端混乱环境中精确执行饱和打击。我们的信条：OVERWHELM. ANNIHILATE. 不留任何退路。所有闪烁节点都是联合打击的锚点。</p>
     </div>
   </section>
 
   <section class="section">
-    <div class="card">
-      <h2>03. 装备哲学</h2>
-      <p>官方提供标准，个人定义上限。我们鼓励每一名外勤人员根据自身作战习惯对制式装备进行极限优化。记住，你的枪是你身体的延伸，而不是累赘。动态任务点不断演变，唯有适应者胜。</p>
+    <div class="combat-card">
+      <h2>03. 自由开火哲学</h2>
+      <p>标准装备只是起点，杀戮效率定义上限。每一名外勤战士被授权对武器系统进行终极改装——你的步枪必须成为你意志的延伸。自定义弹道、极限射速、随心所欲。美军核心精神：适应性即优势，火力即真理。</p>
     </div>
   </section>
 
-  <section class="footer-creed">
-    <h1>KEEP CALM</h1>
-    <h1>MOVE ON</h1>
-    <p>强者之列 · 永不退缩</p>
+  <section class="footer-creed-usa">
+    <h1>NO MERCY</h1>
+    <h1>NO RETREAT</h1>
+    <p>DEATH BEFORE DISHONOR • SEMPER FIDELIS</p>
+    <div class="us-flag-stripe"></div>
   </section>
 </div>
 
 <script>
   (function() {
-    // ---------- 随机任务点系统 (动态网络) ----------
-    const canvas = document.getElementById('cyber-canvas');
+    // ========= 强硬随机任务点系统 + 美军风格弹道网格 ==========
+    const canvas = document.getElementById('combat-canvas');
     const ctx = canvas.getContext('2d');
     
-    // 参数配置
-    const TARGET_COUNT = 34;          // 随机任务点数量
+    // 任务点参数：数量更多更密集，移动更暴烈
+    const HARD_TARGET_COUNT = 48;
     let targets = [];
-    let animationId = null;
-    let timeOffset = 0;
+    let mouseX = -500, mouseY = -500;
+    const radarBlade = document.getElementById('radar-blade');
     
-    // 鼠标位置追踪 (用于扫描环 + 任务点响应)
-    let mouseX = -1000, mouseY = -1000;
-    const radarRing = document.getElementById('radar-ring');
+    // UI 更新
+    const hardTargetSpan = document.getElementById('hardTargetCount');
+    const combatReadinessSpan = document.getElementById('combatReadiness');
+    const unitCodeSpan = document.getElementById('unitCode');
+    const killChainSpan = document.getElementById('killChain');
     
-    // UI 元素
-    const targetCountSpan = document.getElementById('targetCount');
-    const linkStabilitySpan = document.getElementById('linkStability');
-    
-    // 辅助随机
-    function randomRange(min, max) {
+    // 随机辅助
+    function randRange(min, max) {
       return min + Math.random() * (max - min);
     }
     
-    // 初始化任务点 (归一化坐标 0..1，速度，大小，相位)
-    function initTargets() {
+    // 初始化任务点——更加侵略性的运动速度
+    function initHardTargets() {
       targets = [];
-      for (let i = 0; i < TARGET_COUNT; i++) {
+      for (let i = 0; i < HARD_TARGET_COUNT; i++) {
         targets.push({
-          x: Math.random(),               // 归一化X
-          y: Math.random(),               // 归一化Y
-          vx: (Math.random() - 0.5) * 0.0025,  // 随机缓慢移动
-          vy: (Math.random() - 0.5) * 0.0025,
-          sizeBase: 3 + Math.random() * 5,      // 基础半径
-          pulseSpeed: 0.8 + Math.random() * 1.2,
+          x: Math.random(),
+          y: Math.random(),
+          vx: (Math.random() - 0.5) * 0.006,   // 更快速度
+          vy: (Math.random() - 0.5) * 0.006,
+          size: 4 + Math.random() * 6,
+          pulseSpeed: 1.2 + Math.random() * 1.5,
           phase: Math.random() * Math.PI * 2,
-          alpha: 0.6 + Math.random() * 0.4,
-          linkThreshold: 0.18 + Math.random() * 0.07, // 连线阈值差异化
-          color: `hsl(${350 + Math.random() * 20}, 100%, 60%)`
+          intensity: 0.7 + Math.random() * 0.5,
+          isHighValue: Math.random() > 0.8,
+          color: `hsl(${350 + Math.random() * 20}, 95%, 58%)`
         });
       }
     }
     
-    // 更新目标位置 (边界反弹，保持在0-1区间)
-    function updateTargets() {
+    // 更新位置，边界碰撞反弹 + 额外加速随机 (硬派)
+    function updateTargetsHard() {
       for (let t of targets) {
         t.x += t.vx;
         t.y += t.vy;
-        // 边界反弹 (让任务点不超出边缘)
-        if (t.x <= 0) { t.x = 0; t.vx = Math.abs(t.vx); }
-        if (t.x >= 1) { t.x = 1; t.vx = -Math.abs(t.vx); }
-        if (t.y <= 0) { t.y = 0; t.vy = Math.abs(t.vy); }
-        if (t.y >= 1) { t.y = 1; t.vy = -Math.abs(t.vy); }
+        if (t.x <= 0) { t.x = 0; t.vx = Math.abs(t.vx) * 1.05; }
+        if (t.x >= 1) { t.x = 1; t.vx = -Math.abs(t.vx) * 1.05; }
+        if (t.y <= 0) { t.y = 0; t.vy = Math.abs(t.vy) * 1.05; }
+        if (t.y >= 1) { t.y = 1; t.vy = -Math.abs(t.vy) * 1.05; }
         
-        // 轻微随机扰动，增加随机感
+        // 速度限幅
+        let maxSpeed = 0.01;
+        if (Math.abs(t.vx) > maxSpeed) t.vx = t.vx > 0 ? maxSpeed : -maxSpeed;
+        if (Math.abs(t.vy) > maxSpeed) t.vy = t.vy > 0 ? maxSpeed : -maxSpeed;
+        
+        // 随机脉冲 增加剧烈感
         if (Math.random() < 0.02) {
-          t.vx += (Math.random() - 0.5) * 0.0008;
-          t.vy += (Math.random() - 0.5) * 0.0008;
-          // 限制最大速度
-          let maxSpeed = 0.004;
-          if (Math.abs(t.vx) > maxSpeed) t.vx = t.vx > 0 ? maxSpeed : -maxSpeed;
-          if (Math.abs(t.vy) > maxSpeed) t.vy = t.vy > 0 ? maxSpeed : -maxSpeed;
+          t.vx += (Math.random() - 0.5) * 0.0012;
+          t.vy += (Math.random() - 0.5) * 0.0012;
         }
       }
     }
     
-    // 绘制动态网格 + 随机任务点 + 连线 (核心炫酷效果)
-    function drawGrid(ctx, w, h) {
-      const step = 55;
+    // 绘制强硬网格 + 弹道痕迹
+    function drawHardGrid(w, h) {
       ctx.beginPath();
-      ctx.strokeStyle = 'rgba(255, 30, 70, 0.18)';
-      ctx.lineWidth = 0.8;
-      // 纵向线
+      ctx.strokeStyle = '#9c2e2e';
+      ctx.lineWidth = 1.2;
+      // 军事方格 + 斜向撕裂线
+      const step = 48;
       for (let x = 0; x < w; x += step) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, h);
         ctx.stroke();
       }
-      // 横向线
       for (let y = 0; y < h; y += step) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(w, y);
         ctx.stroke();
       }
-      
-      // 额外斜线装饰 (科技感)
+      // 对角交叉火力线
       ctx.beginPath();
-      ctx.strokeStyle = 'rgba(255, 0, 70, 0.1)';
-      for (let i = -h; i < w+h; i+= 70) {
+      ctx.strokeStyle = '#b33e3e';
+      ctx.setLineDash([8, 12]);
+      for (let i = -h; i < w+h; i+= 55) {
         ctx.beginPath();
         ctx.moveTo(i, 0);
-        ctx.lineTo(i+50, h);
+        ctx.lineTo(i+40, h);
         ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(i, h);
-        ctx.lineTo(i+50, 0);
+        ctx.lineTo(i+40, 0);
         ctx.stroke();
       }
+      ctx.setLineDash([]);
     }
     
-    // 绘制动态背景粒子 (星空)
-    function drawStarfield(ctx, w, h, time) {
-      for (let i = 0; i < 180; i++) {
-        const sx = (i * 131) % w;
-        const sy = (i * 253) % h;
-        const flicker = 0.3 + 0.5 * Math.sin(time * 0.003 + i);
-        ctx.fillStyle = `rgba(255, 100, 120, ${flicker * 0.4})`;
-        ctx.beginPath();
-        ctx.arc(sx, sy, 1.2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-    
-    // 绘制任务点 (脉冲光晕 + 外发光)
-    function drawTargets(ctx, w, h, now) {
+    // 极硬核任务点 (星形准星 + 动态闪焰)
+    function drawHardTargets(w, h, now) {
       for (let t of targets) {
         const px = t.x * w;
         const py = t.y * h;
-        // 动态脉冲半径
-        const pulse = Math.sin(now * 0.004 * t.pulseSpeed + t.phase) * 0.6 + 0.7;
-        const radius = (t.sizeBase + 2.5 * pulse) * (0.8 + Math.sin(now * 0.01) * 0.1);
-        const glowRadius = radius + 6;
+        const pulseFactor = 0.7 + 0.5 * Math.sin(now * 0.008 * t.pulseSpeed + t.phase);
+        const radius = t.size * (0.8 + pulseFactor * 0.5);
         
-        // 外层光晕 (渐变)
-        const grad = ctx.createRadialGradient(px, py, radius*0.3, px, py, glowRadius);
-        grad.addColorStop(0, `rgba(255, 40, 80, 0.9)`);
-        grad.addColorStop(0.6, `rgba(255, 0, 40, 0.5)`);
-        grad.addColorStop(1, 'rgba(80, 0, 0, 0)');
+        // 外层冲击波
         ctx.beginPath();
-        ctx.arc(px, py, glowRadius, 0, Math.PI*2);
-        ctx.fillStyle = grad;
+        ctx.arc(px, py, radius + 6 * pulseFactor, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(220, 30, 30, ${0.3 * pulseFactor})`;
         ctx.fill();
         
-        // 核心红点
+        // 核心硬核红点
         ctx.beginPath();
-        ctx.arc(px, py, radius * 0.8, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(255, 50, 70, 0.95)`;
+        ctx.arc(px, py, radius * 0.9, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 40, 20, 0.95)`;
         ctx.fill();
         ctx.beginPath();
-        ctx.arc(px, py, radius * 0.4, 0, Math.PI*2);
+        ctx.arc(px, py, radius * 0.45, 0, Math.PI * 2);
         ctx.fillStyle = '#ffffff';
         ctx.fill();
         
-        // 十字瞄准标记 (酷)
+        // 美军风格瞄准十字 (加粗)
         ctx.beginPath();
-        ctx.strokeStyle = 'rgba(255, 80, 100, 0.8)';
-        ctx.lineWidth = 1.2;
-        ctx.moveTo(px - 8, py);
-        ctx.lineTo(px - 3, py);
-        ctx.moveTo(px + 3, py);
-        ctx.lineTo(px + 8, py);
-        ctx.moveTo(px, py - 8);
-        ctx.lineTo(px, py - 3);
-        ctx.moveTo(px, py + 3);
-        ctx.lineTo(px, py + 8);
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = `rgba(255, 80, 50, 1)`;
+        ctx.moveTo(px - 14, py);
+        ctx.lineTo(px - 5, py);
+        ctx.moveTo(px + 5, py);
+        ctx.lineTo(px + 14, py);
+        ctx.moveTo(px, py - 14);
+        ctx.lineTo(px, py - 5);
+        ctx.moveTo(px, py + 5);
+        ctx.lineTo(px, py + 14);
         ctx.stroke();
+        
+        // 高价值目标额外三角形标记
+        if (t.isHighValue) {
+          ctx.beginPath();
+          ctx.moveTo(px + 12, py - 8);
+          ctx.lineTo(px + 20, py);
+          ctx.lineTo(px + 12, py + 8);
+          ctx.fillStyle = '#ffaa33';
+          ctx.fill();
+        }
       }
     }
     
-    // 绘制任务点之间的连接 (动态网)
-    function drawLinks(ctx, w, h, now) {
-      ctx.beginPath();
-      ctx.lineWidth = 1.0;
-      const maxDistSq = 0.12 * 0.12;  // 归一化距离阈值平方
+    // 硬连线 —— 更密集的战术网络，红色电流
+    function drawHardLinks(w, h, now) {
+      const maxDistSq = 0.14 * 0.14;
       for (let i = 0; i < targets.length; i++) {
         for (let j = i+1; j < targets.length; j++) {
           const a = targets[i];
@@ -490,22 +536,22 @@ p {
           const distSq = dx*dx + dy*dy;
           if (distSq < maxDistSq) {
             const intensity = 1 - (distSq / maxDistSq);
-            const alpha = 0.25 + intensity * 0.4;
-            const flick = 0.6 + 0.4 * Math.sin(now * 0.003 + i * j);
+            const alpha = 0.4 + intensity * 0.6;
             ctx.beginPath();
-            ctx.moveTo(a.x * w, a.y * h);
-            ctx.lineTo(b.x * w, b.y * h);
-            ctx.strokeStyle = `rgba(255, 80, 120, ${alpha * flick * 0.8})`;
+            ctx.moveTo(a.x * canvas.width, a.y * canvas.height);
+            ctx.lineTo(b.x * canvas.width, b.y * canvas.height);
+            ctx.strokeStyle = `rgba(255, 60, 40, ${alpha * 0.9})`;
+            ctx.lineWidth = 1.8;
             ctx.stroke();
             
-            // 额外能量流动画 (小点沿连线)
-            if (intensity > 0.5 && (Math.floor(now * 0.004) % 7 === i % 7)) {
-              const tFlow = (now * 0.008) % 1;
-              const midX = (a.x * w) * (1-tFlow) + (b.x * w) * tFlow;
-              const midY = (a.y * h) * (1-tFlow) + (b.y * h) * tFlow;
+            // 脉冲能量球 (加强)
+            if (intensity > 0.55 && (Math.floor(now * 0.006) % 5 === (i % 5))) {
+              const tFlow = (now * 0.01) % 1;
+              const mx = (a.x * canvas.width) * (1 - tFlow) + (b.x * canvas.width) * tFlow;
+              const my = (a.y * canvas.height) * (1 - tFlow) + (b.y * canvas.height) * tFlow;
               ctx.beginPath();
-              ctx.arc(midX, midY, 3, 0, Math.PI*2);
-              ctx.fillStyle = `rgba(255, 150, 170, 0.9)`;
+              ctx.arc(mx, my, 4, 0, Math.PI*2);
+              ctx.fillStyle = `rgba(255, 100, 30, 0.9)`;
               ctx.fill();
             }
           }
@@ -513,116 +559,131 @@ p {
       }
     }
     
-    // 鼠标交互扫描圈 (雷达效果)
-    function drawMouseScanner(ctx, w, h) {
+    // 鼠标扫描器强化版 + 弹道指示
+    function drawHardScanner(w, h, now) {
       if (mouseX > 0 && mouseX < w && mouseY > 0 && mouseY < h) {
         ctx.beginPath();
-        ctx.arc(mouseX, mouseY, 70, 0, Math.PI*2);
-        ctx.strokeStyle = 'rgba(255, 80, 120, 0.6)';
-        ctx.lineWidth = 2;
+        ctx.arc(mouseX, mouseY, 85, 0, Math.PI*2);
+        ctx.strokeStyle = '#ff2a2a';
+        ctx.lineWidth = 2.2;
         ctx.stroke();
         ctx.beginPath();
-        ctx.arc(mouseX, mouseY, 35, 0, Math.PI*2);
-        ctx.strokeStyle = 'rgba(255, 50, 80, 0.4)';
+        ctx.arc(mouseX, mouseY, 40, 0, Math.PI*2);
+        ctx.strokeStyle = '#ff7b2a';
         ctx.stroke();
         
-        // 扫描射线
-        const angle = (Date.now() * 0.006) % (Math.PI*2);
+        const angle = (Date.now() * 0.008) % (Math.PI*2);
         ctx.beginPath();
         ctx.moveTo(mouseX, mouseY);
-        ctx.lineTo(mouseX + Math.cos(angle)*95, mouseY + Math.sin(angle)*95);
-        ctx.strokeStyle = '#ff3366';
-        ctx.lineWidth = 1.2;
+        ctx.lineTo(mouseX + Math.cos(angle)*110, mouseY + Math.sin(angle)*110);
+        ctx.strokeStyle = '#ff5c33';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // 十字锁定
+        ctx.beginPath();
+        ctx.moveTo(mouseX - 18, mouseY);
+        ctx.lineTo(mouseX - 8, mouseY);
+        ctx.moveTo(mouseX + 8, mouseY);
+        ctx.lineTo(mouseX + 18, mouseY);
+        ctx.moveTo(mouseX, mouseY - 18);
+        ctx.lineTo(mouseX, mouseY - 8);
+        ctx.moveTo(mouseX, mouseY + 8);
+        ctx.lineTo(mouseX, mouseY + 18);
         ctx.stroke();
       }
     }
     
-    // 随机信号闪烁 + 更新右侧面板数据
-    function updateStatsPanel() {
-      // 随机任务点数量动态显示为实际点数 (但可制造浮动)
-      let active = targets.filter(t => {
-        // 模拟动态活跃度 (基于速度/位置显示亮点)
-        return true;
-      }).length;
-      targetCountSpan.innerText = active;
-      // 随机链路稳定性抖动
-      let stability = (95 + Math.random() * 4.5).toFixed(1);
-      linkStabilitySpan.innerText = stability + '%';
-      // 任务小队代号随机切换
-      const codenames = ['GRIM-7', 'PHANTOM', 'NEMESIS', 'GHOST-4', 'RAZOR', "SHADOW"];
-      if (Math.random() < 0.03) {
-        document.getElementById('taskForce').innerText = codenames[Math.floor(Math.random() * codenames.length)];
-      }
-    }
-    
-    // 主渲染循环
-    let lastTimestamp = 0;
-    function render(now) {
-      if (!canvas || !ctx) return;
-      const w = canvas.width = window.innerWidth;
-      const h = canvas.height = window.innerHeight;
-      
-      // 半透明清屏产生拖尾效果 (科技感)
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
-      ctx.fillRect(0, 0, w, h);
-      
-      // 绘制网格线
-      drawGrid(ctx, w, h);
-      // 星尘背景
-      drawStarfield(ctx, w, h, now);
-      
-      // 更新任务点位置
-      updateTargets();
-      // 绘制任务点之间的动态网络连线
-      drawLinks(ctx, w, h, now);
-      // 绘制任务点主体 (脉冲)
-      drawTargets(ctx, w, h, now);
-      
-      // 鼠标扫描器
-      drawMouseScanner(ctx, w, h);
-      
-      // 添加随机信号噪点 (酷)
-      if (Math.random() < 0.3) {
-        for (let i=0;i<6;i++) {
-          ctx.fillStyle = `rgba(255, 50, 70, ${Math.random() * 0.4})`;
-          ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
+    // 随机战争噪点 + 血腥特效
+    function drawBattleNoise(w, h) {
+      if (Math.random() < 0.35) {
+        for (let i=0; i<12; i++) {
+          ctx.fillStyle = `rgba(200, 30, 30, ${Math.random() * 0.5})`;
+          ctx.fillRect(Math.random() * w, Math.random() * h, 2, 3);
         }
       }
-      
-      // 动态边框科技感 (四周扫描线)
-      ctx.strokeStyle = '#ff3366';
-      ctx.lineWidth = 1.2;
-      ctx.strokeRect(15, 15, w-30, h-30);
-      
-      // 更新右侧面板数据 (每隔一段时间更新)
-      if (Math.floor(now / 800) % 2 === 0 && now - lastTimestamp > 400) {
-        updateStatsPanel();
-        lastTimestamp = now;
-      }
-      
-      animationId = requestAnimationFrame(render);
     }
     
-    // 鼠标移动事件 (跟随雷达环 + 记录坐标)
+    // 更新右侧强硬数据面板
+    let readinessVal = 100;
+    function updateHardStats() {
+      hardTargetSpan.innerText = HARD_TARGET_COUNT;
+      // 随机波动 readiness 模拟战场压力但保持强硬
+      readinessVal = Math.max(92, readinessVal + (Math.random() - 0.5) * 1.2);
+      readinessVal = Math.min(100, readinessVal);
+      combatReadinessSpan.innerText = Math.floor(readinessVal) + '%';
+      
+      const units = ['FORECON-1', 'MARSOC 2/5', 'RAIDER BN', 'DELTA OPS', 'GRIM-7'];
+      if (Math.random() < 0.05) unitCodeSpan.innerText = units[Math.floor(Math.random() * units.length)];
+      const killStates = ['ACTIVE', 'LOCKED', 'HUNTER MODE', 'SALVO'];
+      if (Math.random() < 0.1) killChainSpan.innerText = killStates[Math.floor(Math.random() * killStates.length)];
+    }
+    
+    // 动态坐标 (更硬核)
+    function dynamicCoordsUpdate() {
+      const coordsEl = document.getElementById('dynamicCoords');
+      if (coordsEl) {
+        const lat = (Math.random() * 180 - 90).toFixed(4);
+        const lon = (Math.random() * 360 - 180).toFixed(4);
+        coordsEl.innerHTML = `LAT: ${lat} LON: ${lon}`;
+      }
+      const headerSignal = document.querySelector('.hard-header span:last-child');
+      if (Math.random() < 0.2 && headerSignal) {
+        const signs = ['🔻 OORAH 🔻', '🔻 HARD LOCK 🔻', '🔻 DEATH GRIP 🔻', '🔻 STRIKE NOW 🔻'];
+        headerSignal.innerHTML = signs[Math.floor(Math.random() * signs.length)];
+        setTimeout(() => { if(headerSignal) headerSignal.innerHTML = '🔻 OORAH 🔻'; }, 900);
+      }
+    }
+    
+    // 鼠标事件
     function onMouseMove(e) {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      if (radarRing) {
-        radarRing.style.left = mouseX + 'px';
-        radarRing.style.top = mouseY + 'px';
-        radarRing.style.opacity = '0.7';
-        setTimeout(() => {
-          if (radarRing) radarRing.style.opacity = '0';
-        }, 150);
+      if (radarBlade) {
+        radarBlade.style.left = mouseX + 'px';
+        radarBlade.style.top = mouseY + 'px';
+        radarBlade.style.opacity = '0.85';
+        setTimeout(() => { if(radarBlade) radarBlade.style.opacity = '0'; }, 130);
       }
     }
     function onMouseLeave() {
       mouseX = -1000;
       mouseY = -1000;
-      if (radarRing) radarRing.style.opacity = '0';
+      if (radarBlade) radarBlade.style.opacity = '0';
     }
     
-    // 窗口尺寸适配 + 初始化随机任务点
+    let lastStatUpdate = 0;
+    function renderHard(now) {
+      if (!canvas || !ctx) return;
+      const w = canvas.width = window.innerWidth;
+      const h = canvas.height = window.innerHeight;
+      
+      // 拖尾效果更强
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+      ctx.fillRect(0, 0, w, h);
+      
+      drawHardGrid(w, h);
+      updateTargetsHard();
+      drawHardLinks(w, h, now);
+      drawHardTargets(w, h, now);
+      drawHardScanner(w, h, now);
+      drawBattleNoise(w, h);
+      
+      // 四周剧烈警告闪烁
+      if (Math.random() < 0.1) {
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(10, 10, w-20, h-20);
+      }
+      
+      if (now - lastStatUpdate > 700) {
+        updateHardStats();
+        lastStatUpdate = now;
+      }
+      
+      requestAnimationFrame(renderHard);
+    }
+    
     function resizeCanvas() {
       if (canvas) {
         canvas.width = window.innerWidth;
@@ -630,38 +691,24 @@ p {
       }
     }
     
-    // 启动全部
     function init() {
-      initTargets();
+      initHardTargets();
       resizeCanvas();
-      window.addEventListener('resize', () => {
-        resizeCanvas();
-      });
+      window.addEventListener('resize', resizeCanvas);
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseleave', onMouseLeave);
-      // 初始坐标随机更新 (头部坐标保持动态)
+      setInterval(dynamicCoordsUpdate, 1800);
       setInterval(() => {
-        const coordsSpan = document.querySelector('.coords');
-        if (coordsSpan) {
-          const lat = (Math.random() * 180 - 90).toFixed(4);
-          const lon = (Math.random() * 360 - 180).toFixed(4);
-          coordsSpan.textContent = `LAT: ${lat} LON: ${lon}`;
-        }
-        // 信号强度闪烁
-        const signalSpan = document.querySelector('.status-header span:last-child');
-        if (signalSpan) {
-          const signals = ['[🔴 EXCELLENT]', '[🟠 HIGH]', '[🔴 LOCKED]', '[⚡ CRITICAL]'];
-          if (Math.random() < 0.2) {
-            signalSpan.innerHTML = signals[Math.floor(Math.random() * signals.length)];
-            setTimeout(() => {
-              signalSpan.innerHTML = '[🔴 EXCELLENT]';
-            }, 800);
+        // 额外的战术脉冲: 强制更新一次任务点速度暴走 (增加侵略性)
+        for (let t of targets) {
+          if (Math.random() < 0.3) {
+            t.vx += (Math.random() - 0.5) * 0.001;
+            t.vy += (Math.random() - 0.5) * 0.001;
           }
         }
-      }, 2200);
+      }, 2800);
       
-      // 启动动画
-      render(Date.now());
+      renderHard(Date.now());
     }
     
     init();
