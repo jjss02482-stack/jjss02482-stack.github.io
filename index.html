@@ -1,217 +1,252 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>G.R.I.M. TACTICAL TERMINAL v5.1</title>
-    <style>
-        /* === CSS VARIABLES === */
-        :root {
-            --red: #ff0000;
-            --dark-red: #4d0000;
-            --bg: #000;
-            --white: #fff;
-            --highlight: rgba(255,0,0,0.2);
-            --card-bg: rgba(15,0,0,0.85);
-        }
+<meta charset="UTF-8">
+<title>G.R.I.M. TACTICAL TERMINAL v5.1</title>
+<style>
+:root {
+  --primary-color: #ff0000;
+  --secondary-color: #4d0000;
+  --bg-color: #000;
+  --header-height: 50px;
+  --card-max-width: 800px;
+}
 
-        /* === BASE STYLES === */
-        html, body {
-            margin: 0; padding: 0;
-            background-color: var(--bg);
-            color: var(--red);
-            font-family: 'Courier New', Courier, monospace;
-            overflow-x: hidden;
-            scroll-behavior: smooth;
-        }
+/* 全局样式 */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--primary-color);
+  font-family: 'Courier New', Courier, monospace;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
 
-        h1,h2,p { margin: 0; }
-        p { line-height: 2; text-align: justify; }
+/* 顶部状态栏 */
+.status-header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: var(--header-height);
+  border-bottom: 1px solid var(--secondary-color);
+  background: rgba(0,0,0,0.9);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  z-index: 1000;
+}
 
-        /* === STATUS HEADER === */
-        .status-header {
-            position: fixed;
-            top: 0; width: 100%; height: 50px;
-            border-bottom: 1px solid var(--dark-red);
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 30px; box-sizing: border-box;
-            z-index: 1000; font-size: 12px; letter-spacing: 2px;
-        }
+/* 背景雷达/任务点容器 */
+.radar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+  background: radial-gradient(ellipse at center, #111 0%, #000 100%);
+}
 
-        /* === 3D GLOBE BACKGROUND === */
-        .globe-container {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate3d(-50%, -50%, 0);
-            width: 500px; height: 500px;
-            perspective: 1000px;
-            z-index: -1;
-            opacity: 0.4;
-        }
+/* 雷达扫描圈 */
+.radar-sweep {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  border-radius: 50%;
+  background: rgba(255,0,0,0.05);
+  animation: sweep 5s linear infinite;
+}
 
-        .globe {
-            width: 100%; height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: rotateGlobe 30s linear infinite;
-        }
+@keyframes sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
-        .circle {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            border: 1px solid var(--red);
-            border-radius: 50%;
-        }
-        .circle:nth-child(1) { transform: rotateY(0deg); }
-        .circle:nth-child(2) { transform: rotateY(45deg); }
-        .circle:nth-child(3) { transform: rotateY(90deg); }
-        .circle:nth-child(4) { transform: rotateY(135deg); }
-        .circle:nth-child(5) { transform: rotateX(90deg) scale(0.9); border-style: dashed; }
+/* 随机任务点 */
+.mission-point {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 20px white;
+  animation: blink 2s infinite;
+}
 
-        @keyframes rotateGlobe {
-            from { transform: rotateY(0deg); }
-            to { transform: rotateY(360deg); }
-        }
+@keyframes blink {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
 
-        /* === MISSION POINTS === */
-        .mission-point {
-            position: absolute;
-            width: 15px; height: 15px;
-            background: var(--white);
-            border-radius: 50%;
-            box-shadow: 0 0 15px var(--white);
-            animation: blink 2s infinite;
-            will-change: transform, opacity;
-        }
-        .p1 { top: 20%; left: 30%; animation-delay: 0.5s; }
-        .p2 { top: 60%; left: 70%; animation-delay: 1.2s; }
-        .p3 { top: 45%; left: 15%; animation-delay: 0.1s; }
+/* 内容区 */
+.content {
+  position: relative;
+  z-index: 10;
+  padding-top: calc(var(--header-height) + 50px);
+}
 
-        @keyframes blink {
-            0%, 100% { opacity: 0; transform: scale(0.5); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
+.section {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+}
 
-        /* === CONTENT SECTIONS === */
-        .content { position: relative; z-index: 10; padding-top: 100px; }
+.card {
+  width: 80%;
+  max-width: var(--card-max-width);
+  background: rgba(15,0,0,0.85);
+  border: 1px solid var(--primary-color);
+  padding: 40px;
+  box-shadow: 0 0 40px rgba(255,0,0,0.2);
+}
 
-        .section {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 50px;
-            box-sizing: border-box;
-        }
+h2 {
+  font-size: 3rem;
+  border-left: 10px solid var(--primary-color);
+  padding-left: 20px;
+  margin-bottom: 30px;
+}
 
-        .card {
-            width: 80%; max-width: 800px;
-            background: var(--card-bg);
-            border: 1px solid var(--red);
-            padding: 40px;
-            box-shadow: 0 0 40px var(--highlight);
-        }
+p {
+  font-size: 1.2rem;
+  line-height: 2;
+  text-align: justify;
+}
 
-        h2 { font-size: 3rem; border-left: 10px solid var(--red); padding-left: 20px; margin-bottom: 30px; }
+/* 内联文字转类 */
+.header-title {
+  font-size: 6rem;
+  margin: 0;
+  letter-spacing: 20px;
+  text-shadow: 5px 5px var(--secondary-color);
+  text-align: center;
+}
 
-        /* === HERO TEXT === */
-        .hero-text { text-align: center; }
-        .hero-text h1 { font-size: 6rem; letter-spacing: 20px; text-shadow: 5px 5px var(--dark-red); }
-        .hero-text p { font-size: 1.5rem; letter-spacing: 5px; }
-        .scroll-hint { margin-top: 200px; animation: blink 1.5s infinite; }
+.header-subtitle {
+  font-size: 1.5rem;
+  letter-spacing: 5px;
+  text-align: center;
+}
 
-        /* === FOOTER CREED === */
-        .footer-creed {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: var(--red);
-            color: black;
-        }
-        .footer-creed h1 { font-size: 8vw; margin: 0; }
-        .footer-creed p { font-weight: bold; letter-spacing: 15px; margin-top: 30px; }
+.scroll-hint {
+  margin-top: 200px;
+  animation: blink 1.5s infinite;
+  text-align: center;
+}
 
-        /* === RESPONSIVE DESIGN === */
-        @media (max-width: 768px) {
-            .card { width: 90%; padding: 20px; }
-            h2 { font-size: 2rem; }
-            .hero-text h1 { font-size: 4rem; letter-spacing: 10px; }
-            .scroll-hint { margin-top: 100px; }
-            .globe-container { width: 300px; height: 300px; }
-        }
-    </style>
+/* Footer */
+.footer-creed {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--primary-color);
+  color: black;
+}
+
+.footer-creed h1 {
+  font-size: 8vw;
+  margin: 0;
+}
+
+.footer-creed p {
+  font-weight: bold;
+  letter-spacing: 15px;
+  margin-top: 30px;
+}
+</style>
 </head>
 <body>
-    <!-- STATUS HEADER -->
-    <div class="status-header" role="banner">
-        <span>G.R.I.M. STATUS: OPERATIONAL</span>
-        <span>LAT: 35.6895 LON: 139.6917</span>
-        <span>SIGNAL: [EXCELLENT]</span>
+
+<div class="status-header">
+  <span>G.R.I.M. STATUS: OPERATIONAL</span>
+  <span class="coords">LAT: 35.6895 LON: 139.6917</span>
+  <span>SIGNAL: [EXCELLENT]</span>
+</div>
+
+<div class="radar-container">
+  <div class="radar-sweep"></div>
+</div>
+
+<div class="content">
+  <section class="section">
+    <div>
+      <h1 class="header-title">G.R.I.M.</h1>
+      <p class="header-subtitle">全球侦查与渗透海军陆战队</p>
+      <p class="scroll-hint">▼ SCROLL TO ACCESS DATA ▼</p>
     </div>
+  </section>
 
-    <!-- 3D GLOBE -->
-    <div class="globe-container" aria-hidden="true">
-        <div class="globe">
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="circle"></div>
-            <div class="mission-point p1"></div>
-            <div class="mission-point p2"></div>
-            <div class="mission-point p3"></div>
-        </div>
+  <section class="section">
+    <div class="card">
+      <h2>01. 情报先行</h2>
+      <p>在 G.R.I.M.，我们不打无准备之仗。情报部利用量子加密链路对全球目标进行 24/7 监控。在每一场渗透开始前，战场的每一个微小细节都已被解构。</p>
     </div>
+  </section>
 
-    <!-- CONTENT -->
-    <div class="content">
-        <section class="section" aria-label="欢迎页">
-            <div class="hero-text">
-                <h1>G.R.I.M.</h1>
-                <p>全球侦查与渗透海军陆战队</p>
-                <p class="scroll-hint">▼ SCROLL TO ACCESS DATA ▼</p>
-            </div>
-        </section>
-
-        <section class="section" aria-label="情报先行">
-            <div class="card">
-                <h2>01. 情报先行</h2>
-                <p>在 G.R.I.M.，我们不打无准备之仗。情报部利用量子加密链路对全球目标进行 24/7 监控。在每一场渗透开始前，战场的每一个微小细节都已被解构。</p>
-            </div>
-        </section>
-
-        <section class="section" aria-label="协同作战">
-            <div class="card">
-                <h2>02. 协同作战</h2>
-                <p>单兵是刺向敌人的利刃，小队是掌控局势的重锤。突击组与情报部通过神经链路保持实时同步，确保在极度混乱的战场环境下依然能够达成绝对的战术执行力。</p>
-            </div>
-        </section>
-
-        <section class="section" aria-label="装备哲学">
-            <div class="card">
-                <h2>03. 装备哲学</h2>
-                <p>官方提供标准，个人定义上限。我们鼓励每一名外勤人员根据自身作战习惯对制式装备进行极限优化。记住，你的枪是你身体的延伸，而不是累赘。</p>
-            </div>
-        </section>
-
-        <section class="footer-creed" aria-label="信条">
-            <h1>KEEP CALM</h1>
-            <h1>MOVE ON</h1>
-            <p>强者之列 · 永不退缩</p>
-        </section>
+  <section class="section">
+    <div class="card">
+      <h2>02. 协同作战</h2>
+      <p>单兵是刺向敌人的利刃，小队是掌控局势的重锤。突击组与情报部通过神经链路保持实时同步，确保在极度混乱的战场环境下依然能够达成绝对的战术执行力。</p>
     </div>
+  </section>
 
-    <!-- JS: 动态坐标 -->
-    <script>
-        setInterval(() => {
-            const span = document.querySelector('.status-header span:nth-child(2)');
-            const lat = (Math.random() * 180 - 90).toFixed(4);
-            const lon = (Math.random() * 360 - 180).toFixed(4);
-            span.textContent = `LAT: ${lat} LON: ${lon}`;
-        }, 2000);
-    </script>
+  <section class="section">
+    <div class="card">
+      <h2>03. 装备哲学</h2>
+      <p>官方提供标准，个人定义上限。我们鼓励每一名外勤人员根据自身作战习惯对制式装备进行极限优化。记住，你的枪是你身体的延伸，而不是累赘。</p>
+    </div>
+  </section>
+
+  <section class="footer-creed">
+    <h1>KEEP CALM</h1>
+    <h1>MOVE ON</h1>
+    <p>强者之列 · 永不退缩</p>
+  </section>
+</div>
+
+<script>
+// 更新坐标
+const coordsSpan = document.querySelector('.coords');
+setInterval(() => {
+  const lat = (Math.random() * 180 - 90).toFixed(4);
+  const lon = (Math.random() * 360 - 180).toFixed(4);
+  coordsSpan.textContent = `LAT: ${lat} LON: ${lon}`;
+}, 2000);
+
+// 创建随机任务点
+const radar = document.querySelector('.radar-container');
+const NUM_POINTS = 10;
+const points = [];
+
+for(let i=0;i<NUM_POINTS;i++){
+  const point = document.createElement('div');
+  point.className = 'mission-point';
+  point.style.top = Math.random()*100+'%';
+  point.style.left = Math.random()*100+'%';
+  radar.appendChild(point);
+  points.push(point);
+}
+
+// 让任务点随机移动
+function movePoints(){
+  points.forEach(p=>{
+    p.style.top = Math.random()*100+'%';
+    p.style.left = Math.random()*100+'%';
+  });
+}
+setInterval(movePoints, 3000);
+</script>
+
 </body>
 </html>
