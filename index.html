@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>G.R.I.M. 机密战术档案 // 解密等级: 最高</title>
+<title>G.R.I.M. 机密战术档案 // 全球态势图</title>
 <style>
   * {
     margin: 0;
@@ -73,7 +73,7 @@
     box-shadow: inset 0 0 3px #3a0000;
   }
 
-  /* 背景画布（深红暗调） */
+  /* 背景画布（世界地图底图） */
   #combat-canvas {
     position: fixed;
     top: 0;
@@ -84,7 +84,6 @@
     z-index: 0;
     pointer-events: none;
     background: radial-gradient(circle at 30% 30%, #1a0505 0%, #020000 100%);
-    filter: sepia(0.3) hue-rotate(-10deg);
   }
 
   /* 顶部机密栏 */
@@ -422,7 +421,6 @@
     </div>
   </section>
 
-  <!-- 卡片1：情报先行（完全贴合故事） -->
   <section class="section">
     <div class="vintage-card">
       <h2>01. 情报先行</h2>
@@ -430,7 +428,6 @@
     </div>
   </section>
 
-  <!-- 卡片2：协同作战（强调两栖与小队信任） -->
   <section class="section">
     <div class="vintage-card">
       <h2>02. 协同作战</h2>
@@ -438,7 +435,6 @@
     </div>
   </section>
 
-  <!-- 卡片3：装备哲学（官方标准个人优化） -->
   <section class="section">
     <div class="vintage-card">
       <h2>03. 装备哲学</h2>
@@ -446,7 +442,6 @@
     </div>
   </section>
 
-  <!-- 底部誓言区：勇气纪律 + 口号“保持冷静，继续前行” -->
   <section class="footer-oath">
     <h1>勇气 · 纪律</h1>
     <h1>强者之列</h1>
@@ -457,11 +452,11 @@
 
 <script>
   (function() {
-    // ========= 老旧风格任务点系统（暗红调） ==========
+    // ========= 世界地图绘制（深红复古风格） ==========
     const canvas = document.getElementById('combat-canvas');
     const ctx = canvas.getContext('2d');
     
-    const TARGET_COUNT = 24;  // 略微增加，但保持简洁
+    const TARGET_COUNT = 24;
     let targets = [];
     let mouseX = -500, mouseY = -500;
     const radarRing = document.getElementById('radar-ring');
@@ -471,6 +466,68 @@
     const unitCodeSpan = document.getElementById('unitCode');
     const killChainSpan = document.getElementById('killChain');
     
+    // ----- 世界地图轮廓数据（简化多边形）-----
+    // 坐标范围归一化 0-1，基于墨卡托投影的简单表示
+    const continents = [
+      // 北美洲
+      { points: [[0.10,0.25],[0.28,0.22],[0.38,0.28],[0.40,0.35],[0.33,0.45],[0.22,0.48],[0.12,0.42],[0.08,0.35],[0.10,0.25]], color: '#6a2a2a' },
+      // 南美洲
+      { points: [[0.32,0.65],[0.40,0.68],[0.44,0.62],[0.48,0.55],[0.44,0.52],[0.36,0.52],[0.32,0.58],[0.30,0.63],[0.32,0.65]], color: '#6a2a2a' },
+      // 欧亚大陆西部 (欧洲+亚洲西部)
+      { points: [[0.55,0.28],[0.62,0.25],[0.70,0.28],[0.78,0.32],[0.82,0.38],[0.80,0.45],[0.72,0.48],[0.64,0.45],[0.58,0.42],[0.52,0.38],[0.52,0.32],[0.55,0.28]], color: '#6a2a2a' },
+      // 亚洲东部 (中国、东南亚)
+      { points: [[0.78,0.35],[0.88,0.33],[0.92,0.38],[0.94,0.45],[0.88,0.48],[0.82,0.46],[0.78,0.42],[0.76,0.38],[0.78,0.35]], color: '#6a2a2a' },
+      // 非洲
+      { points: [[0.52,0.55],[0.60,0.52],[0.66,0.55],[0.68,0.60],[0.64,0.65],[0.58,0.68],[0.52,0.65],[0.50,0.60],[0.52,0.55]], color: '#6a2a2a' },
+      // 澳洲
+      { points: [[0.82,0.68],[0.88,0.67],[0.92,0.72],[0.88,0.75],[0.82,0.74],[0.80,0.70],[0.82,0.68]], color: '#6a2a2a' },
+      // 南极洲（底部细条）
+      { points: [[0.05,0.92],[0.20,0.90],[0.40,0.89],[0.60,0.89],[0.80,0.90],[0.95,0.92],[0.90,0.97],[0.10,0.97],[0.05,0.92]], color: '#4a1a1a' }
+    ];
+    
+    // 绘制世界地图（填充+边缘）
+    function drawWorldMap(w, h) {
+      for (let cont of continents) {
+        ctx.beginPath();
+        for (let i = 0; i < cont.points.length; i++) {
+          const px = cont.points[i][0] * w;
+          const py = cont.points[i][1] * h;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fillStyle = cont.color;
+        ctx.fill();
+        ctx.strokeStyle = '#9b3c3c';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
+    }
+    
+    // 添加老旧经纬网
+    function drawLatLonGrid(w, h) {
+      ctx.beginPath();
+      ctx.strokeStyle = '#732a2a';
+      ctx.lineWidth = 0.8;
+      // 经线
+      for (let lon = 0; lon <= 360; lon += 30) {
+        const x = (lon / 360) * w;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      // 纬线
+      for (let lat = -60; lat <= 60; lat += 30) {
+        const y = ((lat + 90) / 180) * h;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+    }
+    
+    // 任务点系统
     function initTargets() {
       targets = [];
       for (let i = 0; i < TARGET_COUNT; i++) {
@@ -501,34 +558,6 @@
       }
     }
     
-    function drawGrid(w, h) {
-      ctx.beginPath();
-      ctx.strokeStyle = '#632a2a';
-      ctx.lineWidth = 0.7;
-      const step = 68;
-      for (let x = 0; x < w; x += step) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-      for (let y = 0; y < h; y += step) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
-      // 老旧斜纹
-      ctx.beginPath();
-      ctx.strokeStyle = '#4a1f1f';
-      for (let i = -h; i < w+h; i+= 95) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i+45, h);
-        ctx.stroke();
-      }
-    }
-    
     function drawTargets(w, h, now) {
       for (let t of targets) {
         const px = t.x * w;
@@ -536,22 +565,20 @@
         const pulse = 0.6 + 0.5 * Math.sin(now * 0.0045 * t.pulseSpeed + t.phase);
         const radius = t.size * (0.7 + pulse * 0.4);
         
-        // 暗红光晕
         ctx.beginPath();
         ctx.arc(px, py, radius + 5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(120, 30, 30, 0.25)`;
+        ctx.fillStyle = `rgba(120, 30, 30, 0.3)`;
         ctx.fill();
         
         ctx.beginPath();
         ctx.arc(px, py, radius * 0.8, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(160, 40, 40, 0.9)`;
+        ctx.fillStyle = `rgba(170, 50, 50, 0.9)`;
         ctx.fill();
         ctx.beginPath();
         ctx.arc(px, py, radius * 0.4, 0, Math.PI * 2);
         ctx.fillStyle = `#aa5a5a`;
         ctx.fill();
         
-        // 仅高价值目标加十字标记（老旧风格）
         if (t.isHighValue) {
           ctx.beginPath();
           ctx.lineWidth = 1;
@@ -623,22 +650,6 @@
       }
     }
     
-    function drawVintageOverlay(w, h) {
-      // 老旧痕迹
-      ctx.globalAlpha = 0.08;
-      ctx.fillStyle = '#5a2a2a';
-      for (let i = 0; i < 5; i++) {
-        ctx.fillRect(15, h - 95 - i*18, 170, 6);
-      }
-      ctx.fillStyle = '#ffffff';
-      for (let i = 0; i < 4; i++) {
-        ctx.fillRect(15, h - 77 - i*18, 170, 4);
-      }
-      ctx.fillStyle = '#2a3a6a';
-      ctx.fillRect(15, h - 105, 55, 55);
-      ctx.globalAlpha = 1.0;
-    }
-    
     let readiness = 96;
     function updateStats() {
       hardTargetSpan.innerText = TARGET_COUNT;
@@ -682,16 +693,24 @@
       const w = canvas.width = window.innerWidth;
       const h = canvas.height = window.innerHeight;
       
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+      // 半透明清屏，保留拖尾
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
       ctx.fillRect(0, 0, w, h);
       
-      drawGrid(w, h);
+      // 绘制世界地图底图
+      drawWorldMap(w, h);
+      // 绘制经纬网（增加军事地图感）
+      drawLatLonGrid(w, h);
+      // 更新任务点位置
       updateTargets();
+      // 绘制连线
       drawLinks(w, h);
+      // 绘制任务点（红色脉冲）
       drawTargets(w, h, now);
+      // 鼠标扫描环
       drawScanner(w, h, now);
+      // 老旧噪点
       addStaticNoise(w, h);
-      drawVintageOverlay(w, h);
       
       if (now - lastStat > 1300) {
         updateStats();
