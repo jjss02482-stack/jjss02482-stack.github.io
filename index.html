@@ -2,190 +2,230 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>G.R.I.M. GLOBAL OPERATIONAL MAP</title>
+    <title>G.R.I.M. ACCESS TERMINAL</title>
     <style>
         :root {
             --red-bright: #ff0000;
             --red-mid: #990000;
-            --red-dark: #330000;
-            --bg: #000;
+            --bg: #050000;
         }
 
-        body, html {
-            margin: 0; padding: 0;
-            background: var(--bg);
+        /* 基础样式：支持长滚动 */
+        body {
+            background-color: var(--bg);
             color: var(--red-bright);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            height: 100vh;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
-        /* 核心背景：世界地图点阵 */
-        /* 使用SVG Data URI 还原点阵化全球地图 */
-        .world-map {
+        /* 1. 固定背景层：点阵地图与扫描线 */
+        .fixed-background {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 500'%3E%3Ccircle cx='200' cy='150' r='1.5' fill='%23400' /%3E%3Cpath d='M250 150 L260 140 L280 150 L270 170 Z' fill='%23600' /%3E%3C!-- 简化模拟点阵 --%3E%3Ccircle cx='500' cy='250' r='2' fill='%23900' opacity='0.5'/%3E%3C/svg%3E"), 
-                              url('https://upload.wikimedia.org/wikipedia/commons/b/bb/World_map_dots_red.png'); /* 借用高清点阵底图 */
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at center, transparent 20%, #000 100%),
+                url('https://upload.wikimedia.org/wikipedia/commons/b/bb/World_map_dots_red.png');
             background-size: cover;
             background-position: center;
-            opacity: 0.4;
-            filter: brightness(0.8) contrast(1.2);
-            z-index: -2;
+            opacity: 0.3;
+            filter: grayscale(1) sepia(100%) hue-rotate(-50deg) brightness(0.6);
         }
 
-        /* 视频中的红色扩散圆圈（任务目标点） */
-        .ping {
-            position: absolute;
-            width: 10px; height: 10px;
-            background: var(--red-bright);
-            border-radius: 50%;
-            box-shadow: 0 0 15px var(--red-bright);
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
+            background-size: 100% 3px;
+            z-index: 10;
+            pointer-events: none;
         }
-        .ping::after {
-            content: '';
-            position: absolute;
-            width: 100%; height: 100%;
+
+        /* 2. 动态随机闪烁点容器 */
+        #map-pings {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* 3. 头部信息（固定） */
+        .header-info {
+            position: fixed;
+            top: 0; width: 100%; height: 60px;
+            background: rgba(0,0,0,0.8);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; box-sizing: border-box;
+            border-bottom: 1px solid var(--red-mid);
+            z-index: 100;
+            font-size: 12px; letter-spacing: 2px;
+        }
+
+        /* 4. 可滚动内容区 */
+        .content-scroll {
+            position: relative;
+            padding-top: 20vh; /* 给首屏留出视觉空间 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* 首屏 Logo 区域 */
+        .hero-section {
+            height: 80vh;
+            text-align: center;
+        }
+
+        .fcbi-logo-circle {
+            width: 160px; height: 160px;
             border: 2px solid var(--red-bright);
             border-radius: 50%;
-            animation: ripple 2s infinite ease-out;
+            margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px var(--red-mid);
+        }
+
+        /* 档案块样式（模仿视频录音日志布局） */
+        .archive-block {
+            width: 90%;
+            max-width: 600px;
+            background: rgba(15, 0, 0, 0.85);
+            border: 1px solid var(--red-mid);
+            margin-bottom: 50px;
+            padding: 25px;
+            position: relative;
+            box-shadow: 10px 10px 0px rgba(153, 0, 0, 0.2);
+        }
+
+        .archive-block::before {
+            content: "REC ●";
+            position: absolute; top: 10px; left: 10px;
+            color: var(--red-bright);
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+
+        .date-stamp {
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+            margin-top: 15px;
+            border-top: 1px solid #300;
+            padding-top: 5px;
+        }
+
+        /* 动画 */
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        
+        .ping {
+            position: absolute;
+            width: 6px; height: 6px;
+            background: var(--red-bright);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--red-bright);
+            animation: ripple 3s infinite ease-out;
         }
 
         @keyframes ripple {
             0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(6); opacity: 0; }
+            100% { transform: scale(8); opacity: 0; }
         }
 
-        /* 全屏扫描线 (Scanlines) */
-        .scanlines {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.5) 51%);
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        /* 顶部遮罩（模仿视频顶部的黑色渐变和文字） */
-        .top-info {
-            position: fixed;
-            top: 0; width: 100%; height: 80px;
-            background: linear-gradient(to bottom, rgba(0,0,0,1), transparent);
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            z-index: 5;
-            font-size: 12px;
-            letter-spacing: 2px;
-        }
-
-        /* 中央Logo区域 */
-        .fcbi-logo {
-            position: absolute;
-            top: 40%; left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 2;
-        }
-        .circle-border {
-            width: 180px; height: 180px;
-            border: 2px double var(--red-bright);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-        }
-
-        /* 底部操作日志（自动滚动的文字） */
-        .bottom-console {
-            position: fixed;
-            bottom: 0; left: 0; width: 100%;
-            height: 250px;
-            background: linear-gradient(to top, rgba(20,0,0,0.9), transparent);
-            padding: 20px;
-            box-sizing: border-box;
-            font-size: 14px;
-            line-height: 1.8;
-            overflow: hidden;
-        }
-
-        .terminal-text {
-            max-width: 800px;
-            margin: 0 auto;
-            border-left: 2px solid var(--red-bright);
-            padding-left: 20px;
-        }
-
-        .glitch-text {
-            animation: text-flicker 0.1s infinite;
-        }
-
-        @keyframes text-flicker {
-            0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 0.9; }
-        }
+        h2 { font-size: 2rem; letter-spacing: 8px; margin: 10px 0; }
+        .tag { background: var(--red-mid); color: #fff; padding: 2px 10px; font-size: 12px; }
 
     </style>
 </head>
 <body>
 
-    <div class="world-map"></div>
+    <div class="fixed-background"></div>
+    <div id="map-pings"></div>
     <div class="scanlines"></div>
 
-    <div class="ping" style="top: 30%; left: 20%;"></div>
-    <div class="ping" style="top: 55%; left: 45%;"></div>
-    <div class="ping" style="top: 40%; left: 80%;"></div>
-
-    <div class="top-info">
-        <div>| FATHOM | CONTROL |</div>
-        <div>URL: AQTW.QQ.COM [ENCRYPTED]</div>
-        <div>BLOCK | INTERVENTION |</div>
+    <div class="header-info">
+        <div>FATHOM | CONTROL</div>
+        <div style="color: white;">G.R.I.M. INTRANET [SECURE]</div>
+        <div>STRIKE | PENETRATE</div>
     </div>
 
-    <div class="fcbi-logo">
-        <div class="circle-border">
-            <div style="font-weight: bold; letter-spacing: 5px;">
-                G.R.I.M.<br>
-                <span style="font-size: 10px;">TACTICAL UNIT</span>
+    <div class="content-scroll">
+        <section class="hero-section">
+            <div class="fcbi-logo-circle">
+                <div style="font-weight: bold; font-size: 1.2rem;">G.R.I.M.</div>
             </div>
-        </div>
-        <div style="font-size: 24px; font-weight: bold; letter-spacing: 10px;">塞缪尔 · 莱恩</div>
-        <div style="font-size: 12px; margin-top: 10px; color: #fff; background: var(--red-mid); display: inline-block; padding: 2px 10px;">
-            特别行动司 | 国际外勤调查组
-        </div>
-    </div>
+            <h2>两栖作战人员</h2>
+            <div class="tag">全球侦查与渗透海军陆战队</div>
+            <p style="margin-top: 100px; color: #666;">↓ 滚动以解密核心协议 ↓</p>
+        </section>
 
-    <div class="bottom-console">
-        <div class="terminal-text" id="log">
-            <div style="color: #666;">REC • 8月13日</div>
-            <div>我已抵达目标区域。线人“信鸽”失联第十七日。</div>
-            <div>山谷地貌比情报显示更复杂。雾气终日不散，村落布局极其规整，像是由同一个设计师在梦中反复涂改而成...</div>
-            <div class="glitch-text" style="color: white;">[警告：检测到精神污染风险，思维同步率下降...]</div>
+        <div class="archive-block">
+            <h3 style="border-bottom: 1px solid var(--red-mid);">01. 情报先行 (INTEL)</h3>
+            <p>每一次成功的渗透都源于对战场的解构。在踏入任务区域前，必须利用无人机馈送、卫星遥感及人力情报构建完整的态势图。</p>
+            <p><strong style="color: white;">“我们不打无准备之仗，每一颗子弹都必须有它预定的坐标。”</strong></p>
+            <div class="date-stamp">STATUS: ENCRYPTED // ID: GR-01</div>
         </div>
-    </div>
+
+        <div class="archive-block">
+            <h3 style="border-bottom: 1px solid var(--red-mid);">02. 无缝协同 (SYNERGY)</h3>
+            <p>单兵是锋利的刀刃，小队是握刀的手。突袭组与情报部需保持双向实时链路。明确的分工、简洁的指令和绝对的信任是生存基石。</p>
+            <p>你的后背不属于你自己，它属于你的战友。</p>
+            <div class="date-stamp">COMM-LINK: ACTIVE // ID: GR-02</div>
+        </div>
+
+        <div class="archive-block">
+            <h3 style="border-bottom: 1px solid var(--red-mid);">03. 装备哲学 (GEAR)</h3>
+            <p>官方标准提供底线，个人优化决定上限。确保所有制式装备处于巅峰状态。根据任务环境，自费定制光学瞄具或消音组件是被鼓励的。</p>
+            <p><strong style="color: white;">技术决定生死，纪律决定胜负。</strong></p>
+            <div class="date-stamp">ARMORY: VERIFIED // ID: GR-03</div>
+        </div>
+
+        <div class="archive-block" style="background: var(--red-bright); color: black; text-align: center;">
+            <h2 style="margin: 0;">KEEP CALM</h2>
+            <h1 style="margin: 0; font-size: 3rem;">MOVE ON</h1>
+            <p style="font-weight: bold;">保持冷静，继续前行</p>
+        </div>
+
+        <div style="height: 100px;"></div> </div>
 
     <script>
-        // 模拟打字机自动生成日志
-        const logContent = [
-            "正在扫描战场态势图...",
-            "同步卫星馈送信号：100%",
-            "检测到未知信号源于林场深处。",
-            "G.R.I.M. 渗透指令已下达。",
-            "注意：地形可能存在非物理性偏转。"
-        ];
+        // 实时生成随机闪烁任务点
+        const pingContainer = document.getElementById('map-pings');
         
-        const logContainer = document.getElementById('log');
-        setInterval(() => {
-            const newLine = document.createElement('div');
-            newLine.style.fontSize = "10px";
-            newLine.style.color = "#900";
-            newLine.innerText = "> " + logContent[Math.floor(Math.random() * logContent.length)];
-            logContainer.appendChild(newLine);
-            if(logContainer.childNodes.length > 15) logContainer.removeChild(logContainer.firstChild);
-        }, 2000);
+        function createPing() {
+            const ping = document.createElement('div');
+            ping.className = 'ping';
+            
+            // 随机位置
+            const top = Math.random() * 80 + 10; // 避免出现在最边缘
+            const left = Math.random() * 80 + 10;
+            
+            ping.style.top = top + '%';
+            ping.style.left = left + '%';
+            
+            pingContainer.appendChild(ping);
+            
+            // 5秒后移除旧点，保持性能
+            setTimeout(() => {
+                ping.remove();
+            }, 5000);
+        }
+
+        // 初始生成几个点，然后每隔一段时间生成新点
+        for(let i=0; i<5; i++) createPing();
+        setInterval(createPing, 1500);
+
+        // 模拟滚动时的视觉故障效果
+        window.onscroll = function() {
+            if(Math.random() > 0.95) {
+                document.body.style.filter = "invert(1)";
+                setTimeout(() => document.body.style.filter = "none", 50);
+            }
+        };
     </script>
 </body>
 </html>
