@@ -228,6 +228,10 @@
                     ctx.fill();
                 }
             });
+            
+            /* --- 增量逻辑：任务点渲染 --- */
+            renderTargets(radius);
+            
             requestAnimationFrame(draw);
         }
 
@@ -243,6 +247,55 @@
             coordDisp.innerText = `LAT: ${lat} LON: ${lon}`;
         }, 1000);
 
+        /* --- 增量逻辑：随机任务点管理 --- */
+        const taskPoints = [];
+        function createTarget() {
+            if (taskPoints.length > 8) taskPoints.shift();
+            taskPoints.push({
+                phi: Math.random() * Math.PI,
+                theta: Math.random() * 2 * Math.PI,
+                life: 1.0,
+                id: Math.floor(Math.random() * 8999 + 1000)
+            });
+        }
+        setInterval(createTarget, 1500);
+
+        function renderTargets(radius) {
+            taskPoints.forEach(tp => {
+                // 随球体同步旋转
+                let x = Math.sin(tp.phi) * Math.cos(tp.theta + rotation);
+                let y = Math.cos(tp.phi);
+                let z = Math.sin(tp.phi) * Math.sin(tp.theta + rotation);
+
+                let perspective = 1.5 / (1.5 - z);
+                let x2 = x * perspective * radius + width / 2;
+                let y2 = y * perspective * radius + height / 2;
+
+                if (z > 0) {
+                    ctx.globalAlpha = tp.life;
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 1;
+                    
+                    // 十字星
+                    ctx.beginPath();
+                    ctx.moveTo(x2 - 8, y2); ctx.lineTo(x2 + 8, y2);
+                    ctx.moveTo(x2, y2 - 8); ctx.lineTo(x2, y2 + 8);
+                    ctx.stroke();
+
+                    // 扩散环
+                    ctx.beginPath();
+                    ctx.arc(x2, y2, 15 * (1.5 - tp.life), 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // 文本
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '9px monospace';
+                    ctx.fillText(`LOC_${tp.id}`, x2 + 10, y2 - 10);
+                    
+                    tp.life -= 0.005; // 自动淡出
+                }
+            });
+        }
     </script>
 </body>
 </html>
