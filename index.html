@@ -2,278 +2,192 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>G.R.I.M. GLOBAL TERMINAL</title>
+    <title>G.R.I.M. TACTICAL TERMINAL v5.0</title>
     <style>
         :root {
-            --red-bright: #ff0000;
-            --red-dark: #4d0000;
+            --red: #ff0000;
+            --dark-red: #4d0000;
             --bg: #000;
         }
 
         body, html {
             margin: 0; padding: 0;
             background-color: var(--bg);
-            color: var(--red-bright);
+            color: var(--red);
             font-family: 'Courier New', Courier, monospace;
             overflow-x: hidden;
             scroll-behavior: smooth;
         }
 
-        /* 背景：3D 地球容器 */
-        #canvas-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle, #1a0000 0%, #000 80%);
-        }
-
-        /* 顶部扫描线效果 */
-        .overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
-            background-size: 100% 4px;
-            z-index: 100;
-            pointer-events: none;
-        }
-
-        /* 顶部 UI 状态栏 */
+        /* 顶部状态栏 */
         .status-header {
             position: fixed;
             top: 0; width: 100%; height: 50px;
-            border-bottom: 1px solid var(--red-dark);
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 30px;
-            box-sizing: border-box;
-            z-index: 101;
-            font-size: 12px;
-            letter-spacing: 3px;
+            border-bottom: 1px solid var(--dark-red);
+            background: rgba(0,0,0,0.9);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 30px; box-sizing: border-box;
+            z-index: 1000; font-size: 12px; letter-spacing: 2px;
         }
 
-        /* 内容层 */
-        .scroll-wrapper {
+        /* 背景：纯 CSS 3D 旋转地球 */
+        .globe-container {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px; height: 500px;
+            perspective: 1000px;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        .globe {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateGlobe 30s linear infinite;
+        }
+
+        /* 经纬线圈 */
+        .circle {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border: 1px solid var(--red);
+            border-radius: 50%;
+        }
+        .circle:nth-child(1) { transform: rotateY(0deg); }
+        .circle:nth-child(2) { transform: rotateY(45deg); }
+        .circle:nth-child(3) { transform: rotateY(90deg); }
+        .circle:nth-child(4) { transform: rotateY(135deg); }
+        .circle:nth-child(5) { transform: rotateX(90deg) scale(0.9); border-style: dashed; }
+
+        @keyframes rotateGlobe {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        /* 随机闪烁任务点 (CSS 动画模拟) */
+        .mission-point {
+            position: absolute;
+            width: 15px; height: 15px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 15px white;
+            animation: blink 2s infinite;
+        }
+        .p1 { top: 20%; left: 30%; animation-delay: 0.5s; }
+        .p2 { top: 60%; left: 70%; animation-delay: 1.2s; }
+        .p3 { top: 45%; left: 15%; animation-delay: 0.1s; }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* 内容区 */
+        .content {
             position: relative;
             z-index: 10;
-            padding-top: 10vh;
+            padding-top: 100px;
         }
 
         .section {
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            padding: 20px;
-            box-sizing: border-box;
+            align-items: center;
+            padding: 50px;
         }
 
-        /* 档案块设计 */
-        .doc-module {
+        .card {
             width: 80%;
             max-width: 800px;
-            background: rgba(10, 0, 0, 0.7);
-            border: 1px solid var(--red-bright);
+            background: rgba(15, 0, 0, 0.85);
+            border: 1px solid var(--red);
             padding: 40px;
-            backdrop-filter: blur(5px);
-            position: relative;
-            margin-bottom: 100px;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.2);
         }
 
-        .doc-module::after {
-            content: "DECRYPTED CONTENT // TOP SECRET";
-            position: absolute;
-            top: -10px; right: 20px;
-            background: var(--red-bright);
-            color: black;
-            font-size: 10px;
-            padding: 2px 8px;
-        }
+        h2 { font-size: 3rem; border-left: 10px solid var(--red); padding-left: 20px; margin-bottom: 30px; }
+        p { font-size: 1.2rem; line-height: 2; text-align: justify; }
 
-        h2 {
-            font-size: 2.5rem;
-            margin-bottom: 30px;
-            border-bottom: 4px solid var(--red-bright);
-            display: inline-block;
-        }
-
-        p {
-            line-height: 1.8;
-            font-size: 1.1rem;
-            text-align: justify;
-        }
-
-        /* 底部口号区域 */
-        .final-creed {
+        .footer-creed {
             height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
-            text-align: center;
-            background: linear-gradient(to top, var(--red-dark), transparent);
+            align-items: center;
+            background: var(--red);
+            color: black;
         }
-
-        .big-text {
-            font-size: 6vw;
-            font-weight: 900;
-            line-height: 1;
-            margin: 0;
-            color: white;
-            text-shadow: 0 0 20px var(--red-bright);
-        }
-
     </style>
 </head>
 <body>
 
     <div class="status-header">
-        <span>STRATCOM // G.R.I.M. UNIT</span>
-        <span id="coord-display">LAT: 0.0000 LON: 0.0000</span>
-        <span>LINK: SECURE</span>
+        <span>G.R.I.M. STATUS: OPERATIONAL</span>
+        <span>LAT: 35.6895 LON: 139.6917</span>
+        <span>SIGNAL: [EXCELLENT]</span>
     </div>
 
-    <div class="overlay"></div>
-
-    <div id="canvas-container">
-        <canvas id="earthCanvas"></canvas>
+    <div class="globe-container">
+        <div class="globe">
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="circle"></div>
+            <div class="mission-point p1"></div>
+            <div class="mission-point p2"></div>
+            <div class="mission-point p3"></div>
+        </div>
     </div>
 
-    <div class="scroll-wrapper">
+    <div class="content">
         <section class="section">
             <div style="text-align: center;">
-                <h1 style="font-size: 4rem; margin: 0; letter-spacing: 15px;">G.R.I.M.</h1>
-                <p style="letter-spacing: 5px; color: var(--red-mid);">全球侦查与渗透海军陆战队手册</p>
-                <p style="margin-top: 50px; font-size: 0.8rem; color: #666;">[ 向下滑动以启动解密程序 ]</p>
+                <h1 style="font-size: 6rem; margin: 0; letter-spacing: 20px; text-shadow: 5px 5px var(--dark-red);">G.R.I.M.</h1>
+                <p style="font-size: 1.5rem; letter-spacing: 5px;">全球侦查与渗透海军陆战队</p>
+                <p style="margin-top: 200px; animation: blink 1.5s infinite;">▼ SCROLL TO ACCESS DATA ▼</p>
             </div>
         </section>
 
         <section class="section">
-            <div class="doc-module">
+            <div class="card">
                 <h2>01. 情报先行</h2>
-                <p>在 G.R.I.M.，情报不仅仅是数据，它是活的战场图谱。利用无人机集群馈送、量子加密卫星以及深潜传感器，我们要在踏入禁区前，将敌方每一个哨位、每一处暗堡、甚至每一条补给线的律动都记录在案。</p>
-                <p><strong>知己知彼，百战不殆。</strong></p>
+                <p>在 G.R.I.M.，我们不打无准备之仗。情报部利用量子加密链路对全球目标进行 24/7 监控。在每一场渗透开始前，战场的每一个微小细节都已被解构。</p>
             </div>
         </section>
 
         <section class="section">
-            <div class="doc-module">
+            <div class="card">
                 <h2>02. 协同作战</h2>
-                <p>单兵能力是基石，但小队的无缝耦合才是制胜的核能。突袭组必须与情报后勤保持 0 延迟通讯。在混乱的战场上，简洁的语音指令和绝对的战友信任将是你唯一的锚点。</p>
+                <p>单兵是刺向敌人的利刃，小队是掌控局势的重锤。突击组与情报部通过神经链路保持实时同步，确保在极度混乱的战场环境下依然能够达成绝对的战术执行力。</p>
             </div>
         </section>
 
         <section class="section">
-            <div class="doc-module">
-                <h2>03. 装备定制</h2>
-                <p>我们遵循“官方标准，个人优化”的武装哲学。制式武器保证了可靠性，而你的自费升级则赋予了你猎杀的优势。确保每一件装备都是你肢体的延伸。</p>
+            <div class="card">
+                <h2>03. 装备哲学</h2>
+                <p>官方提供标准，个人定义上限。我们鼓励每一名外勤人员根据自身作战习惯对制式装备进行极限优化。记住，你的枪是你身体的延伸，而不是累赘。</p>
             </div>
         </section>
 
-        <section class="final-creed">
-            <p class="big-text">KEEP CALM</p>
-            <p class="big-text">MOVE ON</p>
-            <p style="margin-top: 20px; letter-spacing: 10px;">强者之列 · 永不退缩</p>
+        <section class="footer-creed">
+            <h1 style="font-size: 8vw; margin: 0;">KEEP CALM</h1>
+            <h1 style="font-size: 8vw; margin: 0;">MOVE ON</h1>
+            <p style="font-weight: bold; letter-spacing: 15px; margin-top: 30px;">强者之列 · 永不退缩</p>
         </section>
     </div>
 
     <script>
-        const canvas = document.getElementById('earthCanvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        let dots = [];
-        let targets = [];
-        let rotation = 0;
-
-        function init() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            dots = [];
-            // 生成经纬度分布的点阵地球
-            for (let lat = -90; lat <= 90; lat += 10) {
-                const radiusAtLat = Math.cos(lat * Math.PI / 180);
-                const y = Math.sin(lat * Math.PI / 180);
-                for (let lon = 0; lon < 360; lon += 15) {
-                    const x = radiusAtLat * Math.cos(lon * Math.PI / 180);
-                    const z = radiusAtLat * Math.sin(lon * Math.PI / 180);
-                    dots.push({x, y, z});
-                }
-            }
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, width, height);
-            rotation += 0.003;
-            const globeRadius = Math.min(width, height) * 0.4;
-
-            // 绘制背景点阵
-            dots.forEach(dot => {
-                // 旋转变换
-                const x1 = dot.x * Math.cos(rotation) - dot.z * Math.sin(rotation);
-                const z1 = dot.z * Math.cos(rotation) + dot.x * Math.sin(rotation);
-                
-                const p = 1.5 / (1.5 - z1);
-                const screenX = x1 * p * globeRadius + width / 2;
-                const screenY = dot.y * p * globeRadius + height / 2;
-
-                if (z1 > -0.8) {
-                    ctx.fillStyle = `rgba(255, 0, 0, ${ (z1 + 1) / 2.5 })`;
-                    ctx.beginPath();
-                    ctx.arc(screenX, screenY, p * 1.2, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            });
-
-            // 绘制随机任务点
-            if (Math.random() > 0.97 && targets.length < 5) {
-                targets.push({
-                    phi: Math.random() * Math.PI,
-                    theta: Math.random() * Math.PI * 2,
-                    life: 1.0,
-                    id: Math.floor(Math.random() * 900 + 100)
-                });
-            }
-
-            targets = targets.filter(t => {
-                const tx = Math.sin(t.phi) * Math.cos(t.theta + rotation);
-                const ty = Math.cos(t.phi);
-                const tz = Math.sin(t.phi) * Math.sin(t.theta + rotation);
-
-                if (tz > 0) {
-                    const p = 1.5 / (1.5 - tz);
-                    const sx = tx * p * globeRadius + width / 2;
-                    const sy = ty * p * globeRadius + height / 2;
-
-                    ctx.strokeStyle = `rgba(255, 255, 255, ${t.life})`;
-                    ctx.beginPath();
-                    ctx.arc(sx, sy, 10 * (1.5 - t.life), 0, Math.PI * 2);
-                    ctx.stroke();
-                    ctx.fillStyle = `rgba(255, 255, 255, ${t.life})`;
-                    ctx.font = '10px monospace';
-                    ctx.fillText(`TARGET GR-${t.id}`, sx + 15, sy - 5);
-                }
-                t.life -= 0.01;
-                return t.life > 0;
-            });
-
-            requestAnimationFrame(draw);
-        }
-
-        // 坐标实时跳变
+        // 实时坐标更新 (补全动态感)
         setInterval(() => {
+            const spans = document.querySelectorAll('.status-header span');
             const lat = (Math.random() * 180 - 90).toFixed(4);
             const lon = (Math.random() * 360 - 180).toFixed(4);
-            document.getElementById('coord-display').innerText = `LAT: ${lat} LON: ${lon}`;
-        }, 1500);
-
-        window.addEventListener('resize', init);
-        init();
-        draw();
+            spans[1].innerText = `LAT: ${lat} LON: ${lon}`;
+        }, 2000);
     </script>
 </body>
 </html>
