@@ -2,97 +2,238 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>纽约 2015 - 序章</title>
+    <title>G.R.I.M. | A.D.A. Tactical Terminal</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Microsoft YaHei', sans-serif; }
+        :root {
+            --grim-green: #00ff41; /* 战术冷绿 */
+            --grim-white: #f0f0f0; /* 医疗白 */
+            --grim-bg: #0a0a0a;    /* 深碳黑 */
+            --grim-gray: #333;
+        }
 
-        /* 塔科夫风格背景：大厦轻微摇晃 + 呼吸感 */
-        .background-container {
+        body {
+            background-color: var(--grim-bg);
+            color: var(--grim-white);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 模拟屏幕扫描线效果 */
+        body::before {
+            content: " ";
             position: fixed;
-            width: 110%; height: 110%;
-            left: -5%; top: -5%;
-            background: url('https://r.jina.ai/i/0f3333333333333') no-repeat center center; /* 此处可换成你生成的本地大图路径 */
-            background-size: cover;
-            animation: cameraSway 15s infinite ease-in-out, lightningStrike 6s infinite;
-            z-index: 1;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 3px 100%;
+            z-index: 100;
+            pointer-events: none;
         }
 
-        /* 蒙版：增加压抑感 */
-        .overlay {
-            position: fixed; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.8) 100%);
-            z-index: 2;
+        /* 顶部装饰条 */
+        header {
+            width: 100%;
+            border-bottom: 1px solid var(--grim-green);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--grim-green);
         }
 
-        /* 标题与按钮容器 */
-        .ui-content {
+        /* 中央旋转徽章 */
+        .logo-container {
+            margin-top: 40px;
             position: relative;
-            z-index: 10;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            height: 100vh;
+            width: 150px;
+            height: 150px;
         }
 
-        .title {
-            font-size: 85px; color: #fff; font-weight: 900;
-            letter-spacing: 20px; text-transform: uppercase;
-            text-shadow: 0 0 20px rgba(255,255,255,0.5);
-            margin-bottom: 5px;
-            animation: flicker 4s infinite;
+        .logo-ring {
+            width: 100%;
+            height: 100%;
+            border: 2px dashed var(--grim-green);
+            border-radius: 50%;
+            animation: rotate 10s linear infinite;
         }
 
-        .subtitle {
-            font-size: 18px; color: #888; letter-spacing: 10px; margin-bottom: 80px;
+        .logo-inner {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            font-size: 24px;
+            color: var(--grim-white);
         }
 
-        .start-btn {
-            padding: 18px 80px; font-size: 20px; color: #fff;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.3);
-            cursor: pointer; letter-spacing: 8px;
-            transition: 0.5s; backdrop-filter: blur(5px);
-            text-decoration: none; /* 去掉超链接下划线 */
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* 导航指令 */
+        nav {
+            margin: 20px 0;
+            display: flex;
+            gap: 30px;
         }
 
-        .start-btn:hover {
-            background: #fff; color: #000;
-            box-shadow: 0 0 40px rgba(255,255,255,0.6);
-            transform: scale(1.05);
+        nav span {
+            color: var(--grim-green);
+            cursor: pointer;
+            border: 1px solid transparent;
+            padding: 5px 10px;
+            transition: 0.3s;
         }
 
-        /* --- 动画：相机摇晃 --- */
-        @keyframes cameraSway {
-            0%, 100% { transform: translate(0,0) scale(1); }
-            50% { transform: translate(-10px, -15px) scale(1.02); }
+        nav span:hover {
+            border: 1px solid var(--grim-green);
+            background: rgba(0, 255, 65, 0.1);
         }
 
-        /* --- 动画：随机闪电闪屏 --- */
-        @keyframes lightningStrike {
-            0%, 94%, 100% { filter: brightness(1) contrast(1); }
-            95% { filter: brightness(3) contrast(1.2); }
-            97% { filter: brightness(1.5); }
-            98% { filter: brightness(4) white-balance(20); }
+        /* 档案主体 */
+        main {
+            width: 90%;
+            max-width: 600px;
+            border: 1px solid var(--grim-gray);
+            background: rgba(20, 20, 20, 0.8);
+            padding: 30px;
+            position: relative;
         }
 
-        /* --- 动画：文字微闪 --- */
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.9; }
-            98% { opacity: 1; }
-            99% { opacity: 0.5; }
+        .profile-pic {
+            width: 100%;
+            height: 200px;
+            background: #1a1a1a;
+            border: 1px solid var(--grim-green);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
         }
+        
+        /* 模拟热成像滤镜 */
+        .profile-pic img {
+            width: 100%;
+            filter: grayscale(100%) contrast(120%) brightness(80%);
+            mix-blend-mode: screen;
+        }
+
+        .profile-pic::after {
+            content: "LIVE FEED: G.R.I.M. ADVISOR";
+            position: absolute;
+            bottom: 5px; left: 10px;
+            font-size: 10px;
+            color: var(--grim-green);
+        }
+
+        h1 { font-size: 22px; color: var(--grim-green); margin-bottom: 5px; }
+        .title { font-size: 14px; color: #888; margin-bottom: 20px; }
+
+        .briefing {
+            border-top: 1px solid var(--grim-gray);
+            padding-top: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 任务板块 */
+        .task-box {
+            margin-top: 30px;
+            border: 1px solid var(--grim-green);
+            padding: 15px;
+            background: rgba(0, 255, 65, 0.05);
+        }
+
+        .task-header {
+            color: var(--grim-green);
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .audio-wave {
+            height: 30px;
+            background: repeating-linear-gradient(90deg, var(--grim-green) 0, var(--grim-green) 2px, transparent 2px, transparent 6px);
+            opacity: 0.5;
+            margin: 15px 0;
+        }
+
+        footer {
+            margin: 40px 0;
+            font-size: 10px;
+            color: #555;
+            text-align: center;
+        }
+
+        .glitch { animation: glitch 1s infinite alternate; }
+        @keyframes glitch {
+            0% { transform: skew(0deg); }
+            20% { transform: skew(2deg); opacity: 0.8; }
+            100% { transform: skew(0deg); }
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="background-container"></div>
-    <div class="overlay"></div>
+<header>
+    <span>SYSTEM: STABLE</span>
+    <span>ENCRYPTED CONNECTION: 256-BIT</span>
+    <span>AUTH: A.D.A. ACCESS ONLY</span>
+</header>
 
-    <div class="ui-content">
-        <div class="title">NEW YORK 2015</div>
-        <div class="subtitle">曼哈顿禁区：生存协议</div>
-        <a href="chat.html" class="start-btn">开始游戏</a>
+<div class="logo-container">
+    <div class="logo-ring"></div>
+    <div class="logo-inner">G.R.I.M.</div>
+</div>
+
+<nav>
+    <span>PURGE</span>
+    <span>ORDER</span>
+    <span>COLLECT</span>
+    <span>ADJUDICATE</span>
+</nav>
+
+<main>
+    <div class="profile-pic">
+        <div style="color: var(--grim-green); font-size: 12px;">[ ENCRYPTED IMAGE ]</div>
     </div>
+
+    <h1 class="glitch">塞缪尔 · 莱恩 (Samuel Lane)</h1>
+    <div class="title">G.R.I.M. 核心执行官 / A.D.A. 战术监护人</div>
+
+    <div class="briefing">
+        <p>> 欢迎接入，[代号：新锐]。这里是 A.D.A.，别谈英雄主义，只看合同准则。</p >
+        <p>> 你的 PDA 已同步境外授权。记住，你在汽车旅馆的每一枪都在监管算法之内。</p >
+    </div>
+
+    <div class="task-box">
+        <div class="task-header">
+            <span>CURRENT OBJECTIVE</span>
+            <span>STATUS: ACTIVE</span>
+        </div>
+        <ul style="list-style: none; padding: 0; font-size: 13px;">
+            <li>■ 消灭敌对目标 x 20</li>
+            <li>■ 旅馆入口线索搜寻 (10.0s)</li>
+        </ul>
+        <div class="audio-wave"></div>
+        <div style="text-align: center; color: var(--grim-green); cursor: pointer; border: 1px solid var(--grim-green); padding: 5px;">
+            [ PLAY AUDIO LOG ]
+        </div>
+    </div>
+</main>
+
+<footer>
+    &copy; 1998-2026 ARMED DEFENSE AUTHORITY. ALL RIGHTS RESERVED.<br>
+    COORDINATED BY G.R.I.M. TACTICAL SOLUTIONS.
+</footer>
 
 </body>
 </html>
