@@ -2,230 +2,247 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>G.R.I.M. ACCESS TERMINAL</title>
+    <title>G.R.I.M. GLOBAL TERMINAL</title>
     <style>
         :root {
             --red-bright: #ff0000;
-            --red-mid: #990000;
-            --bg: #050000;
+            --red-dark: #4d0000;
+            --bg: #000;
         }
 
-        /* 基础样式：支持长滚动 */
-        body {
+        body, html {
+            margin: 0; padding: 0;
             background-color: var(--bg);
             color: var(--red-bright);
             font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            padding: 0;
             overflow-x: hidden;
             scroll-behavior: smooth;
         }
 
-        /* 1. 固定背景层：点阵地图与扫描线 */
-        .fixed-background {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: -2;
-            background: 
-                radial-gradient(circle at center, transparent 20%, #000 100%),
-                url('https://upload.wikimedia.org/wikipedia/commons/b/bb/World_map_dots_red.png');
-            background-size: cover;
-            background-position: center;
-            opacity: 0.3;
-            filter: grayscale(1) sepia(100%) hue-rotate(-50deg) brightness(0.6);
-        }
-
-        .scanlines {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%);
-            background-size: 100% 3px;
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        /* 2. 动态随机闪烁点容器 */
-        #map-pings {
+        /* 背景：3D 地球容器 */
+        #canvas-container {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, #1a0000 0%, #000 80%);
+        }
+
+        /* 顶部扫描线效果 */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+            background-size: 100% 4px;
+            z-index: 100;
             pointer-events: none;
         }
 
-        /* 3. 头部信息（固定） */
-        .header-info {
+        /* 顶部 UI 状态栏 */
+        .status-header {
             position: fixed;
-            top: 0; width: 100%; height: 60px;
+            top: 0; width: 100%; height: 50px;
+            border-bottom: 1px solid var(--red-dark);
             background: rgba(0,0,0,0.8);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; box-sizing: border-box;
-            border-bottom: 1px solid var(--red-mid);
-            z-index: 100;
-            font-size: 12px; letter-spacing: 2px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            box-sizing: border-box;
+            z-index: 101;
+            font-size: 12px;
+            letter-spacing: 3px;
         }
 
-        /* 4. 可滚动内容区 */
-        .content-scroll {
+        /* 内容层 */
+        .scroll-wrapper {
             position: relative;
-            padding-top: 20vh; /* 给首屏留出视觉空间 */
+            z-index: 10;
+            padding-top: 10vh;
+        }
+
+        .section {
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
-        /* 首屏 Logo 区域 */
-        .hero-section {
-            height: 80vh;
-            text-align: center;
-        }
-
-        .fcbi-logo-circle {
-            width: 160px; height: 160px;
-            border: 2px solid var(--red-bright);
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex; align-items: center; justify-content: center;
-            background: rgba(0,0,0,0.5);
-            box-shadow: 0 0 20px var(--red-mid);
-        }
-
-        /* 档案块样式（模仿视频录音日志布局） */
-        .archive-block {
-            width: 90%;
-            max-width: 600px;
-            background: rgba(15, 0, 0, 0.85);
-            border: 1px solid var(--red-mid);
-            margin-bottom: 50px;
-            padding: 25px;
+        /* 档案块设计 */
+        .doc-module {
+            width: 80%;
+            max-width: 800px;
+            background: rgba(10, 0, 0, 0.7);
+            border: 1px solid var(--red-bright);
+            padding: 40px;
+            backdrop-filter: blur(5px);
             position: relative;
-            box-shadow: 10px 10px 0px rgba(153, 0, 0, 0.2);
+            margin-bottom: 100px;
         }
 
-        .archive-block::before {
-            content: "REC ●";
-            position: absolute; top: 10px; left: 10px;
-            color: var(--red-bright);
-            font-weight: bold;
-            animation: blink 1s infinite;
-        }
-
-        .date-stamp {
-            text-align: right;
-            font-size: 12px;
-            color: #666;
-            margin-top: 15px;
-            border-top: 1px solid #300;
-            padding-top: 5px;
-        }
-
-        /* 动画 */
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        
-        .ping {
+        .doc-module::after {
+            content: "DECRYPTED CONTENT // TOP SECRET";
             position: absolute;
-            width: 6px; height: 6px;
+            top: -10px; right: 20px;
             background: var(--red-bright);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--red-bright);
-            animation: ripple 3s infinite ease-out;
+            color: black;
+            font-size: 10px;
+            padding: 2px 8px;
         }
 
-        @keyframes ripple {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(8); opacity: 0; }
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            border-bottom: 4px solid var(--red-bright);
+            display: inline-block;
         }
 
-        h2 { font-size: 2rem; letter-spacing: 8px; margin: 10px 0; }
-        .tag { background: var(--red-mid); color: #fff; padding: 2px 10px; font-size: 12px; }
+        p {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            text-align: justify;
+        }
+
+        /* 底部口号区域 */
+        .final-creed {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(to top, var(--red-dark), transparent);
+        }
+
+        .big-text {
+            font-size: 6vw;
+            font-weight: 900;
+            line-height: 1;
+            margin: 0;
+            color: white;
+            text-shadow: 0 0 20px var(--red-bright);
+        }
 
     </style>
 </head>
 <body>
 
-    <div class="fixed-background"></div>
-    <div id="map-pings"></div>
-    <div class="scanlines"></div>
-
-    <div class="header-info">
-        <div>FATHOM | CONTROL</div>
-        <div style="color: white;">G.R.I.M. INTRANET [SECURE]</div>
-        <div>STRIKE | PENETRATE</div>
+    <div class="status-header">
+        <span>STRATCOM // G.R.I.M. UNIT</span>
+        <span id="coord-display">LAT: 0.0000 LON: 0.0000</span>
+        <span>LINK: SECURE</span>
     </div>
 
-    <div class="content-scroll">
-        <section class="hero-section">
-            <div class="fcbi-logo-circle">
-                <div style="font-weight: bold; font-size: 1.2rem;">G.R.I.M.</div>
+    <div class="overlay"></div>
+
+    <div id="canvas-container">
+        <canvas id="earthCanvas"></canvas>
+    </div>
+
+    <div class="scroll-wrapper">
+        <section class="section">
+            <div style="text-align: center;">
+                <h1 style="font-size: 4rem; margin: 0; letter-spacing: 15px;">G.R.I.M.</h1>
+                <p style="letter-spacing: 5px; color: var(--red-mid);">全球侦查与渗透海军陆战队手册</p>
+                <p style="margin-top: 50px; font-size: 0.8rem; color: #666;">[ 向下滑动以启动解密程序 ]</p>
             </div>
-            <h2>两栖作战人员</h2>
-            <div class="tag">全球侦查与渗透海军陆战队</div>
-            <p style="margin-top: 100px; color: #666;">↓ 滚动以解密核心协议 ↓</p>
         </section>
 
-        <div class="archive-block">
-            <h3 style="border-bottom: 1px solid var(--red-mid);">01. 情报先行 (INTEL)</h3>
-            <p>每一次成功的渗透都源于对战场的解构。在踏入任务区域前，必须利用无人机馈送、卫星遥感及人力情报构建完整的态势图。</p>
-            <p><strong style="color: white;">“我们不打无准备之仗，每一颗子弹都必须有它预定的坐标。”</strong></p>
-            <div class="date-stamp">STATUS: ENCRYPTED // ID: GR-01</div>
-        </div>
+        <section class="section">
+            <div class="doc-module">
+                <h2>01. 情报先行</h2>
+                <p>在 G.R.I.M.，情报不仅仅是数据，它是活的战场图谱。利用无人机集群馈送、量子加密卫星以及深潜传感器，我们要在踏入禁区前，将敌方每一个哨位、每一处暗堡、甚至每一条补给线的律动都记录在案。</p>
+                <p><strong>知己知彼，百战不殆。</strong></p>
+            </div>
+        </section>
 
-        <div class="archive-block">
-            <h3 style="border-bottom: 1px solid var(--red-mid);">02. 无缝协同 (SYNERGY)</h3>
-            <p>单兵是锋利的刀刃，小队是握刀的手。突袭组与情报部需保持双向实时链路。明确的分工、简洁的指令和绝对的信任是生存基石。</p>
-            <p>你的后背不属于你自己，它属于你的战友。</p>
-            <div class="date-stamp">COMM-LINK: ACTIVE // ID: GR-02</div>
-        </div>
+        <section class="section">
+            <div class="doc-module">
+                <h2>02. 协同作战</h2>
+                <p>单兵能力是基石，但小队的无缝耦合才是制胜的核能。突袭组必须与情报后勤保持 0 延迟通讯。在混乱的战场上，简洁的语音指令和绝对的战友信任将是你唯一的锚点。</p>
+            </div>
+        </section>
 
-        <div class="archive-block">
-            <h3 style="border-bottom: 1px solid var(--red-mid);">03. 装备哲学 (GEAR)</h3>
-            <p>官方标准提供底线，个人优化决定上限。确保所有制式装备处于巅峰状态。根据任务环境，自费定制光学瞄具或消音组件是被鼓励的。</p>
-            <p><strong style="color: white;">技术决定生死，纪律决定胜负。</strong></p>
-            <div class="date-stamp">ARMORY: VERIFIED // ID: GR-03</div>
-        </div>
+        <section class="section">
+            <div class="doc-module">
+                <h2>03. 装备定制</h2>
+                <p>我们遵循“官方标准，个人优化”的武装哲学。制式武器保证了可靠性，而你的自费升级则赋予了你猎杀的优势。确保每一件装备都是你肢体的延伸。</p>
+            </div>
+        </section>
 
-        <div class="archive-block" style="background: var(--red-bright); color: black; text-align: center;">
-            <h2 style="margin: 0;">KEEP CALM</h2>
-            <h1 style="margin: 0; font-size: 3rem;">MOVE ON</h1>
-            <p style="font-weight: bold;">保持冷静，继续前行</p>
-        </div>
-
-        <div style="height: 100px;"></div> </div>
+        <section class="final-creed">
+            <p class="big-text">KEEP CALM</p>
+            <p class="big-text">MOVE ON</p>
+            <p style="margin-top: 20px; letter-spacing: 10px;">强者之列 · 永不退缩</p>
+        </section>
+    </div>
 
     <script>
-        // 实时生成随机闪烁任务点
-        const pingContainer = document.getElementById('map-pings');
-        
-        function createPing() {
-            const ping = document.createElement('div');
-            ping.className = 'ping';
-            
-            // 随机位置
-            const top = Math.random() * 80 + 10; // 避免出现在最边缘
-            const left = Math.random() * 80 + 10;
-            
-            ping.style.top = top + '%';
-            ping.style.left = left + '%';
-            
-            pingContainer.appendChild(ping);
-            
-            // 5秒后移除旧点，保持性能
-            setTimeout(() => {
-                ping.remove();
-            }, 5000);
+        // 1. 3D 点阵地球实现 (Canvas)
+        const canvas = document.getElementById('earthCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, dots = [];
+
+        function initCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            dots = [];
+            // 创建点阵球体数据
+            for (let i = 0; i < 800; i++) {
+                let theta = Math.random() * 2 * Math.PI;
+                let phi = Math.acos(Math.random() * 2 - 1);
+                dots.push({
+                    x: Math.sin(phi) * Math.cos(theta),
+                    y: Math.sin(phi) * Math.sin(theta),
+                    z: Math.cos(phi)
+                });
+            }
         }
 
-        // 初始生成几个点，然后每隔一段时间生成新点
-        for(let i=0; i<5; i++) createPing();
-        setInterval(createPing, 1500);
+        let rotation = 0;
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            const radius = Math.min(width, height) * 0.35;
+            rotation += 0.005;
 
-        // 模拟滚动时的视觉故障效果
-        window.onscroll = function() {
-            if(Math.random() > 0.95) {
-                document.body.style.filter = "invert(1)";
-                setTimeout(() => document.body.style.filter = "none", 50);
-            }
-        };
+            ctx.fillStyle = '#ff0000';
+            dots.forEach(dot => {
+                // 旋转变换
+                let x1 = dot.x * Math.cos(rotation) - dot.z * Math.sin(rotation);
+                let z1 = dot.z * Math.cos(rotation) + dot.x * Math.sin(rotation);
+                
+                // 投影
+                let perspective = 1.5 / (1.5 - z1);
+                let x2 = x1 * perspective * radius + width / 2;
+                let y2 = dot.y * perspective * radius + height / 2;
+
+                if (z1 > -0.5) { // 简单剔除背面的点
+                    ctx.globalAlpha = (z1 + 1) / 2;
+                    ctx.beginPath();
+                    ctx.arc(x2, y2, perspective * 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        draw();
+
+        // 2. 坐标动态更新模拟
+        const coordDisp = document.getElementById('coord-display');
+        setInterval(() => {
+            const lat = (Math.random() * 180 - 90).toFixed(4);
+            const lon = (Math.random() * 360 - 180).toFixed(4);
+            coordDisp.innerText = `LAT: ${lat} LON: ${lon}`;
+        }, 1000);
+
     </script>
 </body>
 </html>
