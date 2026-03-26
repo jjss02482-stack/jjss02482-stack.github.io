@@ -2,238 +2,215 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>G.R.I.M. | A.D.A. Tactical Terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G.R.I.M. - Tactical Briefing</title>
     <style>
         :root {
-            --grim-green: #00ff41; /* 战术冷绿 */
-            --grim-white: #f0f0f0; /* 医疗白 */
-            --grim-bg: #0a0a0a;    /* 深碳黑 */
-            --grim-gray: #333;
+            --primary-red: #ff0000;
+            --dark-red: #8b0000;
+            --bg-black: #0a0a0a;
+            --text-gray: #cccccc;
+            --glitch-speed: 3s;
         }
 
         body {
-            background-color: var(--grim-bg);
-            color: var(--grim-white);
+            background-color: var(--bg-black);
+            color: var(--text-gray);
             font-family: 'Courier New', Courier, monospace;
             margin: 0;
+            padding: 0;
             overflow-x: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        /* 模拟屏幕扫描线效果 */
+        /* 屏幕扫描线效果 */
         body::before {
             content: " ";
+            display: block;
             position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 4px, 3px 100%;
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             z-index: 100;
+            background-size: 100% 4px, 3px 100%;
             pointer-events: none;
         }
 
-        /* 顶部装饰条 */
-        header {
+        /* 顶部状态栏 */
+        .status-bar {
             width: 100%;
-            border-bottom: 1px solid var(--grim-green);
             padding: 10px 20px;
+            border-bottom: 1px solid var(--dark-red);
+            font-size: 0.8rem;
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
+            box-sizing: border-box;
+            color: var(--primary-red);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--grim-green);
         }
 
-        /* 中央旋转徽章 */
-        .logo-container {
-            margin-top: 40px;
-            position: relative;
-            width: 150px;
-            height: 150px;
-        }
-
-        .logo-ring {
-            width: 100%;
-            height: 100%;
-            border: 2px dashed var(--grim-green);
-            border-radius: 50%;
-            animation: rotate 10s linear infinite;
-        }
-
-        .logo-inner {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            font-weight: bold;
-            font-size: 24px;
-            color: var(--grim-white);
-        }
-
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-        /* 导航指令 */
-        nav {
-            margin: 20px 0;
-            display: flex;
-            gap: 30px;
-        }
-
-        nav span {
-            color: var(--grim-green);
-            cursor: pointer;
-            border: 1px solid transparent;
-            padding: 5px 10px;
-            transition: 0.3s;
-        }
-
-        nav span:hover {
-            border: 1px solid var(--grim-green);
-            background: rgba(0, 255, 65, 0.1);
-        }
-
-        /* 档案主体 */
-        main {
-            width: 90%;
-            max-width: 600px;
-            border: 1px solid var(--grim-gray);
-            background: rgba(20, 20, 20, 0.8);
-            padding: 30px;
-            position: relative;
-        }
-
-        .profile-pic {
-            width: 100%;
-            height: 200px;
-            background: #1a1a1a;
-            border: 1px solid var(--grim-green);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        /* 模拟热成像滤镜 */
-        .profile-pic img {
-            width: 100%;
-            filter: grayscale(100%) contrast(120%) brightness(80%);
-            mix-blend-mode: screen;
-        }
-
-        .profile-pic::after {
-            content: "LIVE FEED: G.R.I.M. ADVISOR";
-            position: absolute;
-            bottom: 5px; left: 10px;
-            font-size: 10px;
-            color: var(--grim-green);
-        }
-
-        h1 { font-size: 22px; color: var(--grim-green); margin-bottom: 5px; }
-        .title { font-size: 14px; color: #888; margin-bottom: 20px; }
-
-        .briefing {
-            border-top: 1px solid var(--grim-gray);
-            padding-top: 20px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        /* 任务板块 */
-        .task-box {
-            margin-top: 30px;
-            border: 1px solid var(--grim-green);
-            padding: 15px;
-            background: rgba(0, 255, 65, 0.05);
-        }
-
-        .task-header {
-            color: var(--grim-green);
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .audio-wave {
-            height: 30px;
-            background: repeating-linear-gradient(90deg, var(--grim-green) 0, var(--grim-green) 2px, transparent 2px, transparent 6px);
-            opacity: 0.5;
-            margin: 15px 0;
-        }
-
-        footer {
-            margin: 40px 0;
-            font-size: 10px;
-            color: #555;
+        /* 核心Logo与标题 */
+        header {
             text-align: center;
+            margin: 40px 0;
+            position: relative;
         }
 
-        .glitch { animation: glitch 1s infinite alternate; }
+        .logo-area {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 15px;
+            text-shadow: 2px 2px var(--primary-red);
+            animation: glitch var(--glitch-speed) infinite;
+        }
+
+        .sub-title {
+            color: var(--primary-red);
+            letter-spacing: 2px;
+            margin-top: 10px;
+        }
+
+        /* 容器布局 */
+        .container {
+            max-width: 800px;
+            width: 90%;
+            border: 1px solid #333;
+            background: rgba(20, 0, 0, 0.4);
+            padding: 30px;
+            margin-bottom: 50px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.1);
+        }
+
+        section {
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.8s forwards;
+        }
+
+        h2 {
+            border-left: 4px solid var(--primary-red);
+            padding-left: 15px;
+            color: white;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+        }
+
+        p {
+            line-height: 1.6;
+            font-size: 0.95rem;
+            text-align: justify;
+        }
+
+        .warning-text {
+            color: var(--primary-red);
+            font-weight: bold;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 2px 5px;
+        }
+
+        /* 交互按钮样式 */
+        .footer-nav {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .btn {
+            border: 1px solid var(--primary-red);
+            background: transparent;
+            color: var(--primary-red);
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            background: var(--primary-red);
+            color: black;
+            box-shadow: 0 0 15px var(--primary-red);
+        }
+
+        /* 动画定义 */
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @keyframes glitch {
             0% { transform: skew(0deg); }
-            20% { transform: skew(2deg); opacity: 0.8; }
+            2% { transform: skew(10deg); }
+            4% { transform: skew(-10deg); }
+            6% { transform: skew(0deg); }
             100% { transform: skew(0deg); }
         }
 
+        .footer-tag {
+            font-size: 0.7rem;
+            color: #444;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <span>SYSTEM: STABLE</span>
-    <span>ENCRYPTED CONNECTION: 256-BIT</span>
-    <span>AUTH: A.D.A. ACCESS ONLY</span>
-</header>
-
-<div class="logo-container">
-    <div class="logo-ring"></div>
-    <div class="logo-inner">G.R.I.M.</div>
-</div>
-
-<nav>
-    <span>PURGE</span>
-    <span>ORDER</span>
-    <span>COLLECT</span>
-    <span>ADJUDICATE</span>
-</nav>
-
-<main>
-    <div class="profile-pic">
-        <div style="color: var(--grim-green); font-size: 12px;">[ ENCRYPTED IMAGE ]</div>
+    <div class="status-bar">
+        <span>System: Operational</span>
+        <span>Secure Link: Established [AES-256]</span>
+        <span id="clock">17:21:07</span>
     </div>
 
-    <h1 class="glitch">塞缪尔 · 莱恩 (Samuel Lane)</h1>
-    <div class="title">G.R.I.M. 核心执行官 / A.D.A. 战术监护人</div>
+    <header>
+        <div class="logo-area">G.R.I.M.</div>
+        <div class="sub-title">全球侦查与渗透海军陆战队</div>
+    </header>
 
-    <div class="briefing">
-        <p>> 欢迎接入，[代号：新锐]。这里是 A.D.A.，别谈英雄主义，只看合同准则。</p >
-        <p>> 你的 PDA 已同步境外授权。记住，你在汽车旅馆的每一枪都在监管算法之内。</p >
+    <div class="container">
+        <section style="animation-delay: 0.2s;">
+            <h2>[01] 欢迎加入 / Welcome</h2>
+            <p>本手册汇集了 G.R.I.M. 在长期两栖作战与超限战中积累的核心战术、技术与程序。它不仅是你的行动指南，更是你生存的保障。</p>
+        </section>
+
+        <section style="animation-delay: 0.4s;">
+            <h2>[02] 情报先行 / Intel First</h2>
+            <p>我们信奉“情报先行，精准打击”。每一次成功的行动都源于周密的情报搜集。在踏入任务区域前，你必须对敌方部署、地形及潜在威胁了如指掌。 <span class="warning-text">我们不打无准备之仗。</span></p>
+        </section>
+
+        <section style="animation-delay: 0.6s;">
+            <h2>[03] 协同基石 / Coordination</h2>
+            <p>小队的无缝协同是制胜关键。突袭组必须与情报部保持实时通讯。请时刻牢记：你的后背交给了战友，你的每一次行动都影响着整个小队的安危。</p>
+        </section>
+
+        <section style="animation-delay: 0.8s;">
+            <h2>[04] 装备哲学 / Gear Philosophy</h2>
+            <p>“官方标准，个人优化”。我们鼓励你根据任务需求，对装备进行自费升级。但请记住，无论装备如何精良，<span class="warning-text">熟练的技战术才是决胜根本。</span></p>
+        </section>
+
+        <section style="animation-delay: 1.0s;">
+            <p style="text-align: center; font-style: italic; color: white; margin-top: 50px;">
+                “保持冷静，继续前行”
+            </p>
+            <div class="footer-nav">
+                <button class="btn" onclick="alert('ERROR: LEVEL 5 CLEARANCE REQUIRED')">接入卫星数据</button>
+                <button class="btn" onclick="alert('SIGNAL ENCRYPTED')">下载作战档案</button>
+            </div>
+        </section>
     </div>
 
-    <div class="task-box">
-        <div class="task-header">
-            <span>CURRENT OBJECTIVE</span>
-            <span>STATUS: ACTIVE</span>
-        </div>
-        <ul style="list-style: none; padding: 0; font-size: 13px;">
-            <li>■ 消灭敌对目标 x 20</li>
-            <li>■ 旅馆入口线索搜寻 (10.0s)</li>
-        </ul>
-        <div class="audio-wave"></div>
-        <div style="text-align: center; color: var(--grim-green); cursor: pointer; border: 1px solid var(--grim-green); padding: 5px;">
-            [ PLAY AUDIO LOG ]
-        </div>
-    </div>
-</main>
+    <div class="footer-tag">© 2026 G.R.I.M. GLOBAL DEFENSE - ALL RIGHTS RESERVED</div>
 
-<footer>
-    &copy; 1998-2026 ARMED DEFENSE AUTHORITY. ALL RIGHTS RESERVED.<br>
-    COORDINATED BY G.R.I.M. TACTICAL SOLUTIONS.
-</footer>
-
+    <script>
+        // 实时时钟
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toTimeString().split(' ')[0];
+        }
+        setInterval(updateClock, 1000);
+    </script>
 </body>
 </html>
