@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>G.R.I.M. 战术情报终端 | 情报先行 精准打击</title>
-    <!-- 引入 Google Fonts 等宽字体，增强科技感 -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>G.R.I.M. 绝密终端 | 黑色行动协议</title>
+    <!-- 引入现代字体与图标库 -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* 全局重置与基础风格 */
-        body, html {
+        /* ----- 全局重置 黑白主题核心 ----- */
+        * {
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
+            box-sizing: border-box;
+            user-select: none; /* 增强特工感，避免文字随意选中 */
+        }
+
+        body {
+            background: #000000;
             overflow: hidden;
-            font-family: 'Share Tech Mono', 'Space Mono', monospace;
-            background-color: #000000;
-            color: #e0f2fe;
+            font-family: 'Space Grotesk', monospace;
+            color: #ffffff;
         }
 
         /* Three.js 画布作为动态背景 */
@@ -27,254 +30,438 @@
             width: 100%;
             height: 100%;
             z-index: 0;
-            display: block;
+            filter: grayscale(0.2) contrast(1.1); /* 轻微黑白风格化地球，保留科技感 */
         }
 
-        /* 主内容层，半透明遮罩与科技感边框 */
+        /* 主内容层 - 黑色半透明磨砂玻璃效果 */
         .content-overlay {
             position: relative;
             z-index: 2;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.85) 100%);
-            backdrop-filter: blur(2px);
+            background: radial-gradient(circle at 30% 20%, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.92) 100%);
+            backdrop-filter: blur(4px);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             pointer-events: auto;
         }
 
-        /* 顶部状态栏 / 标识区 */
+        /* ----- 炫酷元素：扫描线 + 动态网格 + 故障效果 ----- */
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(255,255,255,0.02) 0px,
+                rgba(255,255,255,0.02) 2px,
+                transparent 2px,
+                transparent 8px
+            );
+            pointer-events: none;
+            z-index: 10;
+            animation: scanMove 8s linear infinite;
+        }
+
+        @keyframes scanMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* 动态网格覆盖层 (科技感) */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 9;
+            opacity: 0.4;
+            animation: gridPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes gridPulse {
+            0% { opacity: 0.2; }
+            50% { opacity: 0.5; }
+            100% { opacity: 0.2; }
+        }
+
+        /* 鼠标跟随光晕 (炫酷交互) */
+        .mouse-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 15;
+            transform: translate(-50%, -50%);
+            transition: transform 0.05s linear;
+            filter: blur(30px);
+        }
+
+        /* 二进制雨滴特效 (canvas 独立) */
+        #binary-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 8;
+            opacity: 0.25;
+        }
+
+        /* ----- 顶部状态栏 (黑白极简) ----- */
         .top-bar {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            padding: 20px 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
-            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+            align-items: center;
+            padding: 20px 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.25);
+            background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+            z-index: 20;
+            position: relative;
         }
         .agency-badge {
             font-size: 1rem;
             letter-spacing: 2px;
-            font-weight: 700;
-            text-shadow: 0 0 5px #0ff;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #fff;
         }
-        .agency-badge .top-secret {
-            color: #ff4d4d;
-            background: rgba(0,0,0,0.6);
-            padding: 4px 8px;
-            border-radius: 2px;
-            font-size: 0.75rem;
-            margin-left: 10px;
-            border-left: 2px solid #ff4d4d;
+        .top-secret {
+            background: rgba(255,255,255,0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 12px;
+            border-left: 2px solid #fff;
+            font-weight: 400;
         }
         .status-pulse {
             font-size: 0.75rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            background: rgba(0,0,0,0.6);
+            padding: 5px 12px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.3);
         }
         .pulse-dot {
-            width: 10px;
-            height: 10px;
-            background-color: #0f0;
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
             border-radius: 50%;
-            box-shadow: 0 0 6px #0f0;
-            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 6px #fff;
+            animation: pulse-white 1.2s infinite;
         }
-        @keyframes pulse {
-            0% { opacity: 0.4; transform: scale(0.8);}
+        @keyframes pulse-white {
+            0% { opacity: 0.3; transform: scale(0.8);}
             100% { opacity: 1; transform: scale(1.2);}
         }
 
-        /* 中央情报日志区域 */
+        /* ----- 情报面板 (调整尺寸，不遮挡顶部，更紧凑) ----- */
         .intel-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            max-width: 550px;
-            margin-left: 5%;
-            margin-top: -5%;
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(8px);
-            border-radius: 16px;
-            border-left: 4px solid #0ff;
-            border-right: 1px solid rgba(0, 255, 255, 0.3);
-            padding: 20px 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 15px rgba(0,255,255,0.1);
+            position: relative;
+            max-width: 520px;
+            margin: 70px 0 20px 5%;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 20px 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+            transition: all 0.3s;
         }
         .log-header {
             font-size: 0.8rem;
-            color: #0ff;
-            letter-spacing: 1.5px;
-            margin-bottom: 15px;
-            border-bottom: 1px dashed rgba(0,255,255,0.4);
+            color: #ccc;
+            letter-spacing: 2px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
             display: inline-block;
-            padding-bottom: 5px;
+            padding-bottom: 6px;
+            font-weight: 500;
         }
         .log-entry {
-            margin-bottom: 22px;
-            font-family: 'Space Mono', monospace;
+            margin-bottom: 20px;
             font-size: 0.85rem;
             line-height: 1.5;
-            border-left: 2px solid rgba(0,255,255,0.3);
-            padding-left: 14px;
-            transition: all 0.2s;
+            border-left: 2px solid rgba(255,255,255,0.4);
+            padding-left: 16px;
         }
         .log-entry strong {
-            color: #ffcc66;
+            color: #ffffff;
             font-weight: 700;
+            text-shadow: 0 0 2px #fff;
         }
         .log-entry .timestamp {
-            color: #66ffcc;
+            color: #aaa;
             font-size: 0.7rem;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
         }
         .motto {
-            margin-top: 15px;
-            font-size: 0.85rem;
+            margin-top: 16px;
+            font-size: 0.8rem;
             text-align: right;
-            color: #88ffff;
-            text-shadow: 0 0 3px #00aaff;
-            border-top: 1px solid rgba(0,255,255,0.3);
+            color: #dddddd;
+            border-top: 1px solid rgba(255,255,255,0.2);
             padding-top: 12px;
-            letter-spacing: 1px;
+            font-style: italic;
         }
 
-        /* 右侧探员形象 (SVG 科技感特工) */
-        .agent-portrait {
+        /* 圆形特工头像 (免费图库 + 圆形边框) */
+        .agent-avatar {
             position: absolute;
-            bottom: 30px;
-            right: 4%;
-            width: 260px;
-            z-index: 10;
-            filter: drop-shadow(0 0 12px rgba(0, 255, 255, 0.4));
-            transition: transform 0.3s ease;
-            pointer-events: none;
+            bottom: 35px;
+            right: 5%;
+            width: 150px;
+            height: 150px;
+            z-index: 20;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.7);
+            box-shadow: 0 0 25px rgba(255,255,255,0.3), 0 0 8px rgba(0,0,0,0.5);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s;
+            background: #111;
+            cursor: pointer;
         }
-        .agent-portrait svg {
+        .agent-avatar:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 35px rgba(255,255,255,0.5);
+            border-color: #fff;
+        }
+        .agent-avatar img {
             width: 100%;
-            height: auto;
-            opacity: 0.92;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(0.2) contrast(1.1);
         }
-        /* 底部授权区 */
+
+        /* 底部授权区 (黑白风格) */
         .auth-section {
-            background: linear-gradient(0deg, rgba(0,0,0,0.8), rgba(0,0,0,0.4));
-            padding: 18px 30px 25px;
-            border-top: 1px solid rgba(0, 255, 255, 0.4);
-            backdrop-filter: blur(5px);
+            background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 100%);
+            padding: 18px 32px 28px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(8px);
             display: flex;
             flex-wrap: wrap;
-            align-items: flex-end;
+            align-items: center;
             justify-content: space-between;
-            gap: 20px;
+            gap: 18px;
+            z-index: 20;
         }
         .auth-prompt {
-            font-size: 0.9rem;
-            letter-spacing: 1.5px;
+            font-size: 0.85rem;
+            letter-spacing: 1.2px;
+            font-weight: 400;
         }
         .auth-prompt span {
-            color: #ffaa44;
-            font-weight: bold;
+            color: #fff;
+            font-weight: 600;
+            background: rgba(255,255,255,0.15);
+            padding: 2px 8px;
+            border-radius: 20px;
         }
         .input-group {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
-            flex-wrap: wrap;
-            background: rgba(0,0,0,0.6);
-            padding: 8px 15px;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 15px;
             border-radius: 40px;
-            border: 1px solid #0ff;
-            box-shadow: 0 0 8px rgba(0,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: 0.2s;
         }
         .input-group input {
             background: transparent;
             border: none;
-            color: #0ff;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1rem;
-            padding: 8px 5px;
+            color: #fff;
+            font-family: 'Space Grotesk', monospace;
+            font-size: 0.9rem;
+            padding: 10px 5px;
             width: 220px;
             outline: none;
         }
         .input-group input::placeholder {
-            color: #6688aa;
+            color: #aaa;
             font-size: 0.8rem;
         }
         .input-group button {
-            background: #0ff22d00;
-            border: 1px solid #0ff;
-            color: #0ff;
-            padding: 6px 18px;
-            border-radius: 30px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 6px 20px;
+            border-radius: 40px;
             font-family: monospace;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.25s;
             backdrop-filter: blur(4px);
         }
         .input-group button:hover {
-            background: #0ff;
+            background: #fff;
             color: #000;
-            box-shadow: 0 0 12px #0ff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.6);
         }
         .copy-sim {
-            font-size: 0.7rem;
-            color: #aaf;
-            text-decoration: underline;
+            font-size: 0.75rem;
+            color: #ddd;
+            text-decoration: none;
+            border-bottom: 1px dashed #aaa;
             cursor: pointer;
             transition: 0.2s;
         }
         .copy-sim:hover {
             color: #fff;
-            text-shadow: 0 0 3px #0ff;
+            text-shadow: 0 0 3px #fff;
         }
         .feedback-msg {
             font-size: 0.7rem;
-            color: #88ff88;
-            margin-left: 10px;
+            color: #cccccc;
+            margin-left: 8px;
+        }
+
+        /* 授权成功后解锁的隐藏内容 (炫酷扩展) */
+        .classified-data {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            background: rgba(0,0,0,0.5);
+            border-radius: 12px;
+            margin-top: 12px;
+            padding: 0 12px;
+            border-left: 2px solid #fff;
+        }
+        .classified-data.active {
+            max-height: 180px;
+            padding: 12px 16px;
+        }
+        .classified-data p {
+            font-size: 0.75rem;
+            color: #eee;
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+
+        /* glitch 文字特效 (炫酷元素) */
+        .glitch-text {
+            animation: glitch 1.2s infinite;
+        }
+        @keyframes glitch {
+            0%, 100% { text-shadow: 0 0 0 #fff; }
+            25% { text-shadow: -2px 0 0 #fff, 2px 0 0 #000; }
+            75% { text-shadow: 2px 0 0 #fff, -2px 0 0 #000; }
         }
 
         /* 响应式调整 */
         @media (max-width: 780px) {
             .intel-panel {
-                max-width: 85%;
-                margin-left: 5%;
-                margin-top: 15%;
-                padding: 15px;
+                margin: 50px 4% 20px 4%;
+                max-width: 90%;
             }
-            .agent-portrait {
-                width: 160px;
-                bottom: 15px;
-                right: 10px;
-                opacity: 0.85;
+            .agent-avatar {
+                width: 100px;
+                height: 100px;
+                bottom: 20px;
+                right: 20px;
             }
             .auth-section {
                 flex-direction: column;
                 align-items: stretch;
-                padding: 15px;
             }
             .input-group {
                 justify-content: space-between;
             }
-            .log-entry {
-                font-size: 0.7rem;
-            }
         }
+    </style>
+</head>
+<body>
 
-        /* 光标闪烁特效 */
+    <!-- 炫酷特效层 -->
+    <div class="scan-line"></div>
+    <div class="grid-overlay"></div>
+    <canvas id="binary-rain"></canvas>
+    <div class="mouse-glow" id="mouseGlow"></div>
+
+    <!-- Three.js 地球容器 -->
+    <div id="canvas-container"></div>
+
+    <div class="content-overlay">
+        <div class="top-bar">
+            <div class="agency-badge">
+                ⚡ G.R.I.M. · 黑色行动协议 
+                <span class="top-secret">Ω级加密 // EYES ONLY</span>
+            </div>
+            <div class="status-pulse">
+                <div class="pulse-dot"></div>
+                <span>量子加密链路 | 待命</span>
+            </div>
+        </div>
+
+        <!-- 情报简报 (尺寸缩小，不遮挡页首) -->
+        <div class="intel-panel">
+            <div class="log-header">► 战术情报更新 [G.R.I.M. 指令流]</div>
+            <div class="log-entry">
+                <span class="timestamp">[态势感知] 23:59:47 ZULU</span>
+                “情报先行，精准打击。” 多斯家族在坐标区域部署了电子干扰，<strong>G.R.I.M. 幽灵小队</strong>已启动被动扫描。战场态势图构建完成度97%。
+            </div>
+            <div class="log-entry">
+                <span class="timestamp">[协同指令] 00:02:13 ZULU</span>
+                突袭组保持无线电静默，使用<strong>视觉信号与数据链</strong>。后背交给战友，严守“官方标准，个人优化”装备哲学。
+            </div>
+            <div class="log-entry">
+                <span class="timestamp">[心理协议] 00:05:04 ZULU</span>
+                勇气与纪律是基石。遭遇极端压力时重复：<strong>“保持冷静，继续前行”</strong>。强者之列，无惧绝境。
+            </div>
+            <div class="motto">
+                “冷静即武器，纪律即护盾”
+            </div>
+            <!-- 授权后解锁额外情报区域 -->
+            <div id="classifiedBox" class="classified-data">
+                <p>🔓 授权层级提升 // 解码成功：<br>
+                目标代号“信鸽”最后信号位于北纬31°，东经121°。G.R.I.M. 打击窗口开启。允许使用第7类战术升级。</p>
+            </div>
+        </div>
+
+        <!-- 圆形特工头像 (免费图库：高质特工风格人像，来自Pexels免费库) -->
+        <div class="agent-avatar">
+            <img src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop" 
+                 alt="特工代号：渡鸦" 
+                 onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
+        </div>
+
+        <!-- 底部授权区 -->
+        <div class="auth-section">
+            <div class="auth-prompt">
+                [G.R.I.M. 中央数据库] <span>战术授权协议 v3.0</span><br>
+                ENTER AUTHORIZATION CODE_ <span class="cursor-blink" style="display:inline-block; width:6px; height:12px; background:#fff; animation: blink 1s step-end infinite;"></span>
+            </div>
+            <div class="input-group">
+                <input type="text" id="authCode" placeholder="输入战术授权码 (例: GRIM-226)" autocomplete="off">
+                <button id="verifyBtn">验证并解密</button>
+                <span id="feedback" class="feedback-msg"></span>
+            </div>
+            <div class="copy-sim" id="copyLinkHint">
+                🔗 复制战术终端链接
+            </div>
+        </div>
+    </div>
+
+    <style>
         .cursor-blink {
-            display: inline-block;
-            width: 8px;
-            height: 14px;
-            background-color: #0ff;
-            vertical-align: middle;
-            margin-left: 4px;
             animation: blink 1s step-end infinite;
         }
         @keyframes blink {
@@ -282,104 +469,8 @@
             50% { opacity: 0; }
         }
     </style>
-</head>
-<body>
 
-    <!-- Three.js 地球背景容器 -->
-    <div id="canvas-container"></div>
-
-    <div class="content-overlay">
-        <div class="top-bar">
-            <div class="agency-badge">
-                ⚡ G.R.I.M. · 战术情报终端 
-                <span class="top-secret">TOP SECRET // GRIM-EYE</span>
-            </div>
-            <div class="status-pulse">
-                <div class="pulse-dot"></div>
-                <span>战术数据链在线 | 加密信道 ACTIVE</span>
-            </div>
-        </div>
-
-        <!-- 中央情报日志，展示背景故事中的关键训令及态势感知 -->
-        <div class="intel-panel">
-            <div class="log-header">► 实时态势感知 / 行动简报 [GRIM-2026-03]</div>
-            <div class="log-entry">
-                <span class="timestamp">[情报简报] 22:47:03 ZULU</span>
-                “情报先行，精准打击。” 根据卫星与信号情报融合，目标区域存在多斯家族附属武装力量，部署三支快速反应分队。建议利用夜间能见度窗口渗透，规避常规侦察。
-            </div>
-            <div class="log-entry">
-                <span class="timestamp">[战术协同] 22:52:17 ZULU</span>
-                突袭组需与情报部保持<strong>实时全双工数据链</strong>，每一次决策必须基于动态战场态势图。小队协同优先于单兵突进，<strong>后背交给战友</strong>，保持通讯静默以外频段备用。
-            </div>
-            <div class="log-entry">
-                <span class="timestamp">[装备哲学] 22:58:44 ZULU</span>
-                制式装备已通过自检，遵循<strong>“官方标准，个人优化”</strong>原则，鼓励任务定制升级。当前夜视仪、单兵数据终端状态绿区，熟练技战术胜过依赖器材。
-            </div>
-            <div class="motto">
-                “勇气与纪律是基石 — 保持冷静，继续前行”
-            </div>
-        </div>
-
-        <!-- 右侧特工人物形象 (SVG 高级战术特工风格) -->
-        <div class="agent-portrait">
-            <svg viewBox="0 0 300 360" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="2.5"/>
-                        <feMerge>
-                            <feMergeNode in="offsetblur" />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                        <feColorMatrix type="saturate" values="1.2"/>
-                    </filter>
-                    <linearGradient id="armorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#2a6f6f"/>
-                        <stop offset="100%" stop-color="#0f2b2b"/>
-                    </linearGradient>
-                </defs>
-                <!-- 战术头盔轮廓 + 耳机 -->
-                <path d="M100,100 L200,100 Q220,110 220,130 L220,170 Q210,180 200,180 L100,180 Q90,180 80,170 L80,130 Q80,110 100,100Z" fill="url(#armorGrad)" stroke="#0ff" stroke-width="1.8" filter="url(#glow)"/>
-                <!-- 护目镜 / 战术眼镜 -->
-                <rect x="120" y="130" width="25" height="20" rx="4" fill="#001d3d" stroke="#0ff" stroke-width="1.2"/>
-                <rect x="155" y="130" width="25" height="20" rx="4" fill="#001d3d" stroke="#0ff" stroke-width="1.2"/>
-                <circle cx="132.5" cy="140" r="3" fill="#0ff"/>
-                <circle cx="167.5" cy="140" r="3" fill="#0ff"/>
-                <!-- 面罩呼吸器 -->
-                <path d="M140 160 L160 160 Q165 165 150 170 Q135 165 140 160Z" fill="#2c3e50" stroke="#0ff" stroke-width="1"/>
-                <!-- 战术背心与肩部轮廓 -->
-                <path d="M90 180 L210 180 L200 240 L100 240 L90 180Z" fill="#1a3a3a" stroke="#0ff" stroke-width="1.2" opacity="0.9"/>
-                <path d="M130 200 L170 200 L165 230 L135 230 L130 200Z" fill="#0b2b26" stroke="#5effbc" stroke-width="1"/>
-                <!-- 通讯器/肩部模块 -->
-                <rect x="200" y="160" width="22" height="18" rx="3" fill="#2c4f4f" stroke="#0ff" stroke-width="1"/>
-                <rect x="78" y="160" width="22" height="18" rx="3" fill="#2c4f4f" stroke="#0ff" stroke-width="1"/>
-                <!-- 战术臂章 GRIM -->
-                <text x="135" y="220" fill="#0ff" font-size="12" font-family="monospace" font-weight="bold">GRIM</text>
-                <!-- 领口麦克风线条 -->
-                <path d="M150 170 L152 178 L148 178 L150 170" fill="#88aaff" stroke="#0ff"/>
-                <!-- 细微战术光点 -->
-                <circle cx="210" cy="185" r="2" fill="#0ff" opacity="0.7"/>
-                <circle cx="90" cy="185" r="2" fill="#0ff" opacity="0.7"/>
-            </svg>
-        </div>
-
-        <!-- 底部授权与行动指令区 (模仿原网页授权码风格) -->
-        <div class="auth-section">
-            <div class="auth-prompt">
-                [G.R.I.M. 中央情报数据库] <span>// 行动授权协议 v2.6</span><br>
-                ENTER AUTHORIZATION CODE_ <span class="cursor-blink"></span>
-            </div>
-            <div class="input-group">
-                <input type="text" id="authCode" placeholder="输入战术授权码 (例: GRIM-226)" autocomplete="off">
-                <button id="verifyBtn">验证并同步</button>
-                <span id="feedback" class="feedback-msg"></span>
-            </div>
-            <div class="copy-sim" id="copyLinkHint">
-                🔗 复制战术链接至作战终端
-            </div>
-        </div>
-    </div>
-
-    <!-- 引入 Three.js 核心库 -->
+    <!-- 引入Three.js -->
     <script type="importmap">
         {
             "imports": {
@@ -391,225 +482,246 @@
     <script type="module">
         import * as THREE from 'three';
 
-        // --- 初始化场景、相机、渲染器 (透明背景，用于叠加) ---
+        // --- 初始化Three地球 (黑白风格微调) ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.background = null; // 透明，让CSS黑色背景透出
-        scene.fog = new THREE.FogExp2(0x000000, 0.0008); // 轻微雾效增加深邃感
+        scene.background = null;
+        scene.fog = new THREE.FogExp2(0x000000, 0.0009);
 
-        // 透视相机 (视角,宽高比,近平面,远平面)
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0.5, 4.2);
+        camera.position.set(0, 0.2, 4.0);
         camera.lookAt(0, 0, 0);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // alpha 透明
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // --- 创建地球 ---
-        // 加载高分辨率地球纹理 (使用可靠的三层贴图：漫反射+凹凸+云层可简化，这里主漫反射 + 高光)
+        // 加载地球纹理 (保留色彩但降低饱和度，符合黑白主题)
         const textureLoader = new THREE.TextureLoader();
-        // 使用高质量的NASA风格地球贴图 (来自Three.js示例库，允许跨域)
         const earthMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
         const earthSpecularMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_specular_2048.jpg');
         const earthNormalMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_normal_2048.jpg');
         const cloudMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_clouds_1024.png');
-        
-        // 地球网格
-        const earthGeometry = new THREE.SphereGeometry(1.5, 128, 128);
+
+        const earthGeometry = new THREE.SphereGeometry(1.45, 128, 128);
         const earthMaterial = new THREE.MeshPhongMaterial({
             map: earthMap,
             specularMap: earthSpecularMap,
-            specular: new THREE.Color('grey'),
-            shininess: 5,
+            specular: new THREE.Color(0x333333),
+            shininess: 8,
             normalMap: earthNormalMap,
-            normalScale: new THREE.Vector2(0.8, 0.8)
         });
         const earth = new THREE.Mesh(earthGeometry, earthMaterial);
         scene.add(earth);
-        
-        // 云层效果 (额外半透明球体)
-        const cloudGeometry = new THREE.SphereGeometry(1.52, 128, 128);
+
+        // 云层
+        const cloudGeometry = new THREE.SphereGeometry(1.48, 128, 128);
         const cloudMaterial = new THREE.MeshPhongMaterial({
             map: cloudMap,
             transparent: true,
-            opacity: 0.12,
+            opacity: 0.1,
             blending: THREE.AdditiveBlending
         });
         const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
         scene.add(clouds);
-        
-        // 星空粒子系统 (增加深邃宇宙感)
+
+        // 星空粒子 (增强炫酷感)
         const starGeometry = new THREE.BufferGeometry();
-        const starCount = 2800;
+        const starCount = 3000;
         const starPositions = new Float32Array(starCount * 3);
         for (let i = 0; i < starCount; i++) {
-            // 分布在较大半径范围内
-            starPositions[i*3] = (Math.random() - 0.5) * 800;
-            starPositions[i*3+1] = (Math.random() - 0.5) * 500;
-            starPositions[i*3+2] = (Math.random() - 0.5) * 300 - 80;
+            starPositions[i*3] = (Math.random() - 0.5) * 1000;
+            starPositions[i*3+1] = (Math.random() - 0.5) * 600;
+            starPositions[i*3+2] = (Math.random() - 0.5) * 400 - 100;
         }
         starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-        const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.25, transparent: true, opacity: 0.7 });
+        const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.2, transparent: true, opacity: 0.7 });
         const stars = new THREE.Points(starGeometry, starMaterial);
         scene.add(stars);
         
-        // 额外添加远处闪烁粒子（第二层星尘）
+        // 第二层星云粒子
         const starGeo2 = new THREE.BufferGeometry();
-        const starCount2 = 1500;
-        const pos2 = new Float32Array(starCount2 * 3);
-        for (let i = 0; i < starCount2; i++) {
+        const pos2 = new Float32Array(1800 * 3);
+        for (let i = 0; i < 1800; i++) {
             pos2[i*3] = (Math.random() - 0.5) * 1200;
-            pos2[i*3+1] = (Math.random() - 0.5) * 700;
-            pos2[i*3+2] = (Math.random() - 0.5) * 400 - 150;
+            pos2[i*3+1] = (Math.random() - 0.5) * 800;
+            pos2[i*3+2] = (Math.random() - 0.5) * 500 - 150;
         }
         starGeo2.setAttribute('position', new THREE.BufferAttribute(pos2, 3));
-        const starMat2 = new THREE.PointsMaterial({ color: 0xaaffff, size: 0.18, transparent: true, opacity: 0.5 });
+        const starMat2 = new THREE.PointsMaterial({ color: 0xccccdd, size: 0.15, transparent: true, opacity: 0.5 });
         const stars2 = new THREE.Points(starGeo2, starMat2);
         scene.add(stars2);
-        
-        // --- 光照系统 营造立体感 ---
-        // 环境光
-        const ambientLight = new THREE.AmbientLight(0x111122);
+
+        // 光照
+        const ambientLight = new THREE.AmbientLight(0x111111);
         scene.add(ambientLight);
-        // 主光源方向光
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-        dirLight.position.set(5, 3, 5);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        dirLight.position.set(3, 4, 2);
         scene.add(dirLight);
-        // 补光背光暖色
-        const backLight = new THREE.PointLight(0x4466cc, 0.5);
+        const backLight = new THREE.PointLight(0x666666, 0.5);
         backLight.position.set(-2, 1, -3);
         scene.add(backLight);
-        // 增加一个微弱的全局点光源，凸显地球暗部细节
-        const fillLight = new THREE.PointLight(0x336699, 0.3);
-        fillLight.position.set(1, 2, 2);
-        scene.add(fillLight);
-        
-        // 可选: 围绕地球的淡淡光晕 (加一个极简光环)
-        const glowGeometry = new THREE.SphereGeometry(1.58, 32, 32);
-        const glowMaterial = new THREE.MeshBasicMaterial({
-            color: 0x2266aa,
-            transparent: true,
-            opacity: 0.05,
-            side: THREE.BackSide
-        });
-        const glowHalo = new THREE.Mesh(glowGeometry, glowMaterial);
-        scene.add(glowHalo);
-        
-        // --- 辅助动画: 让地球自转，云层稍快，星星缓慢移动增加沉浸 ---
-        let time = 0;
-        
-        function animate() {
-            requestAnimationFrame(animate);
-            time += 0.005;
-            
-            // 地球自转
-            earth.rotation.y += 0.0018;
-            // 云层以稍快速度旋转，产生流动感
-            clouds.rotation.y += 0.0022;
-            // 星星粒子系统整体缓慢旋转，营造宇宙漫游感
+
+        // 旋转动画
+        function animateEarth() {
+            requestAnimationFrame(animateEarth);
+            earth.rotation.y += 0.0016;
+            clouds.rotation.y += 0.0019;
             stars.rotation.y += 0.0002;
-            stars.rotation.x += 0.0001;
-            stars2.rotation.y -= 0.00015;
-            
-            // 动态轻微改变背景光强度，模拟呼吸感
-            const intensity = 0.45 + Math.sin(time * 1.5) * 0.05;
-            fillLight.intensity = intensity;
-            
-            // 相机轻微晃动 (极轻微增加真实感)
+            stars2.rotation.x += 0.0001;
             camera.position.x += (0 - camera.position.x) * 0.02;
-            camera.position.y += (0.5 - camera.position.y) * 0.02;
+            camera.position.y += (0.3 - camera.position.y) * 0.02;
             camera.lookAt(0, 0, 0);
-            
             renderer.render(scene, camera);
         }
-        
-        animate();
-        
-        // 窗口尺寸适配
-        window.addEventListener('resize', onWindowResize, false);
-        function onWindowResize() {
+        animateEarth();
+        window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- 二进制雨特效 (炫酷) ---
+        const binaryCanvas = document.getElementById('binary-rain');
+        const ctx = binaryCanvas.getContext('2d');
+        let binaryWidth, binaryHeight;
+        let columns;
+        let drops = [];
+        const binaryChars = "01";
+
+        function resizeBinary() {
+            binaryWidth = window.innerWidth;
+            binaryHeight = window.innerHeight;
+            binaryCanvas.width = binaryWidth;
+            binaryCanvas.height = binaryHeight;
+            columns = Math.floor(binaryWidth / 18);
+            drops = [];
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * -100;
+            }
         }
-        
-        // 模拟加载完成后的控制台输出
-        console.log('G.R.I.M. 战术地球初始化完成 | 情报先行');
-        
-        // --- 交互功能: 授权码模拟验证 + 复制战术链接 (模仿原网页交互)---
+        function drawBinaryRain() {
+            if (!ctx) return;
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, binaryWidth, binaryHeight);
+            ctx.fillStyle = "#fff";
+            ctx.font = "14px 'Space Mono'";
+            for (let i = 0; i < drops.length; i++) {
+                const text = binaryChars[Math.floor(Math.random() * binaryChars.length)];
+                const x = i * 18;
+                const y = drops[i] * 18;
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + Math.random() * 0.4})`;
+                ctx.fillText(text, x, y);
+                if (y > binaryHeight && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+            requestAnimationFrame(drawBinaryRain);
+        }
+        window.addEventListener('resize', () => {
+            resizeBinary();
+        });
+        resizeBinary();
+        drawBinaryRain();
+
+        // --- 鼠标跟随光晕 ---
+        const mouseGlow = document.getElementById('mouseGlow');
+        document.addEventListener('mousemove', (e) => {
+            mouseGlow.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+        });
+
+        // --- 授权码逻辑 (明显区分输入与不输入) ---
         const verifyBtn = document.getElementById('verifyBtn');
         const authInput = document.getElementById('authCode');
         const feedbackSpan = document.getElementById('feedback');
         const copyHint = document.getElementById('copyLinkHint');
-        
-        // 模拟验证授权码 (前端演示效果，不涉及真实后端)
+        const classifiedDiv = document.getElementById('classifiedBox');
+        let isAuthorized = false;
+
+        // 成功授权后解锁高级情报 + 改变界面风格
+        function grantAccess(code) {
+            if (isAuthorized) return;
+            isAuthorized = true;
+            // 显示隐藏情报
+            classifiedDiv.classList.add('active');
+            feedbackSpan.innerHTML = "✓ 授权通过 | 权限升级: Ω级战术数据流已解锁";
+            feedbackSpan.style.color = "#ffffff";
+            // 增加一个全局闪光特效
+            const flash = document.createElement('div');
+            flash.style.position = 'fixed';
+            flash.style.top = 0;
+            flash.style.left = 0;
+            flash.style.width = '100%';
+            flash.style.height = '100%';
+            flash.style.backgroundColor = 'rgba(255,255,255,0.2)';
+            flash.style.pointerEvents = 'none';
+            flash.style.zIndex = '999';
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 400);
+            // 改变底部提示文字
+            const promptSpan = document.querySelector('.auth-prompt span');
+            if (promptSpan) promptSpan.innerHTML = '已授权 // 行动协议生效';
+            // 地球氛围微调
+            document.querySelector('.status-pulse span').innerHTML = '加密链路已激活 | 全频段压制';
+            // 炫酷控制台输出
+            console.log("%c[G.R.I.M.] 授权码验证成功 — 保持冷静，继续前行", "color: #fff; background: #000; font-size: 14px");
+        }
+
         verifyBtn.addEventListener('click', () => {
             let code = authInput.value.trim();
             if (code === "") {
-                feedbackSpan.textContent = "⚠️ 需要输入授权码";
-                feedbackSpan.style.color = "#ffaa66";
+                feedbackSpan.innerHTML = "❌ 未检测到授权码，拒绝访问";
+                feedbackSpan.style.color = "#ff9999";
                 setTimeout(() => {
-                    if(feedbackSpan.textContent === "⚠️ 需要输入授权码") feedbackSpan.textContent = "";
-                }, 1800);
+                    if(feedbackSpan.innerHTML === "❌ 未检测到授权码，拒绝访问") feedbackSpan.innerHTML = "";
+                }, 2000);
                 return;
             }
-            // 任意非空字符模拟授权成功，增强沉浸体验
-            if (code.length >= 3) {
-                feedbackSpan.innerHTML = "✓ 授权通过 | 同步战术态势图...";
-                feedbackSpan.style.color = "#88ffaa";
-                // 模拟闪烁提示后显示欢迎语
-                setTimeout(() => {
-                    feedbackSpan.innerHTML = "✓ 已接入 G.R.I.M. 数据云，保持冷静，继续前行";
-                }, 800);
-                setTimeout(() => {
-                    if(feedbackSpan.innerHTML.includes("G.R.I.M.")) feedbackSpan.innerHTML = "";
-                }, 3500);
-                // 可选小彩蛋：控制台输出
-                console.log(`%c[GRIM] 探员已验证: ${code} | 情报优先，精准打击`, 'color: #0ff; font-size: 12px');
+            // 模拟任意非空且长度大于2为有效授权 (实际可自定义关键词)
+            if (code.length >= 2) {
+                grantAccess(code);
+                // 可以模拟不同授权码不同反馈，这里统一成功
             } else {
-                feedbackSpan.textContent = "无效授权格式，请重新输入";
-                feedbackSpan.style.color = "#ff8866";
+                feedbackSpan.innerHTML = "无效授权协议 | 请重新输入";
+                feedbackSpan.style.color = "#ffaaaa";
                 setTimeout(() => {
-                    if(feedbackSpan.textContent === "无效授权格式，请重新输入") feedbackSpan.textContent = "";
+                    if(feedbackSpan.innerHTML === "无效授权协议 | 请重新输入") feedbackSpan.innerHTML = "";
                 }, 1800);
             }
         });
-        
-        // 回车键快速验证
+
         authInput.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter') {
-                e.preventDefault();
-                verifyBtn.click();
-            }
+            if(e.key === 'Enter') verifyBtn.click();
         });
-        
-        // 模拟原网页“复制以下链接至微信打开”效果: 复制当前页面或战术指令
+
+        // 复制链接 (修正为用户提供的地址)
         copyHint.addEventListener('click', async () => {
-            const tacticalLink = "https://grim.intel/ops/2026-03/authorize";  // 模拟战术链接
+            const correctLink = "https://jjss02482-stack.github.io/";
             try {
-                await navigator.clipboard.writeText(tacticalLink);
-                feedbackSpan.innerHTML = "✓ 战术链接已复制 | 分享至作战小队";
-                feedbackSpan.style.color = "#88ffaa";
+                await navigator.clipboard.writeText(correctLink);
+                feedbackSpan.innerHTML = "✓ 战术终端链接已复制 | 分享至作战单元";
+                feedbackSpan.style.color = "#fff";
                 setTimeout(() => {
-                    if(feedbackSpan.innerHTML.includes("战术链接已复制")) feedbackSpan.innerHTML = "";
-                }, 2500);
+                    if(feedbackSpan.innerHTML.includes("战术终端链接已复制")) feedbackSpan.innerHTML = "";
+                }, 2200);
             } catch (err) {
-                feedbackSpan.innerHTML = "❌ 复制失败，手动同步指令";
-                setTimeout(() => {
-                    if(feedbackSpan.innerHTML.includes("复制失败")) feedbackSpan.innerHTML = "";
-                }, 1500);
+                feedbackSpan.innerHTML = "复制失败，手动同步";
             }
         });
+
+        // 初始小彩蛋: 动态glitch效果
+        const mottoDiv = document.querySelector('.motto');
+        setInterval(() => {
+            if(Math.random() > 0.93) {
+                mottoDiv.classList.add('glitch-text');
+                setTimeout(() => mottoDiv.classList.remove('glitch-text'), 200);
+            }
+        }, 3000);
         
-        // 增加开场微提示
-        setTimeout(() => {
-            feedbackSpan.innerHTML = "⚡ 情报终端就绪 | 等待授权指令";
-            setTimeout(() => {
-                if(feedbackSpan.innerHTML === "⚡ 情报终端就绪 | 等待授权指令") feedbackSpan.innerHTML = "";
-            }, 2800);
-        }, 600);
+        // 确保页面不会因为头像加载失败而影响体验
+        console.log("G.R.I.M. 黑色行动终端已上线 | 等待授权指令");
     </script>
 </body>
 </html>
