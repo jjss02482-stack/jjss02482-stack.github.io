@@ -1,744 +1,615 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>G.R.I.M. 机密战术档案 // 全球态势图</title>
-<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    user-select: none;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>G.R.I.M. 战术情报终端 | 情报先行 精准打击</title>
+    <!-- 引入 Google Fonts 等宽字体，增强科技感 -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        /* 全局重置与基础风格 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Share Tech Mono', 'Space Mono', monospace;
+            background-color: #000000;
+            color: #e0f2fe;
+        }
 
-  body {
-    background-color: #0a0202;
-    font-family: 'Courier New', 'American Typewriter', 'Special Elite', monospace;
-    overflow-x: hidden;
-    scroll-behavior: smooth;
-    position: relative;
-  }
+        /* Three.js 画布作为动态背景 */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            display: block;
+        }
 
-  /* CRT 扫描线效果 */
-  body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: repeating-linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.15) 0px,
-      rgba(0, 0, 0, 0.15) 2px,
-      transparent 2px,
-      transparent 6px
-    );
-    pointer-events: none;
-    z-index: 9999;
-  }
+        /* 主内容层，半透明遮罩与科技感边框 */
+        .content-overlay {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.85) 100%);
+            backdrop-filter: blur(2px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: auto;
+        }
 
-  /* 老旧电视闪烁动画 */
-  @keyframes flicker {
-    0% { opacity: 0.97; }
-    100% { opacity: 1; }
-  }
-  body {
-    animation: flicker 0.15s infinite alternate;
-  }
+        /* 顶部状态栏 / 标识区 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 20px 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+        }
+        .agency-badge {
+            font-size: 1rem;
+            letter-spacing: 2px;
+            font-weight: 700;
+            text-shadow: 0 0 5px #0ff;
+        }
+        .agency-badge .top-secret {
+            color: #ff4d4d;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 0.75rem;
+            margin-left: 10px;
+            border-left: 2px solid #ff4d4d;
+        }
+        .status-pulse {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #0f0;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #0f0;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.4; transform: scale(0.8);}
+            100% { opacity: 1; transform: scale(1.2);}
+        }
 
-  /* 整体深红色滤镜 */
-  body::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(80, 20, 20, 0.2);
-    pointer-events: none;
-    z-index: 9998;
-    mix-blend-mode: multiply;
-  }
+        /* 中央情报日志区域 */
+        .intel-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 550px;
+            margin-left: 5%;
+            margin-top: -5%;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            border-left: 4px solid #0ff;
+            border-right: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 20px 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 15px rgba(0,255,255,0.1);
+        }
+        .log-header {
+            font-size: 0.8rem;
+            color: #0ff;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed rgba(0,255,255,0.4);
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+        .log-entry {
+            margin-bottom: 22px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            border-left: 2px solid rgba(0,255,255,0.3);
+            padding-left: 14px;
+            transition: all 0.2s;
+        }
+        .log-entry strong {
+            color: #ffcc66;
+            font-weight: 700;
+        }
+        .log-entry .timestamp {
+            color: #66ffcc;
+            font-size: 0.7rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .motto {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            text-align: right;
+            color: #88ffff;
+            text-shadow: 0 0 3px #00aaff;
+            border-top: 1px solid rgba(0,255,255,0.3);
+            padding-top: 12px;
+            letter-spacing: 1px;
+        }
 
-  /* 自定义滚动条 */
-  ::-webkit-scrollbar {
-    width: 8px;
-    background: #2c0a0a;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #8b2c2c;
-    border-radius: 0;
-    box-shadow: inset 0 0 3px #3a0000;
-  }
+        /* 右侧探员形象 (SVG 科技感特工) */
+        .agent-portrait {
+            position: absolute;
+            bottom: 30px;
+            right: 4%;
+            width: 260px;
+            z-index: 10;
+            filter: drop-shadow(0 0 12px rgba(0, 255, 255, 0.4));
+            transition: transform 0.3s ease;
+            pointer-events: none;
+        }
+        .agent-portrait svg {
+            width: 100%;
+            height: auto;
+            opacity: 0.92;
+        }
+        /* 底部授权区 */
+        .auth-section {
+            background: linear-gradient(0deg, rgba(0,0,0,0.8), rgba(0,0,0,0.4));
+            padding: 18px 30px 25px;
+            border-top: 1px solid rgba(0, 255, 255, 0.4);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .auth-prompt {
+            font-size: 0.9rem;
+            letter-spacing: 1.5px;
+        }
+        .auth-prompt span {
+            color: #ffaa44;
+            font-weight: bold;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 15px;
+            border-radius: 40px;
+            border: 1px solid #0ff;
+            box-shadow: 0 0 8px rgba(0,255,255,0.3);
+        }
+        .input-group input {
+            background: transparent;
+            border: none;
+            color: #0ff;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            padding: 8px 5px;
+            width: 220px;
+            outline: none;
+        }
+        .input-group input::placeholder {
+            color: #6688aa;
+            font-size: 0.8rem;
+        }
+        .input-group button {
+            background: #0ff22d00;
+            border: 1px solid #0ff;
+            color: #0ff;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-family: monospace;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+        }
+        .input-group button:hover {
+            background: #0ff;
+            color: #000;
+            box-shadow: 0 0 12px #0ff;
+        }
+        .copy-sim {
+            font-size: 0.7rem;
+            color: #aaf;
+            text-decoration: underline;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .copy-sim:hover {
+            color: #fff;
+            text-shadow: 0 0 3px #0ff;
+        }
+        .feedback-msg {
+            font-size: 0.7rem;
+            color: #88ff88;
+            margin-left: 10px;
+        }
 
-  /* 背景画布（世界地图底图） */
-  #combat-canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: block;
-    z-index: 0;
-    pointer-events: none;
-    background: radial-gradient(circle at 30% 30%, #1a0505 0%, #020000 100%);
-  }
+        /* 响应式调整 */
+        @media (max-width: 780px) {
+            .intel-panel {
+                max-width: 85%;
+                margin-left: 5%;
+                margin-top: 15%;
+                padding: 15px;
+            }
+            .agent-portrait {
+                width: 160px;
+                bottom: 15px;
+                right: 10px;
+                opacity: 0.85;
+            }
+            .auth-section {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 15px;
+            }
+            .input-group {
+                justify-content: space-between;
+            }
+            .log-entry {
+                font-size: 0.7rem;
+            }
+        }
 
-  /* 顶部机密栏 */
-  .classified-header {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    height: 62px;
-    background: rgba(8, 0, 0, 0.94);
-    border-bottom: 3px solid #8b1a1a;
-    backdrop-filter: blur(2px);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 25px;
-    z-index: 1100;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    box-shadow: 0 0 12px rgba(120, 0, 0, 0.5);
-  }
-  .classified-header span, .classified-header div {
-    color: #cc7a7a;
-    text-shadow: 0 0 3px #5a0000;
-  }
-  .top-secret {
-    background: #2a0000;
-    padding: 4px 12px;
-    border-left: 3px solid #ff4444;
-    font-size: 12px;
-    letter-spacing: 2px;
-  }
-  .coords-vintage {
-    background: #1a0404;
-    padding: 3px 10px;
-    border: 1px solid #8b3c3c;
-    font-family: monospace;
-    font-size: 12px;
-  }
-  .us-crest {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    background: #150000;
-    padding: 3px 12px;
-    font-size: 14px;
-    letter-spacing: 2px;
-  }
-  .us-crest span {
-    font-size: 18px;
-  }
-
-  /* 右侧数据面板（机密档案风格） */
-  .archive-panel {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1150;
-    background: rgba(8, 0, 0, 0.88);
-    border-left: 4px solid #9b2c2c;
-    padding: 12px 18px;
-    font-family: 'Courier New', monospace;
-    text-align: right;
-    pointer-events: none;
-    backdrop-filter: blur(4px);
-    min-width: 170px;
-    box-shadow: 4px 4px 12px rgba(0,0,0,0.5);
-  }
-  .archive-panel .label {
-    color: #bb6b6b;
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    font-weight: bold;
-  }
-  .archive-panel .value {
-    font-size: 22px;
-    font-weight: 900;
-    color: #cc5a5a;
-    line-height: 1;
-    text-shadow: 0 0 2px #8b0000;
-  }
-  .archive-panel hr {
-    border-color: #8b3c3c;
-    margin: 5px 0;
-  }
-  .red-stripe {
-    background: #8b1a1a;
-    height: 2px;
-    width: 100%;
-    margin: 6px 0;
-  }
-
-  /* 鼠标雷达环（老旧扫描） */
-  #radar-ring {
-    position: fixed;
-    width: 100px;
-    height: 100px;
-    border: 2px solid #aa4a4a;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    z-index: 1300;
-    opacity: 0;
-    transition: opacity 0.08s;
-    box-shadow: 0 0 10px #aa4a4a;
-    background: radial-gradient(circle, rgba(150,40,40,0.2) 0%, rgba(0,0,0,0) 80%);
-  }
-
-  /* 主内容区 */
-  .content-layer {
-    position: relative;
-    z-index: 50;
-    padding-top: 90px;
-  }
-
-  .section {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px 24px;
-  }
-
-  /* 老式档案卡片 */
-  .vintage-card {
-    width: 85%;
-    max-width: 1000px;
-    background: rgba(10, 2, 2, 0.92);
-    border: 1px solid #8b2c2c;
-    padding: 40px 50px;
-    box-shadow: 12px 12px 0px rgba(60, 0, 0, 0.4);
-    transition: 0.2s;
-    backdrop-filter: blur(2px);
-    position: relative;
-  }
-  .vintage-card::before {
-    content: "// CLASSIFIED //";
-    position: absolute;
-    top: -12px;
-    left: 20px;
-    background: #2a0000;
-    color: #cc7a7a;
-    font-size: 10px;
-    padding: 2px 12px;
-    letter-spacing: 2px;
-    font-family: monospace;
-    border: 1px solid #8b2c2c;
-  }
-  .vintage-card:hover {
-    transform: translate(2px, 2px);
-    box-shadow: 8px 8px 0px #4a0000;
-    border-color: #cc5555;
-  }
-  h2 {
-    font-size: 2.5rem;
-    font-family: 'Courier New', 'American Typewriter', monospace;
-    border-left: 6px solid #b22222;
-    padding-left: 20px;
-    margin-bottom: 24px;
-    letter-spacing: 2px;
-    color: #cc7a7a;
-    text-transform: uppercase;
-    text-shadow: 2px 2px 0px #2a0000;
-  }
-  p {
-    font-size: 1.15rem;
-    line-height: 1.7;
-    font-family: 'Courier New', monospace;
-    font-weight: 500;
-    color: #c9a5a5;
-    text-align: justify;
-  }
-  .header-title {
-    font-size: 6rem;
-    font-family: 'Courier New', 'American Typewriter', monospace;
-    letter-spacing: 8px;
-    text-shadow: 5px 5px 0px #3a0000;
-    text-align: center;
-    color: #b55a5a;
-    font-weight: 900;
-  }
-  .header-subtitle {
-    font-size: 1.3rem;
-    letter-spacing: 3px;
-    text-align: center;
-    margin-top: 15px;
-    border-top: 1px solid #8b3c3c;
-    display: inline-block;
-    padding-top: 15px;
-    font-weight: bold;
-  }
-  .scroll-hint {
-    margin-top: 130px;
-    animation: pulseRed 1.4s infinite;
-    font-size: 0.9rem;
-    font-weight: bold;
-    letter-spacing: 3px;
-    color: #cc7a7a;
-  }
-  @keyframes pulseRed {
-    0%, 100% { opacity: 0.5; text-shadow: 0 0 2px #a22; }
-    50% { opacity: 1; text-shadow: 0 0 8px #c44; }
-  }
-
-  /* 底部誓言区（老旧美式） */
-  .footer-oath {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #3a0a0a 0%, #1a0101 100%);
-    color: #cc9a9a;
-    text-align: center;
-    border-top: 4px solid #8b2c2c;
-    border-bottom: 4px solid #8b2c2c;
-    position: relative;
-  }
-  .footer-oath::before {
-    content: "⚔️ ★ ⚔️";
-    position: absolute;
-    top: 30px;
-    font-size: 28px;
-    letter-spacing: 10px;
-    color: #aa5a5a;
-    opacity: 0.4;
-  }
-  .footer-oath h1 {
-    font-size: 5vw;
-    font-family: 'Courier New', monospace;
-    margin: 0;
-    letter-spacing: 0.2em;
-    text-shadow: 3px 3px 0px #2a0000;
-  }
-  .footer-oath p {
-    font-weight: bold;
-    letter-spacing: 4px;
-    margin-top: 25px;
-    font-size: 1.3rem;
-    color: #bb7a7a;
-  }
-  .us-flag-stripe {
-    width: 70%;
-    height: 4px;
-    background: repeating-linear-gradient(90deg, #ffffff, #ffffff 40px, #b22234 40px, #b22234 80px);
-    margin-top: 35px;
-    opacity: 0.6;
-  }
-
-  /* 美国鹰章（老式） */
-  .vintage-eagle {
-    position: fixed;
-    bottom: 18px;
-    left: 18px;
-    width: 52px;
-    height: 52px;
-    opacity: 0.45;
-    z-index: 1100;
-    pointer-events: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path fill="%238b1a1a" d="M32,4 L40,24 L62,24 L45,38 L52,58 L32,46 L12,58 L19,38 L2,24 L24,24 Z" stroke="%23cc8844" stroke-width="1.2" fill="%238b3c3c"/><circle cx="32" cy="28" r="5" fill="%23aa6a3a" stroke="%23ffaa55"/></svg>');
-    background-size: contain;
-    background-repeat: no-repeat;
-    filter: sepia(0.4);
-  }
-
-  /* 解密印章 */
-  .declass-stamp {
-    position: fixed;
-    bottom: 40px;
-    right: 30px;
-    font-family: monospace;
-    font-size: 10px;
-    color: #8b3c3c;
-    background: rgba(0,0,0,0.4);
-    padding: 3px 8px;
-    letter-spacing: 2px;
-    z-index: 1100;
-    pointer-events: none;
-    transform: rotate(-5deg);
-    border: 1px dashed #aa4a4a;
-  }
-
-  @media (max-width: 780px) {
-    .header-title { font-size: 3.2rem; letter-spacing: 4px; }
-    .vintage-card { padding: 25px 20px; }
-    h2 { font-size: 1.8rem; }
-    p { font-size: 0.95rem; }
-    .classified-header { padding: 0 12px; font-size: 9px; }
-    .archive-panel { padding: 8px 12px; bottom: 12px; right: 12px; }
-    .archive-panel .value { font-size: 18px; }
-    .vintage-eagle { width: 38px; height: 38px; }
-    .declass-stamp { font-size: 8px; bottom: 25px; right: 15px; }
-  }
-</style>
+        /* 光标闪烁特效 */
+        .cursor-blink {
+            display: inline-block;
+            width: 8px;
+            height: 14px;
+            background-color: #0ff;
+            vertical-align: middle;
+            margin-left: 4px;
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
 </head>
 <body>
 
-<!-- 顶部机密栏 -->
-<div class="classified-header">
-  <span>📡 G.R.I.M. // 全球侦查与渗透海军陆战队</span>
-  <div class="top-secret">⚠️ TOP SECRET // NOFORN ⚠️</div>
-  <div class="us-crest">
-    <span>🇺🇸</span> <span>E PLURIBUS UNUM</span>
-  </div>
-  <span class="coords-vintage" id="dynamicCoords">LAT: 35.6895 LON: 139.6917</span>
-  <span>🔻 强者之列 🔻</span>
-</div>
+    <!-- Three.js 地球背景容器 -->
+    <div id="canvas-container"></div>
 
-<canvas id="combat-canvas"></canvas>
-<div id="radar-ring"></div>
+    <div class="content-overlay">
+        <div class="top-bar">
+            <div class="agency-badge">
+                ⚡ G.R.I.M. · 战术情报终端 
+                <span class="top-secret">TOP SECRET // GRIM-EYE</span>
+            </div>
+            <div class="status-pulse">
+                <div class="pulse-dot"></div>
+                <span>战术数据链在线 | 加密信道 ACTIVE</span>
+            </div>
+        </div>
 
-<!-- 右侧机密档案面板 -->
-<div class="archive-panel">
-  <div class="label">ACTIVE TARGETS</div>
-  <div class="value" id="hardTargetCount">0</div>
-  <div class="red-stripe"></div>
-  <div class="label">两栖战备率</div>
-  <div class="value" id="combatReadiness">100%</div>
-  <hr>
-  <div class="label">协同单元</div>
-  <div class="value" id="unitCode">GRIM-7</div>
-  <div class="label">情报链状态</div>
-  <div class="value" id="killChain">STANDBY</div>
-</div>
+        <!-- 中央情报日志，展示背景故事中的关键训令及态势感知 -->
+        <div class="intel-panel">
+            <div class="log-header">► 实时态势感知 / 行动简报 [GRIM-2026-03]</div>
+            <div class="log-entry">
+                <span class="timestamp">[情报简报] 22:47:03 ZULU</span>
+                “情报先行，精准打击。” 根据卫星与信号情报融合，目标区域存在多斯家族附属武装力量，部署三支快速反应分队。建议利用夜间能见度窗口渗透，规避常规侦察。
+            </div>
+            <div class="log-entry">
+                <span class="timestamp">[战术协同] 22:52:17 ZULU</span>
+                突袭组需与情报部保持<strong>实时全双工数据链</strong>，每一次决策必须基于动态战场态势图。小队协同优先于单兵突进，<strong>后背交给战友</strong>，保持通讯静默以外频段备用。
+            </div>
+            <div class="log-entry">
+                <span class="timestamp">[装备哲学] 22:58:44 ZULU</span>
+                制式装备已通过自检，遵循<strong>“官方标准，个人优化”</strong>原则，鼓励任务定制升级。当前夜视仪、单兵数据终端状态绿区，熟练技战术胜过依赖器材。
+            </div>
+            <div class="motto">
+                “勇气与纪律是基石 — 保持冷静，继续前行”
+            </div>
+        </div>
 
-<div class="vintage-eagle"></div>
-<div class="declass-stamp">DECLASSIFIED // EYES ONLY</div>
+        <!-- 右侧特工人物形象 (SVG 高级战术特工风格) -->
+        <div class="agent-portrait">
+            <svg viewBox="0 0 300 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="2.5"/>
+                        <feMerge>
+                            <feMergeNode in="offsetblur" />
+                            <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                        <feColorMatrix type="saturate" values="1.2"/>
+                    </filter>
+                    <linearGradient id="armorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#2a6f6f"/>
+                        <stop offset="100%" stop-color="#0f2b2b"/>
+                    </linearGradient>
+                </defs>
+                <!-- 战术头盔轮廓 + 耳机 -->
+                <path d="M100,100 L200,100 Q220,110 220,130 L220,170 Q210,180 200,180 L100,180 Q90,180 80,170 L80,130 Q80,110 100,100Z" fill="url(#armorGrad)" stroke="#0ff" stroke-width="1.8" filter="url(#glow)"/>
+                <!-- 护目镜 / 战术眼镜 -->
+                <rect x="120" y="130" width="25" height="20" rx="4" fill="#001d3d" stroke="#0ff" stroke-width="1.2"/>
+                <rect x="155" y="130" width="25" height="20" rx="4" fill="#001d3d" stroke="#0ff" stroke-width="1.2"/>
+                <circle cx="132.5" cy="140" r="3" fill="#0ff"/>
+                <circle cx="167.5" cy="140" r="3" fill="#0ff"/>
+                <!-- 面罩呼吸器 -->
+                <path d="M140 160 L160 160 Q165 165 150 170 Q135 165 140 160Z" fill="#2c3e50" stroke="#0ff" stroke-width="1"/>
+                <!-- 战术背心与肩部轮廓 -->
+                <path d="M90 180 L210 180 L200 240 L100 240 L90 180Z" fill="#1a3a3a" stroke="#0ff" stroke-width="1.2" opacity="0.9"/>
+                <path d="M130 200 L170 200 L165 230 L135 230 L130 200Z" fill="#0b2b26" stroke="#5effbc" stroke-width="1"/>
+                <!-- 通讯器/肩部模块 -->
+                <rect x="200" y="160" width="22" height="18" rx="3" fill="#2c4f4f" stroke="#0ff" stroke-width="1"/>
+                <rect x="78" y="160" width="22" height="18" rx="3" fill="#2c4f4f" stroke="#0ff" stroke-width="1"/>
+                <!-- 战术臂章 GRIM -->
+                <text x="135" y="220" fill="#0ff" font-size="12" font-family="monospace" font-weight="bold">GRIM</text>
+                <!-- 领口麦克风线条 -->
+                <path d="M150 170 L152 178 L148 178 L150 170" fill="#88aaff" stroke="#0ff"/>
+                <!-- 细微战术光点 -->
+                <circle cx="210" cy="185" r="2" fill="#0ff" opacity="0.7"/>
+                <circle cx="90" cy="185" r="2" fill="#0ff" opacity="0.7"/>
+            </svg>
+        </div>
 
-<div class="content-layer">
-  <section class="section">
-    <div style="text-align: center;">
-      <h1 class="header-title">G.R.I.M.</h1>
-      <p class="header-subtitle">GLOBAL RECON & INTERVENTION MARINES</p>
-      <p class="scroll-hint">▼ 滚动以浏览机密档案 ▼</p>
+        <!-- 底部授权与行动指令区 (模仿原网页授权码风格) -->
+        <div class="auth-section">
+            <div class="auth-prompt">
+                [G.R.I.M. 中央情报数据库] <span>// 行动授权协议 v2.6</span><br>
+                ENTER AUTHORIZATION CODE_ <span class="cursor-blink"></span>
+            </div>
+            <div class="input-group">
+                <input type="text" id="authCode" placeholder="输入战术授权码 (例: GRIM-226)" autocomplete="off">
+                <button id="verifyBtn">验证并同步</button>
+                <span id="feedback" class="feedback-msg"></span>
+            </div>
+            <div class="copy-sim" id="copyLinkHint">
+                🔗 复制战术链接至作战终端
+            </div>
+        </div>
     </div>
-  </section>
 
-  <section class="section">
-    <div class="vintage-card">
-      <h2>01. 情报先行</h2>
-      <p>在G.R.I.M.，我们信奉“情报先行，精准打击”。每一次成功的行动都源于周密的情报搜集与风险评估。踏入任务区域前，你必须对敌方部署、地形地貌及潜在威胁了如指掌。我们不打无准备之仗，更拒绝无谓的牺牲。利用一切可用资源，构建完整的战场态势图。</p>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="vintage-card">
-      <h2>02. 协同作战</h2>
-      <p>作为一支精锐的两栖力量，单兵作战能力固然重要，但小队的无缝协同才是制胜关键。突袭组必须与情报部保持实时通讯，确保战术行动与战略目标高度一致。在执行任务时，明确的分工、简洁的指令和绝对的信任是生存的基石。请时刻牢记，你的后背交给了战友，你的每一次行动都影响着整个小队的安危。</p>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="vintage-card">
-      <h2>03. 装备哲学</h2>
-      <p>G.R.I.M.遵循“官方标准，个人优化”的装备哲学。你必须确保所有制式装备处于最佳状态，并熟练掌握其操作。我们鼓励你根据任务需求和个人习惯，对装备进行自费升级与定制，以最大化你的作战效能。但请记住，无论装备如何精良，熟练的技战术才是决定战局的根本。</p>
-    </div>
-  </section>
-
-  <section class="footer-oath">
-    <h1>勇气 · 纪律</h1>
-    <h1>强者之列</h1>
-    <p>保持冷静 · 继续前行</p>
-    <div class="us-flag-stripe"></div>
-  </section>
-</div>
-
-<script>
-  (function() {
-    // ========= 世界地图绘制（深红复古风格） ==========
-    const canvas = document.getElementById('combat-canvas');
-    const ctx = canvas.getContext('2d');
-    
-    const TARGET_COUNT = 24;
-    let targets = [];
-    let mouseX = -500, mouseY = -500;
-    const radarRing = document.getElementById('radar-ring');
-    
-    const hardTargetSpan = document.getElementById('hardTargetCount');
-    const combatReadinessSpan = document.getElementById('combatReadiness');
-    const unitCodeSpan = document.getElementById('unitCode');
-    const killChainSpan = document.getElementById('killChain');
-    
-    // ----- 世界地图轮廓数据（简化多边形）-----
-    // 坐标范围归一化 0-1，基于墨卡托投影的简单表示
-    const continents = [
-      // 北美洲
-      { points: [[0.10,0.25],[0.28,0.22],[0.38,0.28],[0.40,0.35],[0.33,0.45],[0.22,0.48],[0.12,0.42],[0.08,0.35],[0.10,0.25]], color: '#6a2a2a' },
-      // 南美洲
-      { points: [[0.32,0.65],[0.40,0.68],[0.44,0.62],[0.48,0.55],[0.44,0.52],[0.36,0.52],[0.32,0.58],[0.30,0.63],[0.32,0.65]], color: '#6a2a2a' },
-      // 欧亚大陆西部 (欧洲+亚洲西部)
-      { points: [[0.55,0.28],[0.62,0.25],[0.70,0.28],[0.78,0.32],[0.82,0.38],[0.80,0.45],[0.72,0.48],[0.64,0.45],[0.58,0.42],[0.52,0.38],[0.52,0.32],[0.55,0.28]], color: '#6a2a2a' },
-      // 亚洲东部 (中国、东南亚)
-      { points: [[0.78,0.35],[0.88,0.33],[0.92,0.38],[0.94,0.45],[0.88,0.48],[0.82,0.46],[0.78,0.42],[0.76,0.38],[0.78,0.35]], color: '#6a2a2a' },
-      // 非洲
-      { points: [[0.52,0.55],[0.60,0.52],[0.66,0.55],[0.68,0.60],[0.64,0.65],[0.58,0.68],[0.52,0.65],[0.50,0.60],[0.52,0.55]], color: '#6a2a2a' },
-      // 澳洲
-      { points: [[0.82,0.68],[0.88,0.67],[0.92,0.72],[0.88,0.75],[0.82,0.74],[0.80,0.70],[0.82,0.68]], color: '#6a2a2a' },
-      // 南极洲（底部细条）
-      { points: [[0.05,0.92],[0.20,0.90],[0.40,0.89],[0.60,0.89],[0.80,0.90],[0.95,0.92],[0.90,0.97],[0.10,0.97],[0.05,0.92]], color: '#4a1a1a' }
-    ];
-    
-    // 绘制世界地图（填充+边缘）
-    function drawWorldMap(w, h) {
-      for (let cont of continents) {
-        ctx.beginPath();
-        for (let i = 0; i < cont.points.length; i++) {
-          const px = cont.points[i][0] * w;
-          const py = cont.points[i][1] * h;
-          if (i === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
+    <!-- 引入 Three.js 核心库 -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+            }
         }
-        ctx.closePath();
-        ctx.fillStyle = cont.color;
-        ctx.fill();
-        ctx.strokeStyle = '#9b3c3c';
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-      }
-    }
-    
-    // 添加老旧经纬网
-    function drawLatLonGrid(w, h) {
-      ctx.beginPath();
-      ctx.strokeStyle = '#732a2a';
-      ctx.lineWidth = 0.8;
-      // 经线
-      for (let lon = 0; lon <= 360; lon += 30) {
-        const x = (lon / 360) * w;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-      // 纬线
-      for (let lat = -60; lat <= 60; lat += 30) {
-        const y = ((lat + 90) / 180) * h;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
-    }
-    
-    // 任务点系统
-    function initTargets() {
-      targets = [];
-      for (let i = 0; i < TARGET_COUNT; i++) {
-        targets.push({
-          x: Math.random(),
-          y: Math.random(),
-          vx: (Math.random() - 0.5) * 0.0028,
-          vy: (Math.random() - 0.5) * 0.0028,
-          size: 3 + Math.random() * 4,
-          pulseSpeed: 0.6 + Math.random() * 0.8,
-          phase: Math.random() * Math.PI * 2,
-          isHighValue: Math.random() > 0.85
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- 初始化场景、相机、渲染器 (透明背景，用于叠加) ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = null; // 透明，让CSS黑色背景透出
+        scene.fog = new THREE.FogExp2(0x000000, 0.0008); // 轻微雾效增加深邃感
+
+        // 透视相机 (视角,宽高比,近平面,远平面)
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0.5, 4.2);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // alpha 透明
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // --- 创建地球 ---
+        // 加载高分辨率地球纹理 (使用可靠的三层贴图：漫反射+凹凸+云层可简化，这里主漫反射 + 高光)
+        const textureLoader = new THREE.TextureLoader();
+        // 使用高质量的NASA风格地球贴图 (来自Three.js示例库，允许跨域)
+        const earthMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
+        const earthSpecularMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_specular_2048.jpg');
+        const earthNormalMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_normal_2048.jpg');
+        const cloudMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_clouds_1024.png');
+        
+        // 地球网格
+        const earthGeometry = new THREE.SphereGeometry(1.5, 128, 128);
+        const earthMaterial = new THREE.MeshPhongMaterial({
+            map: earthMap,
+            specularMap: earthSpecularMap,
+            specular: new THREE.Color('grey'),
+            shininess: 5,
+            normalMap: earthNormalMap,
+            normalScale: new THREE.Vector2(0.8, 0.8)
         });
-      }
-    }
-    
-    function updateTargets() {
-      for (let t of targets) {
-        t.x += t.vx;
-        t.y += t.vy;
-        if (t.x <= 0) { t.x = 0; t.vx = Math.abs(t.vx); }
-        if (t.x >= 1) { t.x = 1; t.vx = -Math.abs(t.vx); }
-        if (t.y <= 0) { t.y = 0; t.vy = Math.abs(t.vy); }
-        if (t.y >= 1) { t.y = 1; t.vy = -Math.abs(t.vy); }
-        let maxSpeed = 0.005;
-        if (Math.abs(t.vx) > maxSpeed) t.vx = t.vx > 0 ? maxSpeed : -maxSpeed;
-        if (Math.abs(t.vy) > maxSpeed) t.vy = t.vy > 0 ? maxSpeed : -maxSpeed;
-      }
-    }
-    
-    function drawTargets(w, h, now) {
-      for (let t of targets) {
-        const px = t.x * w;
-        const py = t.y * h;
-        const pulse = 0.6 + 0.5 * Math.sin(now * 0.0045 * t.pulseSpeed + t.phase);
-        const radius = t.size * (0.7 + pulse * 0.4);
+        const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+        scene.add(earth);
         
-        ctx.beginPath();
-        ctx.arc(px, py, radius + 5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(120, 30, 30, 0.3)`;
-        ctx.fill();
+        // 云层效果 (额外半透明球体)
+        const cloudGeometry = new THREE.SphereGeometry(1.52, 128, 128);
+        const cloudMaterial = new THREE.MeshPhongMaterial({
+            map: cloudMap,
+            transparent: true,
+            opacity: 0.12,
+            blending: THREE.AdditiveBlending
+        });
+        const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
+        scene.add(clouds);
         
-        ctx.beginPath();
-        ctx.arc(px, py, radius * 0.8, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(170, 50, 50, 0.9)`;
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(px, py, radius * 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = `#aa5a5a`;
-        ctx.fill();
-        
-        if (t.isHighValue) {
-          ctx.beginPath();
-          ctx.lineWidth = 1;
-          ctx.strokeStyle = `#aa6a4a`;
-          ctx.moveTo(px - 10, py);
-          ctx.lineTo(px - 4, py);
-          ctx.moveTo(px + 4, py);
-          ctx.lineTo(px + 10, py);
-          ctx.moveTo(px, py - 10);
-          ctx.lineTo(px, py - 4);
-          ctx.moveTo(px, py + 4);
-          ctx.lineTo(px, py + 10);
-          ctx.stroke();
+        // 星空粒子系统 (增加深邃宇宙感)
+        const starGeometry = new THREE.BufferGeometry();
+        const starCount = 2800;
+        const starPositions = new Float32Array(starCount * 3);
+        for (let i = 0; i < starCount; i++) {
+            // 分布在较大半径范围内
+            starPositions[i*3] = (Math.random() - 0.5) * 800;
+            starPositions[i*3+1] = (Math.random() - 0.5) * 500;
+            starPositions[i*3+2] = (Math.random() - 0.5) * 300 - 80;
         }
-      }
-    }
-    
-    function drawLinks(w, h) {
-      const maxDistSq = 0.1 * 0.1;
-      for (let i = 0; i < targets.length; i++) {
-        for (let j = i+1; j < targets.length; j++) {
-          const a = targets[i];
-          const b = targets[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const distSq = dx*dx + dy*dy;
-          if (distSq < maxDistSq) {
-            const intensity = 1 - (distSq / maxDistSq);
-            const alpha = 0.2 + intensity * 0.25;
-            ctx.beginPath();
-            ctx.moveTo(a.x * w, a.y * h);
-            ctx.lineTo(b.x * w, b.y * h);
-            ctx.strokeStyle = `rgba(150, 60, 60, ${alpha})`;
-            ctx.lineWidth = 1;
-            ctx.stroke();
-          }
-        }
-      }
-    }
-    
-    function drawScanner(w, h, now) {
-      if (mouseX > 0 && mouseX < w && mouseY > 0 && mouseY < h) {
-        ctx.beginPath();
-        ctx.arc(mouseX, mouseY, 68, 0, Math.PI*2);
-        ctx.strokeStyle = '#aa5a5a';
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(mouseX, mouseY, 32, 0, Math.PI*2);
-        ctx.strokeStyle = '#aa5a5a';
-        ctx.stroke();
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+        const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.25, transparent: true, opacity: 0.7 });
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
         
-        const angle = (Date.now() * 0.0045) % (Math.PI*2);
-        ctx.beginPath();
-        ctx.moveTo(mouseX, mouseY);
-        ctx.lineTo(mouseX + Math.cos(angle)*80, mouseY + Math.sin(angle)*80);
-        ctx.strokeStyle = '#cc6a6a';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-    }
-    
-    function addStaticNoise(w, h) {
-      if (Math.random() < 0.2) {
-        for (let i = 0; i < 8; i++) {
-          ctx.fillStyle = `rgba(100, 20, 20, 0.2)`;
-          ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
+        // 额外添加远处闪烁粒子（第二层星尘）
+        const starGeo2 = new THREE.BufferGeometry();
+        const starCount2 = 1500;
+        const pos2 = new Float32Array(starCount2 * 3);
+        for (let i = 0; i < starCount2; i++) {
+            pos2[i*3] = (Math.random() - 0.5) * 1200;
+            pos2[i*3+1] = (Math.random() - 0.5) * 700;
+            pos2[i*3+2] = (Math.random() - 0.5) * 400 - 150;
         }
-      }
-    }
-    
-    let readiness = 96;
-    function updateStats() {
-      hardTargetSpan.innerText = TARGET_COUNT;
-      readiness += (Math.random() - 0.5) * 0.8;
-      readiness = Math.min(100, Math.max(90, readiness));
-      combatReadinessSpan.innerText = Math.floor(readiness) + '%';
-      const units = ['两栖群-7', 'GRIM-7', '先锋连', '突击组'];
-      if (Math.random() < 0.04) unitCodeSpan.innerText = units[Math.floor(Math.random() * units.length)];
-      const states = ['情报同步', '协同就绪', 'ACTIVE', 'STANDBY'];
-      if (Math.random() < 0.08) killChainSpan.innerText = states[Math.floor(Math.random() * states.length)];
-    }
-    
-    function updateCoords() {
-      const coordsEl = document.getElementById('dynamicCoords');
-      if (coordsEl) {
-        const lat = (Math.random() * 180 - 90).toFixed(3);
-        const lon = (Math.random() * 360 - 180).toFixed(3);
-        coordsEl.innerHTML = `LAT: ${lat} LON: ${lon}`;
-      }
-    }
-    
-    function onMouseMove(e) {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      if (radarRing) {
-        radarRing.style.left = mouseX + 'px';
-        radarRing.style.top = mouseY + 'px';
-        radarRing.style.opacity = '0.7';
-        setTimeout(() => { if(radarRing) radarRing.style.opacity = '0'; }, 130);
-      }
-    }
-    function onMouseLeave() {
-      mouseX = -1000;
-      mouseY = -1000;
-      if (radarRing) radarRing.style.opacity = '0';
-    }
-    
-    let lastStat = 0;
-    function render(now) {
-      if (!canvas || !ctx) return;
-      const w = canvas.width = window.innerWidth;
-      const h = canvas.height = window.innerHeight;
-      
-      // 半透明清屏，保留拖尾
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-      ctx.fillRect(0, 0, w, h);
-      
-      // 绘制世界地图底图
-      drawWorldMap(w, h);
-      // 绘制经纬网（增加军事地图感）
-      drawLatLonGrid(w, h);
-      // 更新任务点位置
-      updateTargets();
-      // 绘制连线
-      drawLinks(w, h);
-      // 绘制任务点（红色脉冲）
-      drawTargets(w, h, now);
-      // 鼠标扫描环
-      drawScanner(w, h, now);
-      // 老旧噪点
-      addStaticNoise(w, h);
-      
-      if (now - lastStat > 1300) {
-        updateStats();
-        lastStat = now;
-      }
-      
-      requestAnimationFrame(render);
-    }
-    
-    function resizeCanvas() {
-      if (canvas) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-    }
-    
-    function init() {
-      initTargets();
-      resizeCanvas();
-      window.addEventListener('resize', resizeCanvas);
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseleave', onMouseLeave);
-      setInterval(updateCoords, 2100);
-      render(Date.now());
-    }
-    
-    init();
-  })();
-</script>
+        starGeo2.setAttribute('position', new THREE.BufferAttribute(pos2, 3));
+        const starMat2 = new THREE.PointsMaterial({ color: 0xaaffff, size: 0.18, transparent: true, opacity: 0.5 });
+        const stars2 = new THREE.Points(starGeo2, starMat2);
+        scene.add(stars2);
+        
+        // --- 光照系统 营造立体感 ---
+        // 环境光
+        const ambientLight = new THREE.AmbientLight(0x111122);
+        scene.add(ambientLight);
+        // 主光源方向光
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(5, 3, 5);
+        scene.add(dirLight);
+        // 补光背光暖色
+        const backLight = new THREE.PointLight(0x4466cc, 0.5);
+        backLight.position.set(-2, 1, -3);
+        scene.add(backLight);
+        // 增加一个微弱的全局点光源，凸显地球暗部细节
+        const fillLight = new THREE.PointLight(0x336699, 0.3);
+        fillLight.position.set(1, 2, 2);
+        scene.add(fillLight);
+        
+        // 可选: 围绕地球的淡淡光晕 (加一个极简光环)
+        const glowGeometry = new THREE.SphereGeometry(1.58, 32, 32);
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: 0x2266aa,
+            transparent: true,
+            opacity: 0.05,
+            side: THREE.BackSide
+        });
+        const glowHalo = new THREE.Mesh(glowGeometry, glowMaterial);
+        scene.add(glowHalo);
+        
+        // --- 辅助动画: 让地球自转，云层稍快，星星缓慢移动增加沉浸 ---
+        let time = 0;
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            time += 0.005;
+            
+            // 地球自转
+            earth.rotation.y += 0.0018;
+            // 云层以稍快速度旋转，产生流动感
+            clouds.rotation.y += 0.0022;
+            // 星星粒子系统整体缓慢旋转，营造宇宙漫游感
+            stars.rotation.y += 0.0002;
+            stars.rotation.x += 0.0001;
+            stars2.rotation.y -= 0.00015;
+            
+            // 动态轻微改变背景光强度，模拟呼吸感
+            const intensity = 0.45 + Math.sin(time * 1.5) * 0.05;
+            fillLight.intensity = intensity;
+            
+            // 相机轻微晃动 (极轻微增加真实感)
+            camera.position.x += (0 - camera.position.x) * 0.02;
+            camera.position.y += (0.5 - camera.position.y) * 0.02;
+            camera.lookAt(0, 0, 0);
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        // 窗口尺寸适配
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // 模拟加载完成后的控制台输出
+        console.log('G.R.I.M. 战术地球初始化完成 | 情报先行');
+        
+        // --- 交互功能: 授权码模拟验证 + 复制战术链接 (模仿原网页交互)---
+        const verifyBtn = document.getElementById('verifyBtn');
+        const authInput = document.getElementById('authCode');
+        const feedbackSpan = document.getElementById('feedback');
+        const copyHint = document.getElementById('copyLinkHint');
+        
+        // 模拟验证授权码 (前端演示效果，不涉及真实后端)
+        verifyBtn.addEventListener('click', () => {
+            let code = authInput.value.trim();
+            if (code === "") {
+                feedbackSpan.textContent = "⚠️ 需要输入授权码";
+                feedbackSpan.style.color = "#ffaa66";
+                setTimeout(() => {
+                    if(feedbackSpan.textContent === "⚠️ 需要输入授权码") feedbackSpan.textContent = "";
+                }, 1800);
+                return;
+            }
+            // 任意非空字符模拟授权成功，增强沉浸体验
+            if (code.length >= 3) {
+                feedbackSpan.innerHTML = "✓ 授权通过 | 同步战术态势图...";
+                feedbackSpan.style.color = "#88ffaa";
+                // 模拟闪烁提示后显示欢迎语
+                setTimeout(() => {
+                    feedbackSpan.innerHTML = "✓ 已接入 G.R.I.M. 数据云，保持冷静，继续前行";
+                }, 800);
+                setTimeout(() => {
+                    if(feedbackSpan.innerHTML.includes("G.R.I.M.")) feedbackSpan.innerHTML = "";
+                }, 3500);
+                // 可选小彩蛋：控制台输出
+                console.log(`%c[GRIM] 探员已验证: ${code} | 情报优先，精准打击`, 'color: #0ff; font-size: 12px');
+            } else {
+                feedbackSpan.textContent = "无效授权格式，请重新输入";
+                feedbackSpan.style.color = "#ff8866";
+                setTimeout(() => {
+                    if(feedbackSpan.textContent === "无效授权格式，请重新输入") feedbackSpan.textContent = "";
+                }, 1800);
+            }
+        });
+        
+        // 回车键快速验证
+        authInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') {
+                e.preventDefault();
+                verifyBtn.click();
+            }
+        });
+        
+        // 模拟原网页“复制以下链接至微信打开”效果: 复制当前页面或战术指令
+        copyHint.addEventListener('click', async () => {
+            const tacticalLink = "https://grim.intel/ops/2026-03/authorize";  // 模拟战术链接
+            try {
+                await navigator.clipboard.writeText(tacticalLink);
+                feedbackSpan.innerHTML = "✓ 战术链接已复制 | 分享至作战小队";
+                feedbackSpan.style.color = "#88ffaa";
+                setTimeout(() => {
+                    if(feedbackSpan.innerHTML.includes("战术链接已复制")) feedbackSpan.innerHTML = "";
+                }, 2500);
+            } catch (err) {
+                feedbackSpan.innerHTML = "❌ 复制失败，手动同步指令";
+                setTimeout(() => {
+                    if(feedbackSpan.innerHTML.includes("复制失败")) feedbackSpan.innerHTML = "";
+                }, 1500);
+            }
+        });
+        
+        // 增加开场微提示
+        setTimeout(() => {
+            feedbackSpan.innerHTML = "⚡ 情报终端就绪 | 等待授权指令";
+            setTimeout(() => {
+                if(feedbackSpan.innerHTML === "⚡ 情报终端就绪 | 等待授权指令") feedbackSpan.innerHTML = "";
+            }, 2800);
+        }, 600);
+    </script>
 </body>
 </html>
