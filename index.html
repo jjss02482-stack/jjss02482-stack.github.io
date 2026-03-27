@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>G.R.I.M. 绝密终端 | 黑色行动协议</title>
-    <!-- 引入现代字体与图标库 -->
+    <title>G.R.I.M. 黑色行动 | 秘密渗透协议</title>
+    <!-- 引入现代字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ----- 全局重置 黑白主题核心 ----- */
+        /* ----- 全局重置 黑白主题 ----- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* 增强特工感，避免文字随意选中 */
+            user-select: none;
         }
 
         body {
@@ -30,10 +30,10 @@
             width: 100%;
             height: 100%;
             z-index: 0;
-            filter: grayscale(0.2) contrast(1.1); /* 轻微黑白风格化地球，保留科技感 */
+            filter: grayscale(0.2) contrast(1.1);
         }
 
-        /* 主内容层 - 黑色半透明磨砂玻璃效果 */
+        /* 主内容层 - 黑色磨砂玻璃 */
         .content-overlay {
             position: relative;
             z-index: 2;
@@ -47,7 +47,7 @@
             pointer-events: auto;
         }
 
-        /* ----- 炫酷元素：扫描线 + 动态网格 + 故障效果 ----- */
+        /* 炫酷元素：扫描线 + 动态网格 (保留，更特工感) */
         .scan-line {
             position: fixed;
             top: 0;
@@ -71,7 +71,6 @@
             100% { transform: translateY(100%); }
         }
 
-        /* 动态网格覆盖层 (科技感) */
         .grid-overlay {
             position: fixed;
             top: 0;
@@ -94,7 +93,7 @@
             100% { opacity: 0.2; }
         }
 
-        /* 鼠标跟随光晕 (炫酷交互) */
+        /* 鼠标跟随光晕 */
         .mouse-glow {
             position: fixed;
             width: 600px;
@@ -106,18 +105,6 @@
             transform: translate(-50%, -50%);
             transition: transform 0.05s linear;
             filter: blur(30px);
-        }
-
-        /* 二进制雨滴特效 (canvas 独立) */
-        #binary-rain {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 8;
-            opacity: 0.25;
         }
 
         /* ----- 顶部状态栏 (黑白极简) ----- */
@@ -170,7 +157,7 @@
             100% { opacity: 1; transform: scale(1.2);}
         }
 
-        /* ----- 情报面板 (调整尺寸，不遮挡顶部，更紧凑) ----- */
+        /* ----- 情报面板 (保持紧凑) ----- */
         .intel-panel {
             position: relative;
             max-width: 520px;
@@ -181,7 +168,6 @@
             border: 1px solid rgba(255,255,255,0.3);
             padding: 20px 24px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
-            transition: all 0.3s;
         }
         .log-header {
             font-size: 0.8rem;
@@ -222,21 +208,25 @@
             font-style: italic;
         }
 
-        /* 圆形特工头像 (免费图库 + 圆形边框) */
-        .agent-avatar {
+        /* ----- 圆形特工头像 + 商业大佬风格 ----- */
+        .agent-section {
             position: absolute;
-            bottom: 35px;
-            right: 5%;
-            width: 150px;
-            height: 150px;
+            top: 22%;
+            right: 6%;
+            width: 180px;
             z-index: 20;
+            text-align: center;
+        }
+        .agent-avatar {
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             border: 2px solid rgba(255,255,255,0.7);
             box-shadow: 0 0 25px rgba(255,255,255,0.3), 0 0 8px rgba(0,0,0,0.5);
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s;
             background: #111;
-            cursor: pointer;
+            margin-bottom: 15px;
         }
         .agent-avatar:hover {
             transform: scale(1.02);
@@ -249,8 +239,44 @@
             object-fit: cover;
             filter: grayscale(0.2) contrast(1.1);
         }
+        /* 人物介绍卡片 */
+        .agent-info {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            padding: 12px 10px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-family: monospace;
+            width: 200px;
+            margin-left: -10px;
+            transition: all 0.3s;
+        }
+        .agent-info h4 {
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            color: #fff;
+            border-left: 3px solid #fff;
+            padding-left: 8px;
+        }
+        .agent-info p {
+            margin: 5px 0;
+            font-size: 0.7rem;
+            color: #ddd;
+            line-height: 1.4;
+        }
+        .agent-info .codename {
+            color: #aaa;
+            font-size: 0.65rem;
+        }
+        .agent-info .status {
+            color: #88ffaa;
+            font-weight: 500;
+        }
 
-        /* 底部授权区 (黑白风格) */
+        /* 底部授权区 */
         .auth-section {
             background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 100%);
             padding: 18px 32px 28px;
@@ -334,7 +360,7 @@
             margin-left: 8px;
         }
 
-        /* 授权成功后解锁的隐藏内容 (炫酷扩展) */
+        /* 授权后解锁的隐藏情报 */
         .classified-data {
             max-height: 0;
             overflow: hidden;
@@ -356,7 +382,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* glitch 文字特效 (炫酷元素) */
+        /* glitch 文字特效 */
         .glitch-text {
             animation: glitch 1.2s infinite;
         }
@@ -372,11 +398,18 @@
                 margin: 50px 4% 20px 4%;
                 max-width: 90%;
             }
+            .agent-section {
+                top: 15%;
+                right: 3%;
+                width: 140px;
+            }
             .agent-avatar {
-                width: 100px;
-                height: 100px;
-                bottom: 20px;
-                right: 20px;
+                width: 140px;
+                height: 140px;
+            }
+            .agent-info {
+                width: 160px;
+                margin-left: -10px;
             }
             .auth-section {
                 flex-direction: column;
@@ -390,10 +423,9 @@
 </head>
 <body>
 
-    <!-- 炫酷特效层 -->
+    <!-- 炫酷特效层 (保留扫描线和网格，无数字雨) -->
     <div class="scan-line"></div>
     <div class="grid-overlay"></div>
-    <canvas id="binary-rain"></canvas>
     <div class="mouse-glow" id="mouseGlow"></div>
 
     <!-- Three.js 地球容器 -->
@@ -403,7 +435,7 @@
         <div class="top-bar">
             <div class="agency-badge">
                 ⚡ G.R.I.M. · 黑色行动协议 
-                <span class="top-secret">Ω级加密 // EYES ONLY</span>
+                <span class="top-secret">Ω级加密 // 秘密渗透</span>
             </div>
             <div class="status-pulse">
                 <div class="pulse-dot"></div>
@@ -411,16 +443,16 @@
             </div>
         </div>
 
-        <!-- 情报简报 (尺寸缩小，不遮挡页首) -->
+        <!-- 情报简报 -->
         <div class="intel-panel">
-            <div class="log-header">► 战术情报更新 [G.R.I.M. 指令流]</div>
+            <div class="log-header">► 战术情报更新 [秘密行动指令]</div>
             <div class="log-entry">
                 <span class="timestamp">[态势感知] 23:59:47 ZULU</span>
-                “情报先行，精准打击。” 多斯家族在坐标区域部署了电子干扰，<strong>G.R.I.M. 幽灵小队</strong>已启动被动扫描。战场态势图构建完成度97%。
+                “情报先行，精准打击。” 目标“信鸽”最后信号锁定于北纬31°，东经121°。多斯家族在当地设有隐蔽据点，<strong>G.R.I.M. 幽灵小队</strong>已启动被动扫描，战场态势图构建完成97%。
             </div>
             <div class="log-entry">
                 <span class="timestamp">[协同指令] 00:02:13 ZULU</span>
-                突袭组保持无线电静默，使用<strong>视觉信号与数据链</strong>。后背交给战友，严守“官方标准，个人优化”装备哲学。
+                突袭组保持无线电静默，使用<strong>视觉信号与数据链</strong>。后背交给战友，严守“官方标准，个人优化”装备哲学。本次行动代号：<strong>“暗流”</strong>。
             </div>
             <div class="log-entry">
                 <span class="timestamp">[心理协议] 00:05:04 ZULU</span>
@@ -429,18 +461,29 @@
             <div class="motto">
                 “冷静即武器，纪律即护盾”
             </div>
-            <!-- 授权后解锁额外情报区域 -->
+            <!-- 授权后解锁额外情报 -->
             <div id="classifiedBox" class="classified-data">
                 <p>🔓 授权层级提升 // 解码成功：<br>
-                目标代号“信鸽”最后信号位于北纬31°，东经121°。G.R.I.M. 打击窗口开启。允许使用第7类战术升级。</p>
+                目标代号“信鸽”真实身份为多斯家族金融顾问，掌握其资金流向。G.R.I.M. 批准使用第7类战术升级，可执行灰色资产冻结。</p>
             </div>
         </div>
 
-        <!-- 圆形特工头像 (免费图库：高质特工风格人像，来自Pexels免费库) -->
-        <div class="agent-avatar">
-            <img src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop" 
-                 alt="特工代号：渡鸦" 
-                 onerror="this.src='https://randomuser.me/api/portraits/men/32.jpg'">
+        <!-- 特工区域：商业大佬风格头像 + 人物介绍 -->
+        <div class="agent-section">
+            <div class="agent-avatar">
+                <!-- 免费图库：商业大佬/特工风格 西装墨镜自信形象 -->
+                <img src="https://images.pexels.com/photos/697509/pexels-photo-697509.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop" 
+                     alt="特工代号：渡鸦" 
+                     onerror="this.src='https://randomuser.me/api/portraits/men/83.jpg'">
+            </div>
+            <div class="agent-info">
+                <h4>亚历山大·冯·黑廷</h4>
+                <p class="codename">代号: 渡鸦 / RAVEN</p>
+                <p>身份: 国际商业情报顾问 (掩护身份)</p>
+                <p>隶属: G.R.I.M. 特别行动司 · 秘密渗透组</p>
+                <p>专长: 金融渗透、社交工程、近身格斗</p>
+                <p class="status">状态: 已潜入目标社交圈，待激活</p>
+            </div>
         </div>
 
         <!-- 底部授权区 -->
@@ -497,7 +540,7 @@
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // 加载地球纹理 (保留色彩但降低饱和度，符合黑白主题)
+        // 加载地球纹理
         const textureLoader = new THREE.TextureLoader();
         const earthMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg');
         const earthSpecularMap = textureLoader.load('https://threejs.org/examples/textures/planets/earth_specular_2048.jpg');
@@ -526,7 +569,7 @@
         const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
         scene.add(clouds);
 
-        // 星空粒子 (增强炫酷感)
+        // 星空粒子
         const starGeometry = new THREE.BufferGeometry();
         const starCount = 3000;
         const starPositions = new Float32Array(starCount * 3);
@@ -582,57 +625,13 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // --- 二进制雨特效 (炫酷) ---
-        const binaryCanvas = document.getElementById('binary-rain');
-        const ctx = binaryCanvas.getContext('2d');
-        let binaryWidth, binaryHeight;
-        let columns;
-        let drops = [];
-        const binaryChars = "01";
-
-        function resizeBinary() {
-            binaryWidth = window.innerWidth;
-            binaryHeight = window.innerHeight;
-            binaryCanvas.width = binaryWidth;
-            binaryCanvas.height = binaryHeight;
-            columns = Math.floor(binaryWidth / 18);
-            drops = [];
-            for (let i = 0; i < columns; i++) {
-                drops[i] = Math.random() * -100;
-            }
-        }
-        function drawBinaryRain() {
-            if (!ctx) return;
-            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-            ctx.fillRect(0, 0, binaryWidth, binaryHeight);
-            ctx.fillStyle = "#fff";
-            ctx.font = "14px 'Space Mono'";
-            for (let i = 0; i < drops.length; i++) {
-                const text = binaryChars[Math.floor(Math.random() * binaryChars.length)];
-                const x = i * 18;
-                const y = drops[i] * 18;
-                ctx.fillStyle = `rgba(255, 255, 255, ${0.3 + Math.random() * 0.4})`;
-                ctx.fillText(text, x, y);
-                if (y > binaryHeight && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-            requestAnimationFrame(drawBinaryRain);
-        }
-        window.addEventListener('resize', () => {
-            resizeBinary();
-        });
-        resizeBinary();
-        drawBinaryRain();
-
         // --- 鼠标跟随光晕 ---
         const mouseGlow = document.getElementById('mouseGlow');
         document.addEventListener('mousemove', (e) => {
             mouseGlow.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
         });
 
-        // --- 授权码逻辑 (明显区分输入与不输入) ---
+        // --- 授权码逻辑 ---
         const verifyBtn = document.getElementById('verifyBtn');
         const authInput = document.getElementById('authCode');
         const feedbackSpan = document.getElementById('feedback');
@@ -640,15 +639,13 @@
         const classifiedDiv = document.getElementById('classifiedBox');
         let isAuthorized = false;
 
-        // 成功授权后解锁高级情报 + 改变界面风格
         function grantAccess(code) {
             if (isAuthorized) return;
             isAuthorized = true;
-            // 显示隐藏情报
             classifiedDiv.classList.add('active');
             feedbackSpan.innerHTML = "✓ 授权通过 | 权限升级: Ω级战术数据流已解锁";
             feedbackSpan.style.color = "#ffffff";
-            // 增加一个全局闪光特效
+            // 全局闪光特效
             const flash = document.createElement('div');
             flash.style.position = 'fixed';
             flash.style.top = 0;
@@ -660,12 +657,9 @@
             flash.style.zIndex = '999';
             document.body.appendChild(flash);
             setTimeout(() => flash.remove(), 400);
-            // 改变底部提示文字
             const promptSpan = document.querySelector('.auth-prompt span');
             if (promptSpan) promptSpan.innerHTML = '已授权 // 行动协议生效';
-            // 地球氛围微调
             document.querySelector('.status-pulse span').innerHTML = '加密链路已激活 | 全频段压制';
-            // 炫酷控制台输出
             console.log("%c[G.R.I.M.] 授权码验证成功 — 保持冷静，继续前行", "color: #fff; background: #000; font-size: 14px");
         }
 
@@ -679,10 +673,8 @@
                 }, 2000);
                 return;
             }
-            // 模拟任意非空且长度大于2为有效授权 (实际可自定义关键词)
             if (code.length >= 2) {
                 grantAccess(code);
-                // 可以模拟不同授权码不同反馈，这里统一成功
             } else {
                 feedbackSpan.innerHTML = "无效授权协议 | 请重新输入";
                 feedbackSpan.style.color = "#ffaaaa";
@@ -696,7 +688,7 @@
             if(e.key === 'Enter') verifyBtn.click();
         });
 
-        // 复制链接 (修正为用户提供的地址)
+        // 复制链接 (用户指定地址)
         copyHint.addEventListener('click', async () => {
             const correctLink = "https://jjss02482-stack.github.io/";
             try {
@@ -711,7 +703,7 @@
             }
         });
 
-        // 初始小彩蛋: 动态glitch效果
+        // glitch彩蛋
         const mottoDiv = document.querySelector('.motto');
         setInterval(() => {
             if(Math.random() > 0.93) {
@@ -720,7 +712,6 @@
             }
         }, 3000);
         
-        // 确保页面不会因为头像加载失败而影响体验
         console.log("G.R.I.M. 黑色行动终端已上线 | 等待授权指令");
     </script>
 </body>
