@@ -3,580 +3,497 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>G.R.I.M. 战术终端 | 全球侦查与渗透海军陆战队</title>
-    <!-- 引入 Font Awesome 6 (免费图标库) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- 引入 Google Fonts 科技感字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>G.R.I.M. 战术终端 | 战场版</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none; /* 模拟终端风格，但保留文本复制 */
         }
 
         body {
-            background: radial-gradient(circle at 20% 30%, #0a0f1a, #030507);
+            background: #1a2a1f;
+            background-image: 
+                linear-gradient(45deg, #2a3a25 1px, transparent 1px),
+                linear-gradient(-45deg, #2a3a25 1px, transparent 1px);
+            background-size: 40px 40px;
             min-height: 100vh;
-            font-family: 'Share Tech Mono', 'Courier New', monospace;
-            padding: 20px;
-            color: #ccf2ff;
+            font-family: 'Courier New', 'Lucida Console', 'Monaco', monospace;
+            padding: 16px;
         }
 
-        /* 主容器 - 战术终端框架 */
-        .tactical-terminal {
-            max-width: 1600px;
+        /* 主容器 - 仿军用平板/加固终端 */
+        .tactical-panel {
+            max-width: 1400px;
             margin: 0 auto;
-            background: rgba(8, 16, 24, 0.65);
-            backdrop-filter: blur(2px);
-            border: 1px solid rgba(0, 255, 255, 0.35);
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(0, 255, 255, 0.1);
+            background: #2c3a2a;
+            border: 4px solid #5a6e4a;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
             overflow: hidden;
-            transition: all 0.2s;
         }
 
-        /* 顶部状态栏 */
-        .status-bar {
-            background: #071016e0;
-            padding: 12px 24px;
+        /* 顶部 - 粗犷状态栏 */
+        .field-header {
+            background: #1e2a1a;
+            padding: 8px 16px;
+            border-bottom: 2px solid #6a7e5a;
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
             flex-wrap: wrap;
-            border-bottom: 1px solid #2affff66;
-            font-size: 14px;
-            letter-spacing: 1px;
-            font-weight: 500;
-        }
-        .unit-badge {
-            display: flex;
-            align-items: center;
             gap: 12px;
         }
-        .unit-badge h1 {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.7rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #aaffff, #2a8eff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 8px cyan;
-            letter-spacing: 2px;
-        }
-        .encrypt-level {
-            background: #0f212e;
-            padding: 4px 12px;
-            border-radius: 40px;
-            border-left: 3px solid #0ff;
-            font-size: 0.75rem;
-        }
-        .time-signal {
+        .unit-title {
             display: flex;
-            gap: 24px;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .unit-title h1 {
+            font-size: 1.6rem;
+            font-weight: bold;
+            letter-spacing: 4px;
+            color: #b8d9a6;
+            text-shadow: 2px 2px 0 #1e3a1a;
             font-family: monospace;
         }
-        .blink-red {
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 1; text-shadow: 0 0 0 cyan; }
-            50% { opacity: 0.7; text-shadow: 0 0 4px red; }
-            100% { opacity: 1; }
-        }
-
-        /* 三列网格布局 */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 320px 1fr 340px;
-            gap: 0;
-            padding: 20px;
-        }
-
-        /* 公用卡片样式 */
-        .card {
-            background: #0b121cb3;
-            border: 1px solid #1e3a4d;
-            border-radius: 20px;
-            backdrop-filter: blur(4px);
-            padding: 18px 16px;
-            margin-bottom: 20px;
-            transition: all 0.2s;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
-        }
-        .card:hover {
-            border-color: #2fbbcc;
-            box-shadow: 0 0 12px rgba(0,255,255,0.2);
-        }
-        .card-header {
-            font-family: 'Orbitron', monospace;
-            font-size: 1rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            border-left: 4px solid #0ff;
-            padding-left: 12px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .divider {
-            height: 1px;
-            background: linear-gradient(90deg, #0ff, transparent);
-            margin: 12px 0;
-        }
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 0.85rem;
-        }
-        .progress-bar {
-            height: 6px;
-            background: #1e3a3f;
-            border-radius: 4px;
-            overflow: hidden;
-            width: 100%;
-            margin-top: 5px;
-        }
-        .progress-fill {
-            height: 100%;
-            background: #0ff;
-            width: 0%;
-            box-shadow: 0 0 4px cyan;
-        }
-
-        .tag {
-            background: #0e2a33;
+        .callsign {
+            background: #3a4a2e;
             padding: 2px 8px;
-            border-radius: 20px;
+            border-left: 3px solid #8ab86a;
             font-size: 0.7rem;
-            color: #8df;
+            font-weight: bold;
+            color: #d4e6c3;
+        }
+        .field-time {
+            background: #1a2a16;
+            padding: 4px 12px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #b0d090;
+            border: 1px solid #5a764a;
         }
 
-        /* 装备列表 */
-        .equipment-list {
+        /* 主体 - 三列网格 */
+        .grid-main {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px;
+            gap: 0;
+            background: #253b20;
+        }
+
+        /* 通用卡片 - 战地风格，无玻璃效果 */
+        .field-card {
+            background: #1f2e1c;
+            border: 1px solid #5a724a;
+            margin: 12px;
+            padding: 12px;
+            box-shadow: inset 0 1px 0 #3a562a, 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .card-title {
+            font-weight: bold;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #7a9a5a;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            color: #d4e6b0;
+            text-transform: uppercase;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.75rem;
+            border-bottom: 1px dotted #4a623a;
+            padding: 4px 0;
+            color: #cce0b3;
+        }
+        .stat-label {
+            font-weight: bold;
+            color: #9bbd7a;
+        }
+        .divider-thin {
+            height: 1px;
+            background: #4a6240;
+            margin: 10px 0;
+        }
+
+        /* 装备列表 - 紧凑 */
+        .gear-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
+            gap: 6px;
+            margin-top: 8px;
         }
-        .equip-chip {
-            background: #07161f;
-            border: 1px solid #2a6e7a;
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 0.7rem;
+        .gear-tag {
+            background: #2a3e24;
+            border: 1px solid #6a8e4a;
+            padding: 2px 8px;
+            font-size: 0.65rem;
             font-family: monospace;
-        }
-        .motto {
-            text-align: center;
-            font-style: italic;
-            border-top: 1px dashed #2f8f9f;
-            margin-top: 15px;
-            padding-top: 12px;
-            font-weight: bold;
-            letter-spacing: 1px;
+            color: #c6e0a8;
         }
 
-        /* 中央 战术态势 + 行动日志 */
-        .situational-map {
-            background: #030a0faa;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            padding: 12px;
-        }
-        .map-placeholder {
-            background: radial-gradient(ellipse at 30% 40%, #0a2a2f, #021016);
-            border-radius: 16px;
-            padding: 15px;
-            border: 1px solid #2a7f7f;
-            display: flex;
-            flex-direction: column;
-        }
-        .hotzone {
-            display: flex;
-            gap: 20px;
-            justify-content: space-around;
-            margin: 12px 0;
-            font-size: 0.75rem;
-        }
-        .action-log {
-            max-height: 280px;
+        /* 日志区域 - 仿手写/打印风格 */
+        .log-area {
+            background: #1c2a18;
+            max-height: 380px;
             overflow-y: auto;
-            padding-right: 8px;
+            padding: 8px;
+            font-size: 0.7rem;
         }
         .log-entry {
-            border-left: 2px solid #0ff;
-            margin-bottom: 14px;
-            padding-left: 12px;
-            font-size: 0.8rem;
+            border-left: 3px solid #8ab86a;
+            padding-left: 8px;
+            margin-bottom: 12px;
             font-family: monospace;
         }
-        .timestamp {
-            color: #6bb5c0;
-            font-size: 0.7rem;
+        .log-time {
+            color: #a8c88a;
+            font-size: 0.6rem;
+        }
+        .log-text {
+            color: #c2dbaa;
+            margin: 4px 0;
+        }
+        .log-badge {
+            background: #3a562a;
+            display: inline-block;
+            padding: 0px 6px;
+            font-size: 0.6rem;
+            margin-top: 4px;
         }
 
-        /* 右侧部门卡片特殊 */
-        .dept-card {
-            background: #07161fe0;
-            margin-bottom: 16px;
+        /* 右侧特殊模块 */
+        .target-box {
+            background: #1e2c1a;
+            border: 1px solid #8a5a3a;
+            padding: 10px;
+            margin: 12px;
         }
-        .dept-status {
+        .target-row {
             display: flex;
             justify-content: space-between;
-            font-size: 0.8rem;
-            margin: 8px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #3e562e;
+            font-size: 0.7rem;
         }
-        .target-panel {
-            background: #0c141f;
-            border-radius: 18px;
-            padding: 14px;
-            margin-top: 10px;
+        .motto-field {
+            background: #1e2a16;
+            text-align: center;
+            padding: 12px;
+            margin-top: 16px;
+            border-top: 2px solid #7a9a5a;
+            font-weight: bold;
+            color: #d0ecb0;
+            letter-spacing: 1px;
         }
 
-        /* 底部终端消息 */
-        .console-footer {
-            background: #03080c;
-            border-top: 1px solid #2aa;
-            padding: 10px 24px;
+        /* 进度条粗糙版 */
+        .rough-bar {
+            background: #2a3a22;
+            height: 12px;
+            margin: 6px 0;
+            border: 1px solid #5a7242;
+        }
+        .rough-fill {
+            background: #8aba6a;
+            height: 100%;
+            width: 0%;
+        }
+
+        /* 底部信息条 - 战场通讯风格 */
+        .comms-bar {
+            background: #1a2a14;
+            border-top: 2px solid #5e784a;
+            padding: 8px 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
             font-size: 0.7rem;
             font-family: monospace;
-            display: flex;
-            gap: 24px;
-            flex-wrap: wrap;
-            color: #7bc5c5;
-        }
-
-        /* 滚动条美化 */
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #021016;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #0ff;
-            border-radius: 10px;
+            color: #a0c080;
         }
 
         /* 响应式 */
-        @media (max-width: 1100px) {
-            .dashboard-grid {
+        @media (max-width: 900px) {
+            .grid-main {
                 grid-template-columns: 1fr;
-                gap: 16px;
             }
             body {
-                padding: 12px;
+                padding: 8px;
             }
         }
 
-        .glow-text {
-            color: #0ff;
-            text-shadow: 0 0 3px cyan;
+        /* 战场标记 */
+        .warning-tag {
+            color: #e0b060;
         }
-        button.ghost-btn {
-            background: none;
-            border: 1px solid #0ff;
-            color: #0ff;
-            padding: 2px 8px;
-            border-radius: 12px;
-            cursor: default;
-            font-size: 0.7rem;
-        }
-        i.icon-space {
+        .status-led {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #6a8e4a;
+            border-radius: 1px;
             margin-right: 6px;
         }
-        .warning {
-            color: #ffaa66;
+        button.dummy {
+            background: #2a4222;
+            border: 1px solid #7a9e5a;
+            color: #c0e0a0;
+            padding: 2px 10px;
+            font-size: 0.6rem;
+            cursor: default;
+        }
+        .scroll-log::-webkit-scrollbar {
+            width: 6px;
+            background: #2a3a22;
+        }
+        .scroll-log::-webkit-scrollbar-thumb {
+            background: #7a9e5a;
         }
     </style>
 </head>
 <body>
-<div class="tactical-terminal">
-    <!-- 状态栏 -->
-    <div class="status-bar">
-        <div class="unit-badge">
-            <i class="fas fa-skull-crossbones" style="font-size: 28px; color: #0ff;"></i>
+<div class="tactical-panel">
+    <!-- 顶部状态 - 简洁战场信息 -->
+    <div class="field-header">
+        <div class="unit-title">
             <h1>G.R.I.M.</h1>
-            <div class="encrypt-level"><i class="fas fa-shield-alt"></i> SIGINT · 量子加密 · 等级Ω</div>
+            <span class="callsign">全球侦查与渗透 海军陆战队</span>
+            <span class="callsign">隶属: 科伦国海军 | 独立行动权</span>
         </div>
-        <div class="time-signal">
-            <span><i class="fas fa-satellite-dish"></i> 信号: <span id="signalStrength">强</span> (5/5)</span>
-            <span><i class="fas fa-clock"></i> <span id="liveClock">--:--:--</span> UTC+8</span>
-            <span><i class="fas fa-circle blink-red" style="color:#f44; font-size: 10px;"></i> 实时战场接入</span>
+        <div class="field-time">
+            <span id="milTime">--:--</span> HRS &nbsp;|&nbsp; <span id="dateField">---</span>
         </div>
     </div>
 
-    <div class="dashboard-grid">
-        <!-- 左侧: 部队概要 + 装备 + 后勤/精神 -->
-        <div class="left-panel">
-            <div class="card">
-                <div class="card-header">
-                    <span><i class="fas fa-anchor"></i> UNIT PROFILE</span>
-                    <span class="tag">ACTIVE DUTY</span>
+    <div class="grid-main">
+        <!-- 左侧：部队概要 + 后勤/装备 -->
+        <div class="left-col">
+            <div class="field-card">
+                <div class="card-title">
+                    <span>📋 UNIT DATA</span>
+                    <span>Ω级</span>
                 </div>
-                <div class="stat-item"><span>🇨 科伦国海军 · 独立行动权</span><span>✅ 已授权</span></div>
-                <div class="stat-item"><span>📅 成立</span><span>1994 · 苏梅克委员会监视</span></div>
-                <div class="stat-item"><span>⚡ 任务类型</span><span>超限战优势 / 高危目标清除</span></div>
-                <div class="divider"></div>
-                <div class="stat-item"><span><i class="fas fa-trophy"></i> 口号</span><span>“保持冷静，继续前行！”</span></div>
-                <div class="stat-item"><span><i class="fas fa-crown"></i> 座右铭</span><span class="glow-text">“众人之上，强者之列”</span></div>
-                <div class="divider"></div>
-                <div><i class="fas fa-microchip"></i> 装备体系</div>
-                <div class="equipment-list">
-                    <span class="equip-chip"><i class="fas fa-gun"></i> 官方制式标准</span>
-                    <span class="equip-chip">HK416 / M4 SOPMOD</span>
-                    <span class="equip-chip">AN/PRC-148 加密电台</span>
-                    <span class="equip-chip">战术集成系统</span>
-                    <span class="equip-chip"><i class="fas fa-dollar-sign"></i> 自费许可装备</span>
-                    <span class="equip-chip">热成像瞄具</span>
-                    <span class="equip-chip">自定义防护插板</span>
-                    <span class="equip-chip">卡莫纳全境可用军备</span>
-                </div>
-                <div class="motto">
-                    <i class="fas fa-bolt"></i> 勇气与纪律 · 渗透即裁决 <i class="fas fa-bolt"></i>
-                </div>
+                <div class="stat-row"><span class="stat-label">成立日期</span><span>1994 · 苏梅克委员会监督</span></div>
+                <div class="stat-row"><span class="stat-label">任务类型</span><span>超限战 / 高危清除 / 情报优势</span></div>
+                <div class="stat-row"><span class="stat-label">主要部门</span><span>情报部 · 突袭组 · 后勤部</span></div>
+                <div class="divider-thin"></div>
+                <div class="stat-row"><span class="stat-label">口号</span><span>“保持冷静，继续前行！”</span></div>
+                <div class="stat-row"><span class="stat-label">信条</span><span class="warning-tag">“众人之上，强者之列”</span></div>
             </div>
 
-            <!-- 后勤部详情 & 自费比率 -->
-            <div class="card">
-                <div class="card-header"><span><i class="fas fa-boxes"></i> 后勤部 · LOG</span><span class="tag">战备评级 A</span></div>
-                <div class="stat-item"><span>官方制式配给率</span><span>100%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
-                <div class="stat-item"><span>自费装备覆盖率</span><span>67% (精英许可)</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width: 67%; background: #8bc;"></div></div>
-                <div class="stat-item"><span>⚙️ 弹药/医疗储备</span><span>充足 (7.62×39 / 5.56NATO)</span></div>
-                <div class="stat-item"><span>🚁 空中支援就绪度</span><span>快速响应待命</span></div>
-                <div class="divider"></div>
-                <div><i class="fas fa-chart-line"></i> 卡莫纳地区装备库：全类别可用 (AK系列, M4, 护甲, 战术载具)</div>
+            <div class="field-card">
+                <div class="card-title">⚙️ 后勤部 · 装备状态</div>
+                <div class="stat-row"><span>官方制式标准</span><span>100% 配发</span></div>
+                <div class="rough-bar"><div class="rough-fill" style="width:100%"></div></div>
+                <div class="stat-row"><span>自费装备配额</span><span>按需申报/精英级许可</span></div>
+                <div class="stat-row"><span>卡莫纳可用库</span><span>全类别(制式+缴获)</span></div>
+                <div class="gear-list">
+                    <span class="gear-tag">HK416</span>
+                    <span class="gear-tag">AN/PRC-148</span>
+                    <span class="gear-tag">热成像(自费)</span>
+                    <span class="gear-tag">防弹插板</span>
+                    <span class="gear-tag">M4 SOPMOD</span>
+                    <span class="gear-tag">破片雷</span>
+                    <span class="gear-tag">战术背心</span>
+                </div>
+                <div class="stat-row" style="margin-top:8px"><span>空中支援</span><span>2架MD500 / 无人机待命</span></div>
             </div>
 
-            <!-- 情报部 精简指标 -->
-            <div class="card">
-                <div class="card-header"><span><i class="fas fa-eye"></i> 情报部 · SIGINT</span><span>实时截获</span></div>
-                <div class="stat-item"><span>信号情报流</span><span><span id="intelFlow">高活跃度</span></span></div>
-                <div class="stat-item"><span>敌方通讯破译率</span><span>89%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width: 89%;"></div></div>
-                <div class="stat-item"><span>高危目标定位</span><span>2个可疑据点 · 追踪中</span></div>
-                <div class="stat-item"><span>苏梅克监视状态</span><span>合规 · 授权行动范围扩展</span></div>
+            <div class="field-card">
+                <div class="card-title">🕵️ 情报部 · SIGINT</div>
+                <div class="stat-row"><span>信号截获率</span><span>87%</span></div>
+                <div class="rough-bar"><div class="rough-fill" style="width:87%"></div></div>
+                <div class="stat-row"><span>高危目标定位</span><span id="targetCount">3个</span> 活跃</div>
+                <div class="stat-row"><span>苏梅克监督</span><span>合规 · 行动授权扩展</span></div>
+                <div class="stat-row"><span>今日情报流</span><span id="intelBrief">山谷异常移动</span></div>
             </div>
         </div>
 
-        <!-- 中央区域: 战术地图 + 行动记录(包含历史战绩: 多斯斩首 & 农场空袭等) -->
-        <div class="middle-panel">
-            <div class="situational-map">
-                <div class="card-header"><span><i class="fas fa-map-marked-alt"></i> 实时战区态势 · 卡莫纳区域</span><span><i class="fas fa-sync-alt"></i> 战术更新 实时</span></div>
-                <div class="map-placeholder">
-                    <div style="display: flex; justify-content: space-between;">
-                        <span><i class="fas fa-location-dot"></i> 卡莫纳山谷</span>
-                        <span class="glow-text">● 控制区 (GRIM突袭组)</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 6px;">
-                        <span><i class="fas fa-tractor"></i> 卡莫纳农场</span>
-                        <span class="glow-text">✔ 谷物交易站 · 深渊小队协同</span>
-                    </div>
-                    <div class="hotzone">
-                        <span><i class="fas fa-skull"></i> 高危区: 北山据点</span>
-                        <span><i class="fas fa-plane"></i> 空中走廊: 预警机待命</span>
-                    </div>
-                    <div class="divider"></div>
-                    <div class="stat-item"><span>⚡ 当前首要任务: 猎杀残余高阶指挥官</span><span class="tag">代号: 暗刃</span></div>
-                    <div class="progress-bar"><div class="progress-fill" style="width: 74%;"></div><span style="font-size:10px;"> 任务进度 74%</span></div>
-                </div>
+        <!-- 中央：作战日志 + 态势简述（强调战绩） -->
+        <div class="middle-col">
+            <div class="field-card" style="margin-bottom: 8px;">
+                <div class="card-title">🗺️ 当前战区 · 卡莫纳</div>
+                <div class="stat-row"><span>📍 卡莫纳山谷</span><span>控制区 · 斩首完成</span></div>
+                <div class="stat-row"><span>🌾 卡莫纳农场</span><span>谷物交易站 · 深渊小队协同空袭</span></div>
+                <div class="stat-row"><span>🎯 突袭组部署点</span><span>北山边缘/农场西侧</span></div>
+                <div class="rough-bar"><div class="rough-fill" style="width:74%"></div></div>
+                <div class="stat-row"><span>任务进度: 清剿残余</span><span>74%</span></div>
             </div>
 
-            <div class="card" style="max-height: 420px; overflow-y: auto;">
-                <div class="card-header"><span><i class="fas fa-history"></i> 行动日志 · OP LOG</span><span><i class="fas fa-database"></i> 加密记录</span></div>
-                <div class="action-log" id="actionLog">
-                    <!-- 动态生成或静态内容体现战绩 -->
+            <div class="field-card">
+                <div class="card-title">📜 行动日志 (OP LOG)</div>
+                <div class="log-area scroll-log" style="max-height: 360px;">
                     <div class="log-entry">
-                        <div class="timestamp">▸ 2026.03.31 / 04:32:11</div>
-                        <div>【突袭组】联合“深渊小队”执行卡莫纳农场清剿，精准空袭支援，全控谷物交易站，击溃敌连级单位。高危目标清除率100%。</div>
-                        <div><span class="tag">胜利·协同作战</span></div>
+                        <div class="log-time">2026.03.31 / 0542</div>
+                        <div class="log-text">【突袭组】联合深渊小队完成农场空袭支援，谷物交易站全控。击溃敌方连级单位，高危目标清除率100%。</div>
+                        <div class="log-badge">✔ 空地协同 · 战果确认</div>
                     </div>
                     <div class="log-entry">
-                        <div class="timestamp">▸ 2026.03.29 / 19:17:44</div>
-                        <div>【情报部】截获多斯残党通讯，定位山谷东侧藏匿点。突袭组渗透斩首，取得敌方首级，瓦解指挥链。</div>
-                        <div><span class="tag">斩首行动 · 超限战优势</span></div>
+                        <div class="log-time">2026.03.29 / 1845</div>
+                        <div class="log-text">【情报部+突袭组】卡莫纳山谷斩首行动，多斯势力指挥官首级获取，瓦解敌方指挥链。</div>
+                        <div class="log-badge">⚡ 超限战优势</div>
                     </div>
                     <div class="log-entry">
-                        <div class="timestamp">▸ 2026.03.27 / 08:05:22</div>
-                        <div>【后勤部】全装备补给至卡莫纳前沿基地，为GRIM及附属单位提供定制化军备（含自费热成像单元）。</div>
+                        <div class="log-time">2026.03.27 / 0920</div>
+                        <div class="log-text">后勤部前沿弹药补给完毕，自费热成像单元分配到突袭组。</div>
                     </div>
                     <div class="log-entry">
-                        <div class="timestamp">▸ 2026.03.25 / 22:10:03</div>
-                        <div>【G.R.I.M. 独立行动】北山据点侦查，摧毁敌方通讯节点，协助陆军控制关键运输线。</div>
+                        <div class="log-time">2026.03.25 / 2110</div>
+                        <div class="log-text">北山据点侦察，摧毁敌方通讯中继，为陆军开辟通道。</div>
                     </div>
                     <div class="log-entry">
-                        <div class="timestamp">▸ 1994 - 至今 功勋记录</div>
-                        <div>苏梅克危机后迅速组建，成为科伦国海军最强两栖渗透矛头，多次斩首任务成功率100%</div>
+                        <div class="log-time">1994-2026 累计</div>
+                        <div class="log-text">高危目标斩首成功率100% | 两栖渗透作战标杆单位。</div>
                     </div>
                     <div class="log-entry">
-                        <div class="timestamp">▸ 最新情报更新</div>
-                        <div>深渊小队协同请求: 联合清缴农场残余，空袭支援已部署。</div>
+                        <div class="log-time">最新</div>
+                        <div class="log-text">深渊小队请求: 农场残余清剿，空袭待命中。</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 右侧: 突袭组 / 部门状态 / 追踪面板 -->
-        <div class="right-panel">
-            <div class="dept-card card">
-                <div class="card-header"><span><i class="fas fa-bolt"></i> 突袭组 · ASSAULT</span><span class="tag">警戒级别: ALPHA</span></div>
-                <div class="dept-status"><span>⚔️ 一线小队 “裂刃”</span><span>战备 98%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width:98%"></div></div>
-                <div class="dept-status"><span>🔪 渗透小组 “幽灵”</span><span>已部署</span></div>
-                <div class="dept-status"><span>🚁 空中打击单位 (AH-6 / 无人机)</span><span>待命中</span></div>
-                <div class="dept-status"><span>📡 战术数据链</span><span>与深渊小队实时同步</span></div>
-                <div class="divider"></div>
-                <div><i class="fas fa-chart-simple"></i> 近期斩首行动: 3次成功 · 平均反应时间 4.7min</div>
+        <!-- 右侧：突袭组状态 + 目标追踪 + 士气 -->
+        <div class="right-col">
+            <div class="field-card">
+                <div class="card-title">⚔️ 突袭组 · 战备</div>
+                <div class="stat-row"><span>一线小队“裂刃”</span><span>部署前待命</span></div>
+                <div class="rough-bar"><div class="rough-fill" style="width:96%"></div></div>
+                <div class="stat-row"><span>渗透小组“幽灵”</span><span>已进入卡莫纳山谷</span></div>
+                <div class="stat-row"><span>空中打击单元</span><span>MD500 x2 / 侦察无人机</span></div>
+                <div class="stat-row"><span>协同单位</span><span>深渊小队(实时数据链)</span></div>
+                <div class="divider-thin"></div>
+                <div class="stat-row"><span>最近3次斩首用时</span><span>平均 4分21秒</span></div>
             </div>
 
-            <div class="dept-card card">
-                <div class="card-header"><span><i class="fas fa-network-wired"></i> 通讯节点 · C4ISR</span></div>
-                <div class="stat-item"><span>量子加密信道</span><span>ACTIVE</span></div>
-                <div class="stat-item"><span>深渊小队协同频率</span><span><i class="fas fa-check-circle" style="color:#0f0;"></i> 链路稳定</span></div>
-                <div class="stat-item"><span>苏梅克监督频道</span><span>监视中 · 无干预</span></div>
-                <div class="stat-item"><span>卫星过顶时间</span><span>下一窗口 02:17</span></div>
-            </div>
-
-            <!-- 高危目标追踪 & 标志性语录 -->
-            <div class="target-panel">
-                <div class="card-header"><span><i class="fas fa-bullseye"></i> 高危目标追踪</span><span>TLIST-Ω</span></div>
-                <div class="stat-item"><span>🎯 目标代号: 豺狼</span><span>威胁: 极高</span></div>
-                <div class="stat-item"><span>📍 最后信号: 卡莫纳山谷北侧</span><span>GRIM突袭组已锁定</span></div>
-                <div class="stat-item"><span>💣 关联势力: 多斯残部 / 黑金国际渗透</span></div>
-                <div class="divider"></div>
-                <div style="text-align: center; padding: 8px 0;">
-                    <i class="fas fa-quote-left"></i> 众人之上，强者之列 <i class="fas fa-quote-right"></i><br>
-                    <span style="font-size:0.7rem;">—— 唯有勇气与纪律铸就钢铁之列</span>
+            <div class="target-box">
+                <div class="card-title" style="border-bottom-color:#b87a3a;">🎯 高危目标追踪</div>
+                <div class="target-row"><span>代号: 豺狼</span><span class="warning-tag">威胁·极高</span></div>
+                <div class="target-row"><span>位置</span><span>山谷北侧洞穴区</span></div>
+                <div class="target-row"><span>关联势力</span><span>多斯残部/黑金国际</span></div>
+                <div class="target-row"><span>追踪状态</span><span>突袭组已锁定</span></div>
+                <div class="target-row"><span>代号: 毒蝎</span><span>农场东部活动</span></div>
+                <div class="divider-thin"></div>
+                <div class="motto-field" style="margin-top: 4px; padding: 8px;">
+                    “众人之上，强者之列”<br>
+                    <span style="font-size:0.65rem;">勇气与纪律 · 渗透即裁决</span>
                 </div>
-                <div class="motto" style="border: none; margin-top: 6px;">
-                    <i class="fas fa-heartbeat"></i> “保持冷静，继续前行！”
+                <div style="text-align: center; margin-top: 8px; font-size:0.7rem; color:#b8d096;">
+                    <span class="status-led"></span> 保持冷静，继续前行！
                 </div>
             </div>
 
-            <!-- 模拟小队成员精神指数 -->
-            <div class="card" style="margin-top: 10px;">
-                <div class="card-header"><span><i class="fas fa-users"></i> 精神战备指数</span></div>
-                <div class="stat-item"><span>团队凝聚力</span><span>98%</span></div>
-                <div class="progress-bar"><div class="progress-fill" style="width:98%"></div></div>
-                <div class="stat-item"><span>作战纪律评分</span><span>S级 (最高)</span></div>
-                <div class="stat-item"><span>近期训练完成度</span><span>100% 渗透演习</span></div>
+            <div class="field-card">
+                <div class="card-title">📡 通讯·指挥链</div>
+                <div class="stat-row"><span>深渊小队协同</span><span>信道稳定 · 加密VHF</span></div>
+                <div class="stat-row"><span>苏梅克监视频道</span><span>旁路监听中</span></div>
+                <div class="stat-row"><span>科伦陆军支援请求</span><span>待批复</span></div>
+                <div class="stat-row"><span>后勤再补给ETA</span><span>2小时</span></div>
+            </div>
+
+            <div class="field-card">
+                <div class="card-title">💪 士气/纪律指数</div>
+                <div class="stat-row"><span>战斗凝聚力</span><span>97%</span></div>
+                <div class="rough-bar"><div class="rough-fill" style="width:97%"></div></div>
+                <div class="stat-row"><span>纪律评分</span><span>S (最高等级)</span></div>
+                <div class="stat-row"><span>近期伤亡率</span><span>0% (任务全胜)</span></div>
             </div>
         </div>
     </div>
 
-    <!-- 底部终端流 动态滚动情报 -->
-    <div class="console-footer" id="consoleFooter">
-        <span><i class="fas fa-terminal"></i> GRIM> 战术数据链同步中...</span>
-        <span><i class="fas fa-waveform"></i> 情报流: 山谷异常信号增加12%</span>
-        <span><i class="fas fa-check-shield"></i> 深渊小队就绪标志: 绿色</span>
-        <span id="rollingMsg">⏺ 最新: 突袭组已完成斩首前部署</span>
+    <!-- 底部通讯栏 战场信息流 -->
+    <div class="comms-bar">
+        <span><span class="status-led"></span> GRIM-实际: 情报部截获山谷新信号</span>
+        <span>📻 深渊小队: 空袭坐标确认, 等待指令</span>
+        <span>🔧 后勤: 自费装备已分发至突袭组</span>
+        <span id="rollingComms">🎯 最新: 卡莫纳农场清剿收尾中</span>
     </div>
 </div>
 
 <script>
-    // 动态时钟 + 模拟信号变化，以及随机消息更新底部信息，使终端更具生命感
-    function updateClock() {
+    // 军用时间格式
+    function updateMilTime() {
         const now = new Date();
-        const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
-        document.getElementById('liveClock').innerText = timeStr;
+        const hours = now.getHours().toString().padStart(2,'0');
+        const mins = now.getMinutes().toString().padStart(2,'0');
+        document.getElementById('milTime').innerText = `${hours}${mins}`;
+        const day = now.getDate();
+        const month = now.getMonth()+1;
+        document.getElementById('dateField').innerText = `${month.toString().padStart(2,'0')}${day.toString().padStart(2,'0')}`;
     }
-    setInterval(updateClock, 1000);
-    updateClock();
+    updateMilTime();
+    setInterval(updateMilTime, 60000);
 
-    // 模拟信号强度随机微变 (只是为了视觉动效)
-    function updateSignal() {
-        const signalSpan = document.getElementById('signalStrength');
-        if(signalSpan) {
-            const signals = ['极强', '强', '稳定', '强'];
-            let idx = Math.floor(Math.random() * 4);
-            signalSpan.innerText = signals[idx];
+    // 动态模拟情报流、目标数量变化（粗糙战场感）
+    let targetCount = 3;
+    const targetSpan = document.getElementById('targetCount');
+    const intelSpan = document.getElementById('intelBrief');
+    const rollingSpan = document.getElementById('rollingComms');
+    const intelList = ["山谷北部车队移动","农场东侧枪声频次增加","多斯残部疑似重组","敌方无线电静默","突袭组侦测到热源信号"];
+    let intelIdx = 0;
+    function updateTacticalFeed() {
+        // 目标数量在2-4之间浮动
+        let newTarget = Math.floor(Math.random() * 3) + 2;
+        if(targetSpan) targetSpan.innerText = newTarget + "个";
+        // 情报部短讯滚动
+        if(intelSpan) {
+            intelIdx = (intelIdx+1) % intelList.length;
+            intelSpan.innerText = intelList[intelIdx];
+        }
+        // 底部滚动新消息 更像战场通讯
+        const commMsgs = [
+            "情报: 山谷北侧发现可疑热源",
+            "深渊小队: 请求空中侦察支援",
+            "后勤: 弹药补给车队已出发",
+            "突袭组报告: 豺狼位置锁定，准备斩首",
+            "苏梅克监督: 行动记录已上传",
+            "众人之上，强者之列 — 晋升2名士官"
+        ];
+        if(rollingSpan) {
+            let randMsg = commMsgs[Math.floor(Math.random() * commMsgs.length)];
+            rollingSpan.innerHTML = `📡 ${randMsg}`;
         }
     }
-    setInterval(updateSignal, 8000);
+    setInterval(updateTacticalFeed, 18000);
 
-    // 模拟情报部文本轮换，让实时情报生动
-    const intelFlowSpan = document.getElementById('intelFlow');
-    const intelMessages = ["高活跃度", "敌方调度增多", "山谷电子干扰中", "通讯截获: 撤离指令", "无人机侦察影像回传"];
-    let idxIntel = 0;
-    function rotateIntel() {
-        if(intelFlowSpan) {
-            idxIntel = (idxIntel + 1) % intelMessages.length;
-            intelFlowSpan.innerText = intelMessages[idxIntel];
-        }
-    }
-    setInterval(rotateIntel, 7000);
-
-    // 底部滚动消息轮换 (战术终端风格)
-    const footerDiv = document.getElementById('consoleFooter');
-    const messagesQueue = [
-        "GRIM> 情报部更新: 多斯残党重组迹象，突袭组待命",
-        "✅ 深渊小队请求空袭坐标确认 | 农场区域已净空",
-        "⚡ 卡莫纳山谷斩首行动复盘: 时效领先预期37%",
-        "📡 后勤部新到自费装备: OPS-CORE 头盔 / 热成像仪已分配",
-        "🔺 苏梅克委员会审查报告: GRIM 行动合规性 A+",
-        "众人之上，强者之列 —— 最新荣誉晋升2名资深士官"
-    ];
-    let msgIndex = 0;
-    function rotateFooterMessage() {
-        if(footerDiv) {
-            const rollingSpan = document.getElementById('rollingMsg');
-            if(rollingSpan) {
-                msgIndex = (msgIndex + 1) % messagesQueue.length;
-                rollingSpan.innerHTML = `⏺ 最新: ${messagesQueue[msgIndex]}`;
-            } else {
-                // 如果没有独立span，则整体追加显示
-                let newMsgSpan = document.createElement('span');
-                newMsgSpan.style.opacity = '0.8';
-                newMsgSpan.innerHTML = `<i class="fas fa-rss"></i> ${messagesQueue[msgIndex]}`;
-                footerDiv.appendChild(newMsgSpan);
-                if(footerDiv.children.length > 6) footerDiv.removeChild(footerDiv.children[2]);
+    // 模拟突袭组战备数值微变（非科技感，只是体现动态）
+    const fillBars = document.querySelectorAll('.rough-fill');
+    let barStep = 0;
+    setInterval(() => {
+        // 让其中一个进度条微调，战场环境消耗模拟
+        if(fillBars.length > 2 && barStep % 3 === 0) {
+            let targetFill = fillBars[1];
+            if(targetFill && targetFill.style.width === "96%") {
+                targetFill.style.width = "94%";
+                setTimeout(()=>{ if(targetFill) targetFill.style.width = "96%"; }, 4000);
             }
         }
-    }
-    setInterval(rotateFooterMessage, 12000);
-    // 确保滚动消息元素存在 (动态创建)
-    if(!document.getElementById('rollingMsg')) {
-        const newSpan = document.createElement('span');
-        newSpan.id = 'rollingMsg';
-        newSpan.innerHTML = `⏺ 最新: 突袭组已完成斩首前部署`;
-        document.getElementById('consoleFooter')?.appendChild(newSpan);
-    }
+        barStep++;
+    }, 30000);
 
-    // 增加模拟“战术心跳”效果，更新右侧目标威胁随机参数（可选，增加动态感但不影响核心）
-    const targetThreatSpan = document.querySelector('.target-panel .stat-item:nth-child(2) span:last-child');
-    if(targetThreatSpan) {
-        setInterval(() => {
-            const threats = ['极高', '高', '临界', '高度活跃'];
-            let r = Math.floor(Math.random() * 3);
-            if(targetThreatSpan.innerText !== threats[r]) targetThreatSpan.innerText = threats[r];
-        }, 15000);
-    }
-
-    // 展示一次控制台欢迎日志
-    console.log("G.R.I.M. 战术终端已启动 | 保持冷静，继续前行！ 众人之上，强者之列");
-    // 为了增加符合设定的详细装备说明，模拟后台操作
-    const addSelfFundedNote = () => {
-        // 只是视觉效果，无需动作
-    }
-    addSelfFundedNote();
-
-    // 添加一个小功能： 右侧小组就绪状态颜色呼吸效果模拟 (氛围)
-    const statusIndicators = document.querySelectorAll('.glow-text');
-    let glowToggle = false;
-    setInterval(() => {
-        statusIndicators.forEach(el => {
-            if(glowToggle) el.style.textShadow = '0 0 5px cyan';
-            else el.style.textShadow = '0 0 1px #0aa';
-        });
-        glowToggle = !glowToggle;
-    }, 800);
+    // 简单模拟行动日志增加一条实时简报（避免过度刷新，增加一条近期）
+    const logContainer = document.querySelector('.log-area');
+    let extraLogAdded = false;
+    setTimeout(() => {
+        if(logContainer && !extraLogAdded) {
+            const newEntry = document.createElement('div');
+            newEntry.className = 'log-entry';
+            const now = new Date();
+            const timeStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2,'0')}${now.getMinutes().toString().padStart(2,'0')}`;
+            newEntry.innerHTML = `<div class="log-time">${timeStr}</div>
+            <div class="log-text">【实时】突袭组与深渊小队协同，完成农场外围侦察，无接触。</div>
+            <div class="log-badge">警戒状态维持</div>`;
+            logContainer.insertBefore(newEntry, logContainer.firstChild);
+            extraLogAdded = true;
+        }
+    }, 5000);
 </script>
 </body>
 </html>
