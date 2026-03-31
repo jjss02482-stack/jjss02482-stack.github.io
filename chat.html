@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>A.D.A. 执法终端 | 武装防卫局 · 战术响应系统</title>
+    <title>A.D.A. 执法终端</title>
     <style>
         * {
             margin: 0;
@@ -12,496 +12,241 @@
         }
 
         body {
-            background: #0a0f1a;
-            font-family: 'Inter', 'Segoe UI', 'Roboto', 'Courier New', monospace;
-            overflow: hidden;
-            height: 100vh;
+            background: #0a1018;
+            font-family: 'Courier New', 'Segoe UI', monospace;
+            padding: 20px;
         }
 
-        /* 主容器 */
-        .ada-terminal {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background: #0c1120;
-        }
-
-        /* 顶部状态栏 - Ready or Not 风格 */
-        .top-bar {
-            background: #05080f;
-            border-bottom: 2px solid #1e2a4a;
-            padding: 8px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #b0c4ff;
-            font-weight: 500;
-        }
-        .unit-badge {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-        /* Logo 区域 - 放大白底 */
-        .logo-container {
-            background: white;
-            padding: 10px 20px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            margin-right: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-        .logo-container img {
-            height: 48px;
-            width: auto;
-            display: block;
-        }
-        .led-blue {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            background: #3a86ff;
-            border-radius: 50%;
-            box-shadow: 0 0 4px #3a86ff;
-            margin-right: 8px;
-        }
-        .time-status {
-            display: flex;
-            gap: 24px;
-            font-family: 'Courier New', monospace;
-            background: #0a0e16;
-            padding: 4px 12px;
-            border-radius: 20px;
-        }
-
-        /* 主布局 */
-        .main-dashboard {
-            display: flex;
-            flex: 1;
-            min-height: 0;
-            overflow: hidden;
-            padding: 16px;
-            gap: 16px;
-        }
-
-        /* 左侧主区域 - 战术简报卡片 */
-        .tactical-brief {
-            flex: 1.5;
-            background: #0f1422;
-            border-radius: 12px;
+        .terminal {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: #0c121c;
             border: 1px solid #2a3a6e;
-            display: flex;
-            flex-direction: column;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
-        .brief-header {
-            background: #0a0e1a;
-            padding: 12px 16px;
+
+        /* 顶部状态栏 */
+        .top-bar {
+            background: #0a0e16;
+            padding: 12px 20px;
             border-bottom: 1px solid #2a3a6e;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-        .brief-header h3 {
-            font-size: 14px;
-            font-weight: 600;
-            color: #d0e4ff;
-            letter-spacing: 1px;
-        }
-        .brief-header span {
-            font-size: 11px;
-            color: #6a8fcf;
-        }
-        .brief-content {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* 任务状态卡片 */
-        .mission-status {
-            background: #0c1020;
-            border-left: 4px solid #3a86ff;
-            padding: 12px;
-            border-radius: 8px;
-        }
-        .mission-title {
-            font-weight: bold;
-            color: #ffaa55;
-            margin-bottom: 8px;
-            font-size: 12px;
-        }
-        .mission-details {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #c0d4ff;
-            margin-top: 6px;
-        }
-
-        /* 单位状态网格 */
-        .unit-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-        .unit-card {
-            background: #0a0e1a;
-            border-radius: 8px;
-            padding: 10px;
-            border: 1px solid #2a3a6e;
-        }
-        .unit-name {
-            font-weight: bold;
-            color: #8fabdf;
-            font-size: 11px;
-            margin-bottom: 6px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .unit-stats {
-            font-size: 9px;
-            color: #b0c4ff;
-            display: flex;
-            gap: 12px;
-            margin-top: 6px;
-        }
-
-        /* 装备列表 - 警察风格 */
-        .gear-section {
-            background: #0c1020;
-            border-radius: 8px;
-            padding: 12px;
-        }
-        .gear-title {
-            font-size: 11px;
-            font-weight: bold;
-            color: #8fabdf;
-            margin-bottom: 10px;
-            border-left: 2px solid #3a86ff;
-            padding-left: 8px;
-        }
-        .gear-tags {
-            display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 12px;
         }
-        .gear-tag {
-            background: #111624;
-            border: 1px solid #2a4a8a;
-            padding: 4px 12px;
-            font-size: 10px;
-            border-radius: 20px;
-            color: #b0d0ff;
-        }
-
-        /* 右侧信息面板 */
-        .info-panel {
-            width: 360px;
-            background: #0f1422;
-            border-radius: 12px;
-            border: 1px solid #2a3a6e;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .panel-section {
-            padding: 14px 16px;
-            border-bottom: 1px solid #1e2a4a;
-        }
-        .section-title {
-            font-weight: bold;
-            color: #8fabdf;
-            font-size: 11px;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-            display: flex;
+        .logo-area {
+            background: white;
+            padding: 8px 20px;
+            border-radius: 4px;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
         }
-        .data-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 10px;
+        .logo-area img {
+            height: 48px;
+            width: auto;
+            display: block;
         }
-        .data-label {
+        .title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #b0c4ff;
+        }
+        .time {
+            font-family: monospace;
             color: #7a8fbf;
         }
-        .data-value {
-            font-weight: bold;
-            color: #cfdfff;
-        }
-        .missing {
-            color: #ff7755;
-            font-weight: bold;
-            background: #331a0a;
-            padding: 2px 6px;
-            border-radius: 12px;
-            font-size: 9px;
-        }
-        .log-item {
-            border-left: 2px solid #3a86ff;
-            padding-left: 10px;
-            margin-bottom: 12px;
-            font-size: 9px;
-        }
-        .log-time {
-            color: #6a8fcf;
-            font-size: 8px;
-            margin-bottom: 4px;
+
+        /* 主体网格 */
+        .grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 0;
         }
 
-        /* 无线电通讯栏 */
-        .radio-bar {
+        /* 左侧卡片 */
+        .card {
+            background: #0f1422;
+            margin: 16px;
+            padding: 14px;
+            border: 1px solid #2a3a6e;
+        }
+        .card-title {
+            font-weight: bold;
+            border-bottom: 1px solid #2a3a6e;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #8fabdf;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #c0d4ff;
+        }
+        .label {
+            font-weight: bold;
+            color: #7a8fbf;
+        }
+        .divider {
+            height: 1px;
+            background: #1e2a4e;
+            margin: 12px 0;
+        }
+        .missing {
+            color: #ff8866;
+            font-weight: bold;
+        }
+
+        /* 右侧区域 - PDA风格 */
+        .pda-area {
+            background: #0a0e1a;
+            margin: 16px 16px 16px 0;
+            padding: 16px;
+            border: 1px solid #2a3a6e;
+            min-height: 400px;
+        }
+        .pda-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #8fabdf;
+            margin-bottom: 12px;
+            border-left: 3px solid #3a6eff;
+            padding-left: 10px;
+        }
+        .pda-card {
+            background: #0c1020;
+            border-left: 2px solid #3a6eff;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        .pda-text {
+            font-size: 12px;
+            color: #b0c4ff;
+            line-height: 1.4;
+        }
+
+        /* 底部按钮 */
+        .footer {
             background: #0a0e16;
             border-top: 1px solid #2a3a6e;
             padding: 8px 16px;
-            font-size: 10px;
-            color: #b0c4ff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .radio-call {
-            font-family: monospace;
-            background: #05080f;
-            padding: 4px 12px;
-            border-radius: 20px;
-            color: #6fcf6f;
-        }
-
-        /* 切换按钮 */
-        .switch-link {
-            display: inline-block;
-            background: #111a2a;
-            border: 1px solid #3a86ff;
-            color: #8fabdf;
-            padding: 6px 16px;
-            font-size: 10px;
-            cursor: pointer;
-            font-family: monospace;
-            text-decoration: none;
             text-align: center;
-            border-radius: 20px;
-            transition: all 0.2s;
         }
-        .switch-link:hover {
+        .switch-btn {
+            background: #111a2a;
+            border: 1px solid #3a6eff;
+            color: #8fabdf;
+            padding: 6px 20px;
+            font-family: monospace;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .switch-btn:hover {
             background: #1e2a4a;
-            color: white;
-        }
-
-        /* 滚动条 */
-        .brief-content::-webkit-scrollbar,
-        .info-panel::-webkit-scrollbar {
-            width: 4px;
-        }
-        .brief-content::-webkit-scrollbar-track,
-        .info-panel::-webkit-scrollbar-track {
-            background: #0a0e1a;
-        }
-        .brief-content::-webkit-scrollbar-thumb,
-        .info-panel::-webkit-scrollbar-thumb {
-            background: #3a86ff;
-            border-radius: 4px;
-        }
-
-        /* 警徽小图标 */
-        .badge-icon {
-            font-size: 16px;
-            filter: drop-shadow(0 0 2px #3a86ff);
         }
     </style>
 </head>
 <body>
-<div class="ada-terminal">
+<div class="terminal">
     <div class="top-bar">
-        <div class="unit-badge">
-            <div class="logo-container">
-                <img src="2815ffb87abe473eb495945519e735b1.jpeg~tplv-a9rns2rl98-downsize_watermark_1_5_b.png" alt="A.D.A. Logo" onerror="this.style.display='none'; this.parentElement.innerText='A.D.A.'">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div class="logo-area">
+                <img src="2815ffb87abe473eb495945519e735b1.jpeg~tplv-a9rns2rl98-downsize_watermark_1_5_b.png" alt="A.D.A." onerror="this.style.display='none'; this.parentElement.innerText='A.D.A.'">
             </div>
-            <span><span class="led-blue"></span> A.D.A. · 武装防卫局</span>
-            <span>国家级特种战术执法机构</span>
+            <div class="title">武装防卫局 · Armed Defense Authority</div>
         </div>
-        <div class="time-status">
-            <span>🕒 <span id="adaTime">--:--:--</span> UTC</span>
-            <span>📡 加密信道 Ω-7</span>
-            <span>⚡ PDA 授权 Ⅲ级</span>
-        </div>
+        <div class="time" id="clock">--:--:-- UTC</div>
     </div>
 
-    <div class="main-dashboard">
-        <!-- 左侧主区域：战术简报（Ready or Not 风格） -->
-        <div class="tactical-brief">
-            <div class="brief-header">
-                <h3><span class="badge-icon">🛡️</span> 战术响应系统 · TAC-ONE</h3>
-                <span>实时更新 | 授权行动中</span>
+    <div class="grid">
+        <!-- 左侧：机构信息 -->
+        <div>
+            <div class="card">
+                <div class="card-title">📜 机构档案</div>
+                <div class="row"><span class="label">起源</span><span>法律的补丁 · 1994 科伦危机后成立</span></div>
+                <div class="row"><span class="label">职能</span><span>国家级特种战术执法 · 跨区行动权</span></div>
+                <div class="divider"></div>
+                <div class="row"><span class="label">与 G.R.I.M.</span><span>影子协议 · 技术/火力换执法外衣</span></div>
+                <div class="row"><span class="label">核心装备</span><span>PDA（个人数字助理）</span></div>
             </div>
-            <div class="brief-content">
-                <!-- 任务状态 -->
-                <div class="mission-status">
-                    <div class="mission-title">📋 当前行动指令</div>
-                    <div>依据《治安维护条例》第12条，授权对卡莫纳农场区域高危目标执行排查与清除。</div>
-                    <div class="mission-details">
-                        <span>📅 生效时间: 2026.03.31 06:00Z</span>
-                        <span>🎯 优先级: 紧急</span>
-                    </div>
-                </div>
-
-                <!-- 单位状态网格 -->
-                <div class="unit-grid">
-                    <div class="unit-card">
-                        <div class="unit-name">猎鹰行动组 <span style="color:#6fcf6f;">● 在线</span></div>
-                        <div class="unit-stats">👥 4/4 人员 | 🚁 空中支援就绪</div>
-                        <div class="unit-stats">📍 农场西侧外围</div>
-                    </div>
-                    <div class="unit-card">
-                        <div class="unit-name">新锐小队 <span style="color:#ffaa55;">● 待命</span></div>
-                        <div class="unit-stats">👥 3/3 新锐 | 📱 PDA 已激活</div>
-                        <div class="unit-stats">📍 山谷集结区</div>
-                    </div>
-                    <div class="unit-card">
-                        <div class="unit-name">战术顾问组 <span class="missing">MISSING</span></div>
-                        <div class="unit-stats">塞缪尔·莱恩 · 最后通讯: 2026.03.30 22:14Z</div>
-                        <div class="unit-stats">⚠️ 失踪状态 · 全力搜救中</div>
-                    </div>
-                    <div class="unit-card">
-                        <div class="unit-name">G.R.I.M. 联络组 <span style="color:#6fcf6f;">● 数据链同步</span></div>
-                        <div class="unit-stats">深渊小队协同 | 空袭待命</div>
-                    </div>
-                </div>
-
-                <!-- 装备清单 -->
-                <div class="gear-section">
-                    <div class="gear-title">🔫 标准执法装备 (G.R.I.M. 技术捐赠)</div>
-                    <div class="gear-tags">
-                        <span class="gear-tag">HK416 D10RS</span>
-                        <span class="gear-tag">Glock 17 MOS</span>
-                        <span class="gear-tag">PDA 战术终端</span>
-                        <span class="gear-tag">防弹插板 Ⅳ级</span>
-                        <span class="gear-tag">M84 闪光弹</span>
-                        <span class="gear-tag">破门霰弹枪</span>
-                        <span class="gear-tag">热成像仪</span>
-                        <span class="gear-tag">执法记录仪</span>
-                    </div>
-                </div>
-
-                <!-- 无线电通讯记录（动态） -->
-                <div class="gear-section">
-                    <div class="gear-title">📻 战术无线电 · 实时频道</div>
-                    <div id="radioLog" style="font-size: 9px; color: #b0c4ff; line-height: 1.5;">
-                        <div>🔹 猎鹰组: 外围净空，准备突入</div>
-                        <div>🔹 G.R.I.M.: 无人机热源确认，目标建筑三层</div>
-                        <div>🔹 新锐小队: 待命于预定位置</div>
-                    </div>
-                </div>
+            <div class="card">
+                <div class="card-title">👥 成员构成</div>
+                <div class="row"><span class="label">来源</span><span>前海军陆战队 / 特警精锐</span></div>
+                <div class="row"><span class="label">新兵代号</span><span>新锐</span></div>
+                <div class="row"><span class="label">训练信条</span><span>高效、冷酷、绝对服从</span></div>
+                <div class="divider"></div>
+                <div class="row"><span class="label">战术顾问</span><span class="missing">塞缪尔·莱恩 · 失踪</span></div>
+                <div class="row"><span class="label">最后通讯</span><span>2026.03.30 22:14Z · 山谷B4区失联</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">⚙️ 装备体系</div>
+                <div class="row"><span class="label">核心</span><span>PDA 战术授权终端</span></div>
+                <div class="row"><span class="label">武器</span><span>G.R.I.M. 捐赠军用级（HK416 / 防弹插板）</span></div>
+                <div class="row"><span class="label">通讯</span><span>加密数据链 · 与 G.R.I.M. 共享</span></div>
             </div>
         </div>
 
-        <!-- 右侧信息面板 -->
-        <div class="info-panel">
-            <div class="panel-section">
-                <div class="section-title">
-                    <span>📜 机构档案</span>
-                </div>
-                <div class="data-row"><span class="data-label">起源</span><span class="data-value">法律的补丁 · 1994 科伦危机后成立</span></div>
-                <div class="data-row"><span class="data-label">职能</span><span class="data-value">国家级特种执法 · 跨区行动权</span></div>
-                <div class="data-row"><span class="data-label">与 G.R.I.M.</span><span class="data-value">影子协议 · 技术/火力换法律外衣</span></div>
-                <div class="divider-light" style="margin: 8px 0; border-top: 1px solid #1e2a4e;"></div>
-                <div class="data-row">
-                    <span class="data-label">👤 塞缪尔·莱恩</span>
-                    <span class="missing" style="background:#331a0a;">失踪 · 搜救中</span>
-                </div>
-                <div class="data-row"><span class="data-label">最后已知位置</span><span class="data-value">卡莫纳山谷 B4 区洞穴群</span></div>
-                <div class="data-row"><span class="data-label">最后一次通讯</span><span class="data-value">2026.03.30 22:14Z · 战术加密频道中断</span></div>
+        <!-- 右侧：PDA 终端界面 -->
+        <div class="pda-area">
+            <div class="pda-title">📱 个人数字助理 (PDA) · 实时执法终端</div>
+            <div class="pda-card">
+                <div class="pda-text"><strong>📋 今日任务简报</strong><br>
+                依据《治安维护条例》第12条，授权对卡莫纳农场区域高危目标进行排查。协同单位：G.R.I.M. 战术顾问组。</div>
             </div>
-
-            <div class="panel-section">
-                <div class="section-title">⚙️ 装备体系</div>
-                <div class="data-row"><span class="data-label">核心装备</span><span class="data-value">PDA (战术授权终端) · 执法记录仪</span></div>
-                <div class="data-row"><span class="data-label">武器制式</span><span class="data-value">G.R.I.M. 捐赠军用级 (HK416/防弹插板)</span></div>
-                <div class="data-row"><span class="data-label">通讯加密</span><span class="data-value">量子密钥分发 · 与 GRIM 共享数据链</span></div>
+            <div class="pda-card">
+                <div class="pda-text"><strong>🛡️ 影子协议 · 技术捐赠</strong><br>
+                G.R.I.M. 提供尖端 PDA 系统、加密数据链及军用级火力支援。A.D.A. 提供合法执法外衣与跨区行动授权。当前状态：<span style="color:#6fcf6f;">● 在线</span></div>
             </div>
-
-            <div class="panel-section">
-                <div class="section-title">🔍 近期执法行动</div>
-                <div class="log-item">
-                    <div class="log-time">2026.03.30 · 22:14Z</div>
-                    <div>塞缪尔·莱恩 在追踪豺狼目标时失联，最后信号丢失于山谷 B4 区。已启动搜救协议。</div>
-                </div>
-                <div class="log-item">
-                    <div class="log-time">2026.03.30 · 15:20Z</div>
-                    <div>联合 GRIM 突袭组完成山谷外围清剿，缴获黑金国际军火一批。</div>
-                </div>
-                <div class="log-item">
-                    <div class="log-time">2026.03.28 · 09:10Z</div>
-                    <div>农场区域巡逻，查获多斯残部军火走私点，逮捕 3 人。</div>
-                </div>
+            <div class="pda-card">
+                <div class="pda-text"><strong>👤 人员动态</strong><br>
+                新锐（见习执法员）：已分配 PDA 终端，待首次实战考核。资深行动组正在山谷外围执行监视。</div>
             </div>
-
-            <div class="panel-section">
-                <div class="section-title">🔗 联动控制</div>
-                <a href="index.html" class="switch-link" style="display: block; text-align: center;">← 返回 G.R.I.M. 战术终端 (index.html)</a>
-                <div class="pda-text" style="margin-top: 12px; font-size:8px; text-align:center; color:#6a8fcf;">影子协议 · 实时数据桥接中</div>
+            <div class="pda-card">
+                <div class="pda-text"><strong>🔍 塞缪尔·莱恩 失踪事件</strong><br>
+                战术顾问塞缪尔·莱恩于 2026.03.30 22:14Z 在追踪目标时失联，最后信号位于卡莫纳山谷 B4 区洞穴群。已启动搜救协议，目前无进一步消息。</div>
+            </div>
+            <div class="pda-card">
+                <div class="pda-text"><strong>📡 实时情报 (G.R.I.M. 馈送)</strong><br>
+                <span id="intelFeed">山谷东侧加密通讯增加，建议加强警戒。</span></div>
             </div>
         </div>
     </div>
 
-    <div class="radio-bar">
-        <div><span class="led-blue"></span> 加密频道 | 当前通联: 猎鹰组、新锐小队、G.R.I.M. 战术顾问</div>
-        <div class="radio-call" id="rollingCall">📡 最新: 搜救队已抵达莱恩最后信号区</div>
+    <div class="footer">
+        <a href="index.html" class="switch-btn">← 返回 G.R.I.M. 战术终端</a>
     </div>
 </div>
 
 <script>
-    // 时间更新
-    function updateTime() {
+    function updateClock() {
         const now = new Date();
         const utc = now.toISOString().substr(11, 8);
-        document.getElementById('adaTime').innerText = utc;
+        document.getElementById('clock').innerText = utc + ' UTC';
     }
-    updateTime();
-    setInterval(updateTime, 1000);
+    updateClock();
+    setInterval(updateClock, 1000);
 
-    // 动态无线电记录与滚动消息
-    const radioLog = document.getElementById('radioLog');
-    const rollingCall = document.getElementById('rollingCall');
-    const radioMessages = [
-        "猎鹰组: 外围净空，准备突入",
-        "G.R.I.M.: 无人机热源确认，目标建筑三层",
-        "新锐小队: 待命于预定位置",
-        "搜救组: 已进入B4区，暂无莱恩信号",
-        "指挥中心: 所有单位注意，莱恩失踪，谨慎推进",
-        "猎鹰组: 发现可疑血迹，请求支援"
+    // 简单情报轮换，只使用已有信息
+    const intelFeed = document.getElementById('intelFeed');
+    const intelMsgs = [
+        "山谷东侧加密通讯增加，建议加强警戒。",
+        "农场区域载具移动，可能与多斯残部有关。",
+        "G.R.I.M. 情报部：敌方指挥频率切换至34.5MHz。",
+        "深渊小队请求协同，农场东侧需A.D.A.支援。"
     ];
-    let msgIndex = 0;
+    let idx = 0;
     setInterval(() => {
-        if (radioLog) {
-            msgIndex = (msgIndex + 1) % radioMessages.length;
-            // 添加新消息，保持最近3条
-            const newMsg = document.createElement('div');
-            newMsg.innerText = `🔹 ${radioMessages[msgIndex]}`;
-            radioLog.insertBefore(newMsg, radioLog.firstChild);
-            if (radioLog.children.length > 5) radioLog.removeChild(radioLog.lastChild);
+        if (intelFeed) {
+            idx = (idx + 1) % intelMsgs.length;
+            intelFeed.innerText = intelMsgs[idx];
         }
-        const rollingMsgs = [
-            "📡 搜救队已抵达莱恩最后信号区",
-            "📡 情报部: 山谷北侧热源信号增加",
-            "📡 G.R.I.M. 顾问组: 保持通讯静默",
-            "📡 新锐小队 PDA 固件已更新"
-        ];
-        if (rollingCall) {
-            let r = Math.floor(Math.random() * rollingMsgs.length);
-            rollingCall.innerText = rollingMsgs[r];
-        }
-    }, 8000);
+    }, 10000);
 </script>
 </body>
 </html>
