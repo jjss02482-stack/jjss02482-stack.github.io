@@ -2,390 +2,313 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>NEW YORK 2015 - 战术终端（天子警察 & 30章剧情版）</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>A.D.A. 执法终端 | 武装防卫局</title>
     <style>
-        :root { 
-            --accent-blue: #0055ff; --bg-white: #ffffff; --panel-gray: #f4f4f4; 
-            --text-dark: #1a1a1a; --police-blue: #0033aa; --wanted-red: #ff0000; 
-            --story-gold: #d4af37;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        body { background-color: var(--bg-white); color: var(--text-dark); font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; }
-        #game-container { background: var(--bg-white); border: 1px solid #ddd; width: 900px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); position: relative; }
-        h1 { text-align: center; color: var(--text-dark); text-transform: uppercase; letter-spacing: 8px; border-bottom: 2px solid #000; padding-bottom: 15px; font-weight: 900; }
+        body {
+            background: #0c1018;
+            font-family: 'Courier New', 'SF Mono', 'Monaco', monospace;
+            overflow: hidden;
+            height: 100vh;
+        }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; background: var(--panel-gray); padding: 20px; border-radius: 4px; border: 1px solid #eee; }
-        .stat-item { font-size: 13px; color: #666; }
-        .stat-value { color: var(--accent-blue); font-weight: bold; font-family: 'Courier New', monospace; }
+        .ada-terminal {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: #0c1018;
+        }
 
-        #log { height: 300px; overflow-y: auto; border: 1px solid #eee; padding: 15px; background: #fafafa; margin-bottom: 20px; font-size: 13px; line-height: 1.8; border-left: 4px solid var(--accent-blue); color: #333; }
-        .police-msg { color: var(--police-blue); font-weight: bold; }
-        .story-msg { color: var(--story-gold); font-weight: bold; background: #000; padding: 2px 5px; }
+        /* 顶部状态栏 */
+        .top-bar {
+            background: #0a0e16;
+            border-bottom: 1px solid #2a3a6e;
+            padding: 6px 16px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #7a8fbf;
+        }
+        .unit-badge {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .unit-badge strong {
+            color: #8fabdf;
+            font-size: 13px;
+        }
+        .led-blue {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #3a6eff;
+            box-shadow: 0 0 3px #3a6eff;
+            margin-right: 6px;
+        }
+        .time-status {
+            display: flex;
+            gap: 24px;
+        }
 
-        .menu-grid { display: grid; grid-template-columns: repeat(4, 24%); gap: 1.3%; }
-        button { background: #fff; color: #000; border: 1px solid #000; padding: 14px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 11px; transition: all 0.2s; text-transform: uppercase; }
-        button:hover { background: #000; color: #fff; }
-        button:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; background: #f9f9f9; }
+        /* Logo 区域 - 白底容器 */
+        .logo-container {
+            background: white;
+            padding: 8px 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            margin-right: 16px;
+        }
+        .logo-container img {
+            height: 32px;
+            width: auto;
+            display: block;
+        }
 
-        #modal-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 10; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px); }
-        #modal-content { border: 1px solid #000; background: #fff; height: 95%; padding: 30px; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
-        .item-card { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        /* 主布局 */
+        .main-dashboard {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
 
-        .dial-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; width: 240px; margin: 20px auto; }
-        .dial-btn { width: 65px; height: 65px; border-radius: 0; font-size: 20px; border: 1px solid #000; background: #fff; }
-        #dial-display { font-size: 28px; color: #000; margin-bottom: 20px; height: 40px; letter-spacing: 8px; border-bottom: 2px solid #000; text-align: center; }
+        /* 左侧 PDA 区域 */
+        .pda-area {
+            flex: 1;
+            background: #0a0e1a;
+            border-right: 1px solid #2a3a6e;
+            display: flex;
+            flex-direction: column;
+        }
+        .pda-header {
+            background: #0e121f;
+            padding: 6px 12px;
+            border-bottom: 1px solid #2a3a6e;
+            font-size: 10px;
+            color: #7a8fbf;
+        }
+        .pda-screen {
+            flex: 1;
+            background: #0a0e18;
+            padding: 16px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+        .pda-card {
+            background: #111624;
+            border-left: 3px solid #3a6eff;
+            margin-bottom: 16px;
+            padding: 12px;
+        }
+        .pda-title {
+            font-weight: bold;
+            color: #8fabdf;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+        .pda-text {
+            font-size: 9px;
+            color: #b0c4ff;
+            line-height: 1.4;
+        }
+
+        /* 右侧信息面板 */
+        .info-panel {
+            width: 340px;
+            background: #0a0e16;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            font-size: 10px;
+            color: #b0c4ff;
+        }
+        .panel-section {
+            border-bottom: 1px solid #1e2a4e;
+            padding: 10px 12px;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #8fabdf;
+            font-size: 9px;
+            letter-spacing: 1px;
+            border-left: 3px solid #3a6eff;
+            padding-left: 8px;
+            margin-bottom: 10px;
+        }
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 10px;
+        }
+        .data-label { color: #7a8fbf; }
+        .data-value { font-weight: bold; color: #cfdfff; }
+        .divider-light {
+            height: 1px;
+            background: #1e2a4e;
+            margin: 8px 0;
+        }
+        .log-item {
+            border-left: 2px solid #3a6eff;
+            padding-left: 8px;
+            margin-bottom: 8px;
+            font-size: 9px;
+        }
+        .log-time {
+            color: #6a8fcf;
+            font-size: 8px;
+        }
+
+        /* 底部通讯栏 */
+        .bottom-comms {
+            background: #0a0e16;
+            border-top: 1px solid #2a3a6e;
+            padding: 5px 16px;
+            font-size: 9px;
+            color: #7a8fbf;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 切换按钮 */
+        .switch-link {
+            display: inline-block;
+            background: #111a2a;
+            border: 1px solid #3a6eff;
+            color: #8fabdf;
+            padding: 4px 12px;
+            font-size: 10px;
+            cursor: pointer;
+            font-family: monospace;
+            text-decoration: none;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .switch-link:hover {
+            background: #1e2a4a;
+        }
     </style>
 </head>
 <body>
-
-<div id="game-container">
-    <h1>NEW YORK 2015</h1>
-
-    <div id="setup-screen" style="text-align: center; padding: 40px 0;">
-        <h3 style="letter-spacing: 3px;">INITIALIZING SURVIVAL PROTOCOL / 身份初始化</h3>
-        <button onclick="initGame('POLICE')" style="display:block; width:100%; margin:15px 0;">NYPD UNIT / 警队单位</button>
-        <button onclick="initGame('MILITARY')" style="display:block; width:100%; margin:15px 0;">NATIONAL GUARD / 国民警卫队</button>
-        <button onclick="initGame('GANG')" style="display:block; width:100%; margin:15px 0;">THE CLAN / 骷髅会</button>
-    </div>
-
-    <div id="main-ui" style="display:none;">
-        <div class="stats-grid">
-            <div class="stat-item">ID: <span id="stat-name" class="stat-value"></span></div>
-            <div class="stat-item">STAMINA: <span id="stat-stam" style="color:orange;">100</span>/100</div> 
-            <div class="stat-item">WANTED: <span id="stat-wanted" style="color:var(--wanted-red);"></span></div>
-            <div class="stat-item">SECTOR: <span id="stat-loc" class="stat-value"></span></div>
-            <div class="stat-item">VITALS: <span id="stat-hp" class="stat-value">100</span>%</div>
-            <div class="stat-item">SUPPLY: <span id="stat-survive" class="stat-value">100/100</span></div>
-            <div class="stat-item">CREDITS: <span id="stat-money" class="stat-value"></span></div>
-            <div class="stat-item">VEHICLE: <span id="stat-car" style="color:purple;">WALKING</span></div> 
+<div class="ada-terminal">
+    <div class="top-bar">
+        <div class="unit-badge">
+            <div class="logo-container">
+                <img src="2815ffb87abe473eb495945519e735b1.jpeg~tplv-a9rns2rl98-downsize_watermark_1_5_b.png" alt="A.D.A. Logo" onerror="this.style.display='none'; this.parentElement.innerText='A.D.A.'">
+            </div>
+            <span><span class="led-blue"></span> A.D.A.</span>
+            <span>武装防卫局 · Armed Defense Authority</span>
+            <span>国家级特种战术执法机构</span>
         </div>
-
-        <div id="log"></div>
-
-        <div class="menu-grid">
-            <button onclick="openMove()">🗺️ SECTOR / 区域移动</button>
-            <button onclick="openMissions()">📱 COMMS / 接收任务</button>
-            <button onclick="executeMission()">⚡ ACTION / 执行任务</button>
-            <button onclick="openStoryBoard()">📖 STORY / 剧情任务</button> 
-            <button onclick="openMarket()">🛒 TRADE / 影子集市</button>
-            <button onclick="openVehicleMarket()">🏎️ GARAGE / 载具中心</button> 
-            <button onclick="openInventory()">🎒 GEAR / 战术背包</button>
-            <button onclick="openPhone()">📞 DIAL / 拨号系统</button>
-            <button onclick="passDay()">💤 REST / 休息一天</button>
+        <div class="time-status">
+            <span id="adaTime">--:--:--</span>
+            <span>PDA: 授权Ω级</span>
         </div>
     </div>
 
-    <div id="modal-overlay">
-        <div id="modal-content">
-            <h2 id="modal-title" style="border-bottom: 2px solid #000; padding-bottom: 10px;"></h2>
-            <div id="modal-body"></div>
-            <button onclick="closeModal()" style="width:100%; margin-top:20px; border-color: #f00; color: #f00;">CLOSE / 返回</button>
+    <div class="main-dashboard">
+        <div class="pda-area">
+            <div class="pda-header">
+                <span>📱 个人数字助理 (PDA) · 实时执法终端</span>
+                <span style="float:right;">加密信道: ACTIVE</span>
+            </div>
+            <div class="pda-screen">
+                <div class="pda-card">
+                    <div class="pda-title">📋 今日任务简报</div>
+                    <div class="pda-text">依据《治安维护条例》第12条，授权对卡莫纳农场区域进行高危目标排查。协同单位：G.R.I.M. 战术顾问组。塞缪尔·莱恩已部署至前沿。</div>
+                </div>
+                <div class="pda-card">
+                    <div class="pda-title">🛡️ 影子协议 · 技术捐赠</div>
+                    <div class="pda-text">G.R.I.M. 提供尖端PDA系统、加密数据链及军用级火力支援。A.D.A. 提供合法执法外衣与跨区行动授权。当前联动状态：<span style="color:#6fcf6f;">● 在线</span></div>
+                </div>
+                <div class="pda-card">
+                    <div class="pda-title">👮 成员动态</div>
+                    <div class="pda-text">新锐（见习执法员）：已分配PDA终端，待首次实战考核。资深行动组“猎鹰”正在山谷外围执行监视。</div>
+                </div>
+                <div class="pda-card">
+                    <div class="pda-title">📡 实时情报共享 (G.R.I.M.馈送)</div>
+                    <div class="pda-text" id="adaIntelFeed">豺狼位置已锁定，建议协同抓捕。农场东侧有载具移动。</div>
+                </div>
+            </div>
         </div>
+        <div class="info-panel">
+            <div class="panel-section">
+                <div class="section-title">📜 机构档案</div>
+                <div class="data-row"><span class="data-label">起源</span><span class="data-value">法律的补丁 · 1994 科伦危机后成立</span></div>
+                <div class="data-row"><span class="data-label">职能</span><span class="data-value">国家级特种执法 · 跨区行动权</span></div>
+                <div class="data-row"><span class="data-label">与G.R.I.M.</span><span class="data-value">影子协议 · 技术/火力换法律外衣</span></div>
+            </div>
+            <div class="panel-section">
+                <div class="section-title">⚙️ 装备体系</div>
+                <div class="data-row"><span class="data-label">核心装备</span><span class="data-value">PDA (战术授权终端)</span></div>
+                <div class="data-row"><span class="data-label">武器制式</span><span class="data-value">G.R.I.M. 捐赠军用级 (HK416/防弹插板)</span></div>
+                <div class="data-row"><span class="data-label">通讯</span><span class="data-value">加密数据链 · 与GRIM共享</span></div>
+            </div>
+            <div class="panel-section">
+                <div class="section-title">🔍 近期执法行动</div>
+                <div class="log-item"><div class="log-time">2026.03.30</div><div>山谷外围清剿，配合GRIM突袭组完成斩首后现场控制。</div></div>
+                <div class="log-item"><div class="log-time">2026.03.28</div><div>农场区域巡逻，查获黑金国际军火走私点。</div></div>
+            </div>
+            <div class="panel-section">
+                <div class="section-title">🔗 联动控制</div>
+                <a href="index.html" class="switch-link" style="display: block; text-align: center;">← 返回 G.R.I.M. 战术终端 (index.html)</a>
+                <div class="pda-text" style="margin-top: 8px; font-size:8px; text-align:center;">影子协议 · 实时数据桥接中</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-comms">
+        <div><span class="led-blue"></span> PDA 授权状态: 全域执法模式</div>
+        <div id="adaRolling">最新: 新锐小队已抵达预定位置</div>
     </div>
 </div>
 
 <script>
-// --- 全局变量 ---
-let player = { 
-    name: "", faction: "", hp: 100, hpMax: 100, food: 100, water: 100, money: 0, wanted: 0, 
-    loc: "中城区", inv: [], mission: null, day: 1, partnerTurns: 0,
-    stamina: 100, car: null, storyProgress: { "DRUG": 1 }, ally: null, allyTurns: 0,
-    reiderCooldown: 0 // 新增：雷德尔电话冷却记录
-};
-
-const AREAS = { "中城区": 1, "华尔街": 2, "哈林区": 3, "布鲁克林": 2, "航母禁区": 5 };
-const MARKET_DATA = [
-    { id:0, name: "消音手枪", price: 500, desc: "成功率+15%" },
-    { id:1, name: "突击步枪", price: 1200, desc: "成功率+35%" },
-    { id:2, name: "防弹衣", price: 800, desc: "风险伤害减免" },
-    { id:3, name: "医疗包", price: 200, desc: "HP +40" },
-    { id:4, name: "牛肉罐头", price: 80, desc: "SAT +40" },
-    { id:5, name: "纯净水", price: 60, desc: "H2O +40" }
-];
-
-const VEHICLES = [
-    { name: "通用皮卡", price: 1500, staminaFree: true, armored: false },
-    { name: "维多利亚皇冠警车", price: 3000, staminaFree: true, armored: false },
-    { name: "特种防弹车", price: 10000, staminaFree: true, armored: true }
-];
-
-const STORY_DRUG = [
-    { ch: 1, title: "雷德尔：街头线报", loc: "哈林区", reward: 2000, msg: "追踪曼哈顿底层的毒品交易。" },
-    { ch: 2, title: "雷德尔：仓库火拼", loc: "布鲁克林", reward: 5000, msg: "查封藏匿在港口的非法货物。" },
-    { ch: 3, title: "雷德尔：高层名单", loc: "华尔街", reward: 8000, msg: "获取毒枭与官员勾结的证据。" },
-    { ch: 4, title: "雷德尔：证人保护", loc: "中城区", reward: 4000, msg: "护送关键证人前往安全屋。" },
-    { ch: 5, title: "雷德尔：秘密突袭", loc: "布鲁克林", reward: 6000, msg: "摧毁市中心的地下加工厂。" },
-    { ch: 6, title: "雷德尔：黑警疑云", loc: "华尔街", reward: 7000, msg: "调查分局内部的内鬼证据。" },
-    { ch: 7, title: "雷德尔：哈林暗影", loc: "哈林区", reward: 9000, msg: "解决威胁证人的街头头目。" },
-    { ch: 8, title: "雷德尔：证据转移", loc: "中城区", reward: 10000, msg: "将名单加密盘送往总部。" },
-    { ch: 9, title: "雷德尔：困兽之斗", loc: "布鲁克林", reward: 12000, msg: "在包围圈中守住关键证据。" },
-    { ch: 10, title: "雷德尔：禁区审判", loc: "航母禁区", reward: 20000, msg: "在禁区母舰上彻底摧毁供货链！" },
-    { ch: 11, title: "金融风暴：异常波动", loc: "华尔街", reward: 3000, msg: "拦截跨国银行的非法资金流。" },
-    { ch: 12, title: "金融风暴：离岸账户", loc: "中城区", reward: 4500, msg: "潜入律师事务所获取离案名单。" },
-    { ch: 13, title: "金融风暴：午夜暗杀", loc: "布鲁克林", reward: 5500, msg: "清理来灭口的职业杀手。" },
-    { ch: 14, title: "金融风暴：虚假合同", loc: "华尔街", reward: 6500, msg: "搜集被篡改的政府基建合同。" },
-    { ch: 15, title: "金融风暴：洗钱港口", loc: "布鲁克林", reward: 7500, msg: "查封伪装成海产贸易的钱庄。" },
-    { ch: 16, title: "金融风暴：高管叛逃", loc: "中城区", reward: 8500, msg: "在机场拦截准备出逃的CFO。" },
-    { ch: 17, title: "金融风暴：数据格式化", loc: "华尔街", reward: 11000, msg: "阻止银行后台系统删除证据。" },
-    { ch: 18, title: "金融风暴：影子CEO", loc: "哈林区", reward: 13000, msg: "在平民窟寻找真正的幕后控股人。" },
-    { ch: 19, title: "金融风暴：最后勒索", loc: "布鲁克林", reward: 15000, msg: "与对方代理人进行危险的面谈。" },
-    { ch: 20, title: "金融风暴：血染金库", loc: "华尔街", reward: 30000, msg: "决战华尔街地下深处的服务器机房。" },
-    { ch: 21, title: "寒冬：边境摩擦", loc: "布鲁克林", reward: 4000, msg: "调查军方仓库丢失的生化试剂。" },
-    { ch: 22, title: "寒冬：叛逃小组", loc: "哈林区", reward: 5000, msg: "追踪携带机密的叛逃特种兵。" },
-    { ch: 23, title: "寒冬：无线电静默", loc: "中城区", reward: 6000, msg: "修复被切断的军用信号发射塔。" },
-    { ch: 24, title: "寒冬：坠机现场", loc: "布鲁克林", reward: 8000, msg: "抢在黑帮前夺回无人机黑匣子。" },
-    { ch: 25, title: "寒冬：基因片段", loc: "哈林区", reward: 10000, msg: "从秘密实验室取回病毒样本。" },
-    { ch: 26, title: "寒冬：铁腕镇压", loc: "华尔街", reward: 12000, msg: "清剿非法占领交易所的雇佣兵。" },
-    { ch: 27, title: "寒冬：内部清理", loc: "中城区", reward: 14000, msg: "处决已经被敌方收买的指挥官。" },
-    { ch: 28, title: "寒冬：防空指令", loc: "华尔街", reward: 16000, msg: "重启被非法接管的近程防御导弹。" },
-    { ch: 29, title: "寒冬：最后突击", loc: "哈林区", reward: 18000, msg: "攻占叛军在北区的最后堡垒。" },
-    { ch: 30, title: "【大结局】寒冬：断头台", loc: "航母禁区", reward: 50000, msg: "彻底终结航母上的邪念，迎来纽约的新生！" }
-];
-
-function initGame(f) {
-    player.name = prompt("ENTER IDENTIFICATION / 输入代号:", "GHOST") || "ANON";
-    player.faction = f;
-    if(f === 'POLICE') {
-        player.hp = 50;
-        player.hpMax = 50;
-    } else {
-        player.hp = 100;
-        player.hpMax = 100;
+    // 时间更新
+    function updateTime() {
+        const now = new Date();
+        const utc = now.toISOString().substr(11, 8);
+        document.getElementById('adaTime').innerText = utc;
     }
-    player.money = (f === 'GANG') ? 1000 : 200;
-    if(f === 'MILITARY') player.inv.push("突击步枪");
-    if(f === 'POLICE') player.inv.push("医疗包");
-    document.getElementById('setup-screen').style.display = 'none';
-    document.getElementById('main-ui').style.display = 'block';
-    addLog(`SYSTEM: SURVIVAL PROTOCOL ACTIVATED. WELCOME, ${player.name}.`);
-    updateUI();
-}
+    updateTime();
+    setInterval(updateTime, 1000);
 
-function updateUI() {
-    document.getElementById('stat-name').innerText = player.name;
-    document.getElementById('stat-wanted').innerText = "★".repeat(player.wanted);
-    document.getElementById('stat-hp').innerText = player.hp;
-    document.getElementById('stat-survive').innerText = `${player.food}/${player.water}`;
-    document.getElementById('stat-money').innerText = `$${player.money}`;
-    document.getElementById('stat-loc').innerText = player.loc;
-    document.getElementById('stat-stam').innerText = player.stamina;
-    document.getElementById('stat-car').innerText = player.car ? player.car.name : "WALKING";
-    
-    if(player.hp <= 0) { alert("TERMINATED / 你已死亡。"); location.reload(); }
-}
-
-function addLog(msg) {
-    const l = document.getElementById('log');
-    l.innerHTML += `<div>[D-${player.day}] ${msg}</div>`;
-    l.scrollTop = l.scrollHeight;
-}
-
-function openMove() {
-    let html = "<h4>SECTOR NAV / 区域移动</h4>";
-    Object.keys(AREAS).forEach(l => {
-        let cost = player.car ? 0 : 50;
-        html += `<button onclick="movePlayer('${l}', ${cost})" style="display:block; width:100%; margin:10px 0;">${l} (体力消耗: ${cost})</button>`;
-    });
-    openModal("NAV", html);
-}
-
-function movePlayer(target, cost) {
-    if(player.stamina < cost) return addLog("⚠ STAMINA EXHAUSTED / 体力不足无法移动。");
-    player.stamina -= cost;
-    player.loc = target;
-    addLog(`MOVED TO ${target}.`);
-    if(target === "航母禁区") {
-        if(player.car && player.car.armored) {
-            addLog("🛡️ 车辆装甲抵挡了禁区火力。");
-        } else {
-            player.hp -= 40;
-            addLog("<span style='color:red'>💥 遭到禁区机炮扫射，受到 40 伤害！</span>");
+    // 动态情报同步 (模拟来自 GRIM 的馈送)
+    const adaIntel = document.getElementById('adaIntelFeed');
+    const adaRolling = document.getElementById('adaRolling');
+    const intelMsgs = [
+        "山谷东侧加密通讯激增，多斯残部调度中 [GRIM馈送]",
+        "农场区域无人机侦测到2台装甲车移动 [共享]",
+        "信号情报: 敌方指挥频率切换至34.5MHz",
+        "深渊小队通报: 农场东侧交火，请求A.D.A.协同",
+        "豺狼位置已锁定，建议立即抓捕"
+    ];
+    let idx = 0;
+    setInterval(() => {
+        if (adaIntel) {
+            idx = (idx + 1) % intelMsgs.length;
+            adaIntel.innerText = intelMsgs[idx];
         }
-    }
-    closeModal(); updateUI();
-}
-
-function openStoryBoard() {
-    let progress = player.storyProgress.DRUG;
-    if(progress > 30) return addLog("全剧情任务已完结。");
-    let task = STORY_DRUG[progress - 1];
-    let html = `<h4>STORY OBJECTIVE</h4><div class="item-card">
-                <span><b>CH-${task.ch}: ${task.title}</b><br><small>${task.msg}</small></span>
-                <span style="color:green">$${task.reward}</span></div>
-                <button onclick="acceptStory()" style="width:100%">ACCEPT / 接取剧情任务</button>`;
-    openModal("SPECIAL INTEL", html);
-}
-
-function acceptStory() {
-    let task = STORY_DRUG[player.storyProgress.DRUG - 1];
-    player.mission = { ...task, isStory: true };
-    addLog(`STORY MISSION STARTED: ${task.title}`);
-    closeModal();
-}
-
-function executeMission() {
-    if(!player.mission) return addLog("⚠ NO ACTIVE MISSION.");
-    if(player.loc !== player.mission.loc) return addLog(`⚠ PROCEED TO ${player.mission.loc} FIRST.`);
-    if(player.stamina < 30) return addLog("⚠ 体力不足以执行任务。");
-
-    addLog(`EXECUTING: ${player.mission.title}...`);
-    player.stamina -= 30;
-    let chance = 0.6 + (player.inv.includes("突击步枪") ? 0.3 : 0);
-    if(player.allyTurns > 0) chance += 0.2; 
-    if(player.partnerTurns > 0) chance += 0.25;
-
-    setTimeout(() => {
-        if(Math.random() < chance) {
-            addLog(`✅ SUCCESS. CREDITS +$${player.mission.reward}`);
-            player.money += player.mission.reward;
-            if(player.mission.isStory) {
-                player.storyProgress.DRUG++;
-                addLog("<span class='story-msg'>STORY PROGRESS UPDATED / 剧情推进。</span>");
-            }
-            if(player.faction !== 'POLICE' && Math.random() < 0.3) player.wanted = Math.min(5, player.wanted + 1);
-            player.mission = null;
-        } else {
-            let dmg = player.inv.includes("防弹衣") ? 15 : 30;
-            player.hp -= dmg;
-            addLog(`💀 MISSION FAILED. VITALS -${dmg}%`);
-            if(player.partnerTurns <= 0) player.wanted = Math.min(5, player.wanted + 1);
+        const rollingMsgs = [
+            "PDA: 新锐小队已完成战术简报",
+            "G.R.I.M.顾问塞缪尔·莱恩已进入指挥链",
+            "情报部: 山谷B4区热源信号增加",
+            "执法记录: 农场区域巡逻无异常"
+        ];
+        if (adaRolling) {
+            let r = Math.floor(Math.random() * rollingMsgs.length);
+            adaRolling.innerHTML = `📡 ${rollingMsgs[r]}`;
         }
-        if(player.allyTurns > 0) player.allyTurns--;
-        if(player.partnerTurns > 0) player.partnerTurns--;
-        updateUI();
-    }, 1000);
-}
-
-function openVehicleMarket() {
-    let html = "<h4>VEHICLE DEALER / 载具中心</h4>";
-    VEHICLES.forEach((v, idx) => {
-        html += `<div class="item-card"><span><b>${v.name}</b><br><small>${v.armored?'装甲强化':'普通载具'}</small></span>
-                 <button onclick="buyVehicle(${idx})" ${player.money < v.price ? 'disabled' : ''}>$${v.price} BUY</button></div>`;
-    });
-    openModal("GARAGE", html);
-}
-
-function buyVehicle(idx) {
-    if(player.money >= VEHICLES[idx].price) {
-        player.money -= VEHICLES[idx].price;
-        player.car = VEHICLES[idx];
-        addLog(`ACQUIRED: ${player.car.name}`);
-        closeModal(); updateUI();
-    }
-}
-
-function openMarket() {
-    let disc = player.faction === "GANG" ? 0.8 : 1.0;
-    let html = "<h4>SHADOW TRADE</h4>";
-    MARKET_DATA.forEach(item => {
-        let p = Math.floor(item.price * disc);
-        html += `<div class="item-card"><span><b>${item.name}</b></span>
-                 <button onclick="buyItem(${item.id}, ${p})" ${player.money < p ? 'disabled' : ''}>$${p} BUY</button></div>`;
-    });
-    openModal("MARKET", html);
-}
-
-function buyItem(id, p) {
-    if(player.money >= p) {
-        player.money -= p; player.inv.push(MARKET_DATA[id].name);
-        addLog(`PURCHASED: ${MARKET_DATA[id].name}`);
-        openMarket(); updateUI();
-    }
-}
-
-function openInventory() {
-    let html = "<h4>GEAR</h4>";
-    let counts = {};
-    player.inv.forEach(i => counts[i] = (counts[i] || 0) + 1);
-    for(let name in counts) {
-        html += `<div class="item-card"><span>${name} x${counts[name]}</span>
-                 <button onclick="useItem('${name}')">USE</button></div>`;
-    }
-    openModal("INVENTORY", html || "EMPTY.");
-}
-
-function useItem(name) {
-    if(name === "医疗包") player.hp = Math.min(player.hpMax, player.hp + 40);
-    else if(name === "牛肉罐头") player.food = Math.min(100, player.food + 40);
-    else if(name === "纯净水") player.water = Math.min(100, player.water + 40);
-    else { addLog(`EQUIPPED: ${name}.`); closeModal(); return; }
-    player.inv.splice(player.inv.indexOf(name), 1);
-    addLog(`USED ${name}.`);
-    openInventory(); updateUI();
-}
-
-let dialNum = "";
-function openPhone() {
-    dialNum = "";
-    let html = `<div id="dial-display">_</div><div class="dial-pad">` + 
-        [1,2,3,4,5,6,7,8,9,"*",0,"#"].map(n => `<button class="dial-btn" onclick="pressDial('${n}')">${n}</button>`).join("") +
-        `</div><button onclick="call()" style="width:240px; background:#000; color:#fff; border:none; padding:15px; font-weight:bold;">CALL</button>`;
-    openModal("TERMINAL", html);
-}
-function pressDial(n) { dialNum += n; document.getElementById('dial-display').innerText = dialNum; }
-
-function call() {
-    // --- 新增：雷德尔专属拨号 (666) ---
-    if(dialNum === "666") {
-        if(player.reiderCooldown > 0) {
-            addLog(`雷德尔: "急什么？我的人还在路上，冷却中 (${player.reiderCooldown} 天/小时)"`);
-        } else {
-            player.partnerTurns = 3; // 效果比911更强，持续3回合
-            player.reiderCooldown = 2; // 设置2天冷却
-            addLog("<span class='story-msg'>雷德尔: '两名高级警官已经出发，他们会处理一切。'</span>");
-            addLog("<span class='police-msg'>NYPD支援已抵达：获得双倍警力保护（持续3回合）。</span>");
-        }
-    } 
-    else if(dialNum === "000") {
-        player.allyTurns = 1;
-        player.ally = (player.faction === "POLICE") ? "警犬 K-9" : "雇佣兵";
-        addLog(`UNIT ASSIGNED: ${player.ally} 已加入 (持续1回合)。`);
-    } else if(dialNum === "911") {
-        let callChance = (player.faction === 'POLICE') ? 1.0 : 0.5;
-        if(Math.random() < callChance) {
-            player.partnerTurns = 2;
-            addLog("<span class='police-msg'>DISPATCH: 'OFFICER EN ROUTE.' 警官将在接下来的2个任务中协助你。</span>");
-            if(player.faction === 'POLICE') addLog("<span class='police-msg'>INFO: 官方行动期间不会受到通缉。</span>");
-        } else {
-            addLog("...NO RESPONSE.");
-        }
-    } else { addLog("...NO SIGNAL."); }
-    closeModal(); updateUI();
-}
-
-function passDay() { 
-    player.day++; 
-    player.food -= 15; 
-    player.water -= 20; 
-    player.stamina = 100;
-    
-    // --- 新增：冷却逻辑计算 ---
-    if(player.reiderCooldown > 0) player.reiderCooldown--;
-    
-    addLog("🌅 NEXT CYCLE."); 
-    if(player.food <= 0 || player.water <= 0) {
-        player.hp -= 10; addLog("⚠️ STARVATION: HP -10!");
-    }
-    updateUI(); 
-}
-
-function openMissions() {
-    const verbs = ["RAID", "SCOUT", "RESCUE"];
-    const targets = ["PHARMACY", "STATION", "ARMORY"];
-    let html = "<h4>AVAILABLE OBJECTIVES</h4>";
-    for(let i=0; i<3; i++) {
-        let t = verbs[Math.floor(Math.random()*3)] + " " + targets[Math.floor(Math.random()*3)];
-        let a = Object.keys(AREAS)[Math.floor(Math.random()*5)];
-        let r = Math.floor(Math.random()*500 + 300);
-        html += `<div class="item-card" onclick="takeMission('${t}','${a}',${r})">
-            <span><b>${t}</b><br><small>SECTOR: ${a}</small></span><span style="color:blue">$${r}</span></div>`;
-    }
-    openModal("COMMS", html);
-}
-
-function takeMission(t, a, r) { player.mission = { title: t, loc: a, reward: r }; addLog(`SET: ${t}.`); closeModal(); updateUI(); }
-function openModal(t, b) { document.getElementById('modal-title').innerText = t; document.getElementById('modal-body').innerHTML = b; document.getElementById('modal-overlay').style.display = 'block'; }
-function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+    }, 8000);
 </script>
 </body>
 </html>
