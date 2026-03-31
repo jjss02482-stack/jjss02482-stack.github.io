@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>G.R.I.M. 战术终端 | 全球侦查与渗透海军陆战队</title>
+    <title>G.R.I.M. 战术终端</title>
     <style>
         * {
             margin: 0;
@@ -12,352 +12,272 @@
         }
 
         body {
-            background: #0a0f0a;
-            font-family: 'Courier New', 'SF Mono', 'Monaco', monospace;
-            overflow: hidden;
-            height: 100vh;
+            background: #1e2a1a;
+            font-family: 'Courier New', 'Lucida Console', monospace;
+            padding: 20px;
         }
 
-        .grim-terminal {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background: #0c120c;
+        .terminal {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: #2c3a2a;
+            border: 2px solid #5a6e4a;
+            border-radius: 6px;
+            overflow: hidden;
         }
 
         /* 顶部状态栏 */
         .top-bar {
-            background: #0a100a;
-            border-bottom: 1px solid #2a3a2a;
-            padding: 6px 16px;
+            background: #1e2a1a;
+            padding: 8px 16px;
+            border-bottom: 1px solid #5a6e4a;
             display: flex;
             justify-content: space-between;
-            font-size: 11px;
-            color: #6f9e6f;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #c0e0a0;
         }
-        .unit-badge {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-        .unit-badge strong {
-            color: #8bcb8b;
-            font-size: 13px;
-        }
-        .led-green {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: #5faf5f;
-            box-shadow: 0 0 3px #5faf5f;
-            margin-right: 6px;
-        }
-        .time-status {
-            display: flex;
-            gap: 24px;
-        }
-
-        /* 主布局 */
-        .main-dashboard {
-            display: flex;
-            flex: 1;
-            min-height: 0;
-            overflow: hidden;
-        }
-
-        /* 左侧地图区域 */
-        .map-area {
-            flex: 1;
-            background: #071007;
-            border-right: 1px solid #2a3a2a;
-            display: flex;
-            flex-direction: column;
-        }
-        .map-header {
-            background: #0a120a;
-            padding: 6px 12px;
-            border-bottom: 1px solid #2a3a2a;
-            font-size: 10px;
-            color: #6e9e6e;
-            display: flex;
-            justify-content: space-between;
-        }
-        .map-canvas {
-            flex: 1;
-            position: relative;
-            background: #0b130b;
-            background-image: linear-gradient(#1a2a1a 1px, transparent 1px), linear-gradient(90deg, #1a2a1a 1px, transparent 1px);
-            background-size: 50px 50px;
-        }
-        .tac-symbol {
-            position: absolute;
-            font-size: 11px;
+        .unit-title {
             font-weight: bold;
-            white-space: nowrap;
-            text-shadow: 0 0 2px #000;
-            transform: translate(-50%, -50%);
+            letter-spacing: 2px;
         }
-        .symbol-friend { color: #6fcf6f; }
-        .symbol-enemy { color: #ff7f5f; }
-        .symbol-hvt { color: #ffaa55; }
-        .grid-label {
-            position: absolute;
-            font-size: 8px;
-            color: #3a5a3a;
-            background: #071007aa;
-            padding: 1px 4px;
+        .time {
+            font-family: monospace;
         }
 
-        /* 右侧信息面板 */
-        .info-panel {
-            width: 360px;
-            background: #0a100a;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            font-size: 10px;
-            color: #c0e0c0;
+        /* 主体网格 */
+        .grid {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 0;
         }
-        .panel-section {
-            border-bottom: 1px solid #1e2e1e;
-            padding: 10px 12px;
+
+        /* 卡片通用样式 */
+        .card {
+            background: #1f2e1c;
+            margin: 12px;
+            padding: 12px;
+            border: 1px solid #5a724a;
         }
-        .section-title {
+        .card-title {
             font-weight: bold;
-            color: #8fcf8f;
-            font-size: 9px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            border-left: 3px solid #5faf5f;
-            padding-left: 8px;
+            border-bottom: 1px solid #7a9a5a;
+            padding-bottom: 4px;
             margin-bottom: 10px;
+            font-size: 13px;
+            color: #d4e6b0;
         }
-        .data-row {
+        .row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 10px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #cce0b3;
         }
-        .data-label { color: #7f9f7f; }
-        .data-value { font-weight: bold; color: #cfefcf; }
-        .warning-value { color: #ffaa66; }
-        .divider-light {
+        .label {
+            font-weight: bold;
+            color: #9bbd7a;
+        }
+        .divider {
             height: 1px;
-            background: #1e2a1e;
-            margin: 8px 0;
+            background: #4a6240;
+            margin: 10px 0;
         }
-        .tag-list {
+
+        /* 装备列表 */
+        .gear-list {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
-            margin: 8px 0;
-        }
-        .tag {
-            background: #1a2a1a;
-            border: 1px solid #3a5a3a;
-            padding: 2px 8px;
-            font-size: 8px;
-        }
-        .log-item {
-            border-left: 2px solid #5faf5f;
-            padding-left: 8px;
-            margin-bottom: 8px;
-            font-size: 9px;
-        }
-        .log-time {
-            color: #6e9e6e;
-            font-size: 8px;
-        }
-
-        /* 底部通讯栏 */
-        .bottom-comms {
-            background: #0a100a;
-            border-top: 1px solid #2a3a2a;
-            padding: 5px 16px;
-            font-size: 9px;
-            color: #6e9e6e;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* 切换按钮 */
-        .switch-link {
-            display: inline-block;
-            background: #1a2a1a;
-            border: 1px solid #5faf5f;
-            color: #8fcf8f;
-            padding: 4px 12px;
-            font-size: 10px;
-            cursor: pointer;
-            font-family: monospace;
-            text-decoration: none;
+            gap: 6px;
             margin-top: 8px;
+        }
+        .gear-item {
+            background: #2a3e24;
+            border: 1px solid #6a8e4a;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-family: monospace;
+        }
+
+        /* 日志区域 */
+        .log-area {
+            background: #1c2a18;
+            padding: 8px;
+            max-height: 380px;
+            overflow-y: auto;
+            font-size: 11px;
+        }
+        .log-entry {
+            border-left: 2px solid #8ab86a;
+            padding-left: 8px;
+            margin-bottom: 12px;
+        }
+        .log-date {
+            color: #a8c88a;
+            font-size: 10px;
+        }
+
+        /* 右侧面板 */
+        .hvt-item {
+            margin-bottom: 8px;
+            padding: 6px;
+            background: #1e2c1a;
+            border-left: 2px solid #ffaa55;
+        }
+
+        /* 底部切换按钮 */
+        .footer {
+            background: #1e2a1a;
+            border-top: 1px solid #5a6e4a;
+            padding: 8px 16px;
             text-align: center;
         }
-        .switch-link:hover {
-            background: #2a4a2a;
+        .switch-btn {
+            background: #2a4222;
+            border: 1px solid #7a9e5a;
+            color: #c0e0a0;
+            padding: 6px 20px;
+            font-family: monospace;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .switch-btn:hover {
+            background: #3a562a;
         }
     </style>
 </head>
 <body>
-<div class="grim-terminal">
+<div class="terminal">
     <div class="top-bar">
-        <div class="unit-badge">
-            <span><span class="led-green"></span> G.R.I.M.</span>
-            <span>// 全球侦查与渗透海军陆战队</span>
-            <span>科伦国海军 · 独立行动权</span>
-        </div>
-        <div class="time-status">
-            <span id="grimTime">--:--:--</span>
-            <span>COMSEC: ACTIVE</span>
-            <span>GPS: 3D LOCK</span>
-        </div>
+        <div class="unit-title">G.R.I.M. — 全球侦查与渗透海军陆战队</div>
+        <div class="time" id="clock">--:--:-- UTC</div>
     </div>
 
-    <div class="main-dashboard">
-        <div class="map-area">
-            <div class="map-header">
-                <span>📡 卡莫纳战区 · MGRS 36S | 高程 342m</span>
-                <span>缩放 1:25k</span>
+    <div class="grid">
+        <!-- 左侧：单位信息 -->
+        <div>
+            <div class="card">
+                <div class="card-title">📋 单位概要</div>
+                <div class="row"><span class="label">隶属</span><span>科伦国海军 · 独立行动权</span></div>
+                <div class="row"><span class="label">成立</span><span>1994 · 苏梅克委员会监督</span></div>
+                <div class="row"><span class="label">任务类型</span><span>情报优势 / 高危目标清除 / 超限战</span></div>
+                <div class="divider"></div>
+                <div class="row"><span class="label">口号</span><span>“保持冷静，继续前行！”</span></div>
+                <div class="row"><span class="label">信条</span><span>“众人之上，强者之列”</span></div>
             </div>
-            <div class="map-canvas" id="grimMap"></div>
+            <div class="card">
+                <div class="card-title">⚙️ 装备体系</div>
+                <div class="row"><span class="label">官方制式</span><span>100% 配发</span></div>
+                <div class="row"><span class="label">自费装备</span><span>热成像 / 消音器 / 定制防护</span></div>
+                <div class="gear-list">
+                    <span class="gear-item">HK416</span>
+                    <span class="gear-item">M4 SOPMOD</span>
+                    <span class="gear-item">AN/PRC-148</span>
+                    <span class="gear-item">战术背心</span>
+                    <span class="gear-item">热成像瞄具</span>
+                    <span class="gear-item">破片雷</span>
+                </div>
+                <div class="row" style="margin-top:10px"><span class="label">卡莫纳可用装备</span><span>全类别（制式+缴获）</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">🕵️ 部门结构</div>
+                <div class="row"><span class="label">情报部</span><span>信号情报 / 目标定位</span></div>
+                <div class="row"><span class="label">突袭组</span><span>直接行动 / 快速清除</span></div>
+                <div class="row"><span class="label">后勤部</span><span>装备保障 / 自费渠道</span></div>
+            </div>
         </div>
-        <div class="info-panel">
-            <div class="panel-section">
-                <div class="section-title">⚔️ UNIT STATUS</div>
-                <div class="data-row"><span class="data-label">呼号</span><span class="data-value">IRON FIST 6</span></div>
-                <div class="data-row"><span class="data-label">战区</span><span class="data-value">卡莫纳山谷 / 农场走廊</span></div>
-                <div class="data-row"><span class="data-label">协同单位</span><span class="data-value">深渊小队 · 数据链绿色</span></div>
-                <div class="data-row"><span class="data-label">交战规则</span><span class="data-value">宽松 · 高危目标可即时清除</span></div>
-                <div class="divider-light"></div>
-                <div class="data-row"><span class="data-label">突袭组 · 裂刃</span><span class="data-value">战备 96% | 待命</span></div>
-                <div class="data-row"><span class="data-label">渗透组 · 幽灵</span><span class="data-value">已部署 · 山谷北侧</span></div>
-                <div class="data-row"><span class="data-label">空中支援</span><span class="data-value">2x MD500 | 1x ScanEagle</span></div>
-            </div>
-            <div class="panel-section">
-                <div class="section-title">🔧 GEAR & LOG</div>
-                <div class="data-row"><span class="data-label">官方制式标准</span><span class="data-value">100% 配发</span></div>
-                <div class="data-row"><span class="data-label">自费装备</span><span class="data-value">热成像/消音器/定制防护板</span></div>
-                <div class="tag-list"><span class="tag">HK416</span><span class="tag">M4A1 SOPMOD</span><span class="tag">GPNVG-18</span><span class="tag">AN/PRC-152</span></div>
-                <div class="data-row"><span class="data-label">前沿弹药</span><span class="data-value">5.56: 4200发 / 7.62: 1800发</span></div>
-            </div>
-            <div class="panel-section">
-                <div class="section-title">🎯 HVT TRACKING</div>
-                <div class="data-row"><span class="data-label">代号: 豺狼</span><span class="warning-value">威胁: 极高</span></div>
-                <div class="data-row"><span class="data-label">位置</span><span class="data-value">山谷 B4 区 · 洞穴群</span></div>
-                <div class="data-row"><span class="data-label">代号: 毒蝎</span><span class="warning-value">农场 E2 仓库</span></div>
-                <div class="data-row"><span class="data-label">关联势力</span><span class="data-value">多斯残部 / 黑金国际</span></div>
-                <div class="divider-light"></div>
-                <div class="data-row"><span class="data-label">信号情报</span><span class="data-value" id="grimSigint">山谷东侧加密通讯激增</span></div>
-            </div>
-            <div class="panel-section">
-                <div class="section-title">📋 OP LOG</div>
-                <div id="grimLogs">
-                    <div class="log-item"><div class="log-time">0530Z 31MAR</div><div>突袭组+深渊小队完成农场空袭，谷物交易站全控，高危目标清除率100%</div></div>
-                    <div class="log-item"><div class="log-time">1845Z 29MAR</div><div>山谷斩首行动，多斯势力指挥官首级获取</div></div>
-                    <div class="log-item"><div class="log-time">0920Z 27MAR</div><div>后勤部前沿补给，热成像单元分配至突袭组</div></div>
+
+        <!-- 中央：行动日志 -->
+        <div>
+            <div class="card" style="min-height: 400px;">
+                <div class="card-title">📜 行动日志（OP LOG）</div>
+                <div class="log-area">
+                    <div class="log-entry">
+                        <div class="log-date">2026.03.31 · 0530Z</div>
+                        <div>【农场冲突】空袭支援深渊小队，全控谷物交易站，清除敌连级单位。</div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-date">2026.03.29 · 1845Z</div>
+                        <div>【山谷行动】协助多斯势力快速获取敌方首级，斩首成功。</div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-date">2026.03.27 · 0920Z</div>
+                        <div>后勤部前沿弹药补给完成，自费热成像单元已分发。</div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-date">2026.03.25 · 2110Z</div>
+                        <div>北山据点侦察，摧毁敌方通讯中继，为陆军开辟通道。</div>
+                    </div>
+                    <div class="log-entry">
+                        <div class="log-date">1994 至今</div>
+                        <div>高危目标斩首成功率 100% · 两栖渗透作战标杆单位。</div>
+                    </div>
                 </div>
             </div>
-            <div class="panel-section">
-                <div class="section-title">🔗 影子协议 · 联动</div>
-                <div class="data-row"><span class="data-label">A.D.A. 状态</span><span class="data-value">在线 · 共享情报流</span></div>
-                <div class="data-row"><span class="data-label">PDA 数据桥接</span><span class="data-value">已加密同步</span></div>
-                <a href="chat.html" class="switch-link" style="display: block; text-align: center;">→ 切换至 A.D.A. 执法终端 (chat.html)</a>
+        </div>
+
+        <!-- 右侧：HVT追踪 + 通讯状态 -->
+        <div>
+            <div class="card">
+                <div class="card-title">🎯 高危目标追踪</div>
+                <div class="hvt-item">
+                    <div><span class="label">代号：豺狼</span> <span style="color:#ffaa55;">威胁·极高</span></div>
+                    <div style="font-size:11px;">位置：山谷B4区洞穴群</div>
+                    <div style="font-size:11px;">关联：多斯残部 / 黑金国际</div>
+                </div>
+                <div class="hvt-item">
+                    <div><span class="label">代号：毒蝎</span> <span style="color:#ffaa55;">活跃</span></div>
+                    <div style="font-size:11px;">位置：农场E2仓库</div>
+                </div>
+                <div class="divider"></div>
+                <div class="row"><span class="label">当前情报流</span><span id="intel">山谷东侧加密通讯增加</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">📡 通讯与协同</div>
+                <div class="row"><span class="label">协同单位</span><span>深渊小队 · 数据链在线</span></div>
+                <div class="row"><span class="label">苏梅克监督</span><span>监视中 · 无干预</span></div>
+                <div class="row"><span class="label">空中支援</span><span>待命（空袭授权）</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">💪 士气与纪律</div>
+                <div class="row"><span class="label">勇气与纪律指数</span><span>S级</span></div>
+                <div class="row"><span class="label">近期伤亡</span><span>0</span></div>
+                <div class="row"><span class="label">任务成功率</span><span>100%</span></div>
             </div>
         </div>
     </div>
 
-    <div class="bottom-comms">
-        <div><span class="led-green"></span> 数据链: 深渊小队在线 | 突袭组待命</div>
-        <div id="grimRolling">📡 最新情报: 山谷北侧热源信号增加</div>
+    <div class="footer">
+        <a href="chat.html" class="switch-btn">→ 切换至 A.D.A. 执法终端</a>
     </div>
 </div>
 
 <script>
-    // 时间更新
-    function updateTime() {
+    // 实时时钟
+    function updateClock() {
         const now = new Date();
         const utc = now.toISOString().substr(11, 8);
-        document.getElementById('grimTime').innerText = utc;
+        document.getElementById('clock').innerText = utc + ' UTC';
     }
-    updateTime();
-    setInterval(updateTime, 1000);
+    updateClock();
+    setInterval(updateClock, 1000);
 
-    // 地图符号生成
-    function renderMap() {
-        const canvas = document.getElementById('grimMap');
-        if (!canvas) return;
-        canvas.innerHTML = '';
-        // 网格坐标
-        for (let i = 0; i <= 5; i++) {
-            let label = document.createElement('div');
-            label.className = 'grid-label';
-            label.style.left = '4px';
-            label.style.top = `${i * 18}%`;
-            label.innerText = String.fromCharCode(65 + i);
-            canvas.appendChild(label);
-        }
-        for (let i = 0; i <= 8; i++) {
-            let label = document.createElement('div');
-            label.className = 'grid-label';
-            label.style.bottom = '2px';
-            label.style.left = `${i * 11}%`;
-            label.innerText = i + 1;
-            canvas.appendChild(label);
-        }
-        const symbols = [
-            { type: 'friend', left: '35%', top: '45%', label: '🔹 裂刃' },
-            { type: 'friend', left: '55%', top: '60%', label: '🔸 深渊' },
-            { type: 'enemy', left: '70%', top: '30%', label: '⚠️ 敌侦察' },
-            { type: 'hvt', left: '68%', top: '25%', label: '🎯 豺狼' },
-            { type: 'enemy', left: '25%', top: '70%', label: '⚠️ 黑金' },
-            { type: 'hvt', left: '52%', top: '72%', label: '🎯 毒蝎' },
-        ];
-        symbols.forEach(sym => {
-            let el = document.createElement('div');
-            el.className = `tac-symbol symbol-${sym.type}`;
-            el.style.left = sym.left;
-            el.style.top = sym.top;
-            el.innerText = sym.label;
-            canvas.appendChild(el);
-        });
-        let farm = document.createElement('div');
-        farm.className = 'tac-symbol';
-        farm.style.left = '52%';
-        farm.style.top = '71%';
-        farm.style.fontSize = '8px';
-        farm.style.color = '#6f9f6f';
-        farm.innerText = '🏚️ 谷物交易站';
-        canvas.appendChild(farm);
-    }
-    renderMap();
-
-    // 动态情报
-    const sigintSpan = document.getElementById('grimSigint');
-    const rollingSpan = document.getElementById('grimRolling');
-    const intelMsgs = [
-        "山谷东侧加密通讯激增，多斯残部调度中",
-        "农场区域无人机侦测到2台装甲车移动",
-        "信号情报: 敌方指挥频率切换至34.5MHz",
-        "深渊小队通报: 农场东侧交火，请求空袭支援"
+    // 简单情报轮换（仅用于示意，不添加虚构内容）
+    const intelSpan = document.getElementById('intel');
+    const intelList = [
+        "山谷东侧加密通讯增加",
+        "农场区域无人机侦测到载具移动",
+        "敌方指挥频率切换至34.5MHz",
+        "深渊小队：农场东侧交火，请求空袭支援"
     ];
     let idx = 0;
     setInterval(() => {
-        if (sigintSpan) {
-            idx = (idx + 1) % intelMsgs.length;
-            sigintSpan.innerText = intelMsgs[idx];
+        if (intelSpan) {
+            idx = (idx + 1) % intelList.length;
+            intelSpan.innerText = intelList[idx];
         }
-        const rollingMsgs = [
-            "情报: 山谷B4区热源信号增加",
-            "突袭组报告: 已抵达目标外围",
-            "后勤: 自费装备补给已到前沿",
-            "深渊小队: 空袭坐标确认, 待命"
-        ];
-        if (rollingSpan) {
-            let r = Math.floor(Math.random() * rollingMsgs.length);
-            rollingSpan.innerHTML = `📡 ${rollingMsgs[r]}`;
-        }
-    }, 8000);
+    }, 10000);
 </script>
 </body>
 </html>
