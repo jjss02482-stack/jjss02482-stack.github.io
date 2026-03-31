@@ -2,372 +2,217 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>G.R.I.M. 战术终端</title>
+    <title>G.R.I.M. SYSTEM OVERLOAD</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --red: #ff0000;
+            --dark: #0a0000;
+            --glow: 0 0 15px rgba(255, 0, 0, 0.7);
         }
 
-        body {
-            background: #1a2a1a;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
-            padding: 24px;
+        body, html {
+            margin: 0; padding: 0;
+            background-color: var(--dark);
+            color: var(--red);
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
-        .terminal {
-            max-width: 1300px;
-            margin: 0 auto;
-            background: #212e1e;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            overflow: hidden;
+        /* 核心背景：3D 旋转地球 */
+        .globe-bg {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px; height: 600px;
+            perspective: 1200px;
+            z-index: -2;
+            opacity: 0.4;
         }
 
-        /* 顶部状态栏 */
-        .top-bar {
-            background: #1a2a16;
-            padding: 14px 24px;
-            border-bottom: 1px solid #4a6a3a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .unit-title {
-            font-weight: 600;
-            letter-spacing: 1px;
-            font-size: 16px;
-            color: #e0f0c0;
-        }
-        .unit-sub {
-            font-size: 12px;
-            color: #a8c88a;
-            margin-left: 16px;
-        }
-        .time {
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            background: #0f1a0c;
-            padding: 4px 12px;
-            border-radius: 20px;
-            color: #c0e0a0;
+        .sphere {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate 40s linear infinite;
         }
 
-        /* 新闻滚动条 */
-        .news-ticker {
-            background: #0f1a0c;
-            border-bottom: 1px solid #4a6a3a;
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 12px;
+        .ring {
+            position: absolute;
+            width: 100%; height: 100%;
+            border: 1px solid var(--red);
+            border-radius: 50%;
+            box-shadow: var(--glow);
         }
-        .ticker-label {
-            background: #8ab86a;
-            color: #1e2a1a;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 10px;
-        }
-        .ticker-content {
-            color: #e0f0c0;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            flex: 1;
+        .r1 { transform: rotateY(0deg); }
+        .r2 { transform: rotateY(60deg); }
+        .r3 { transform: rotateY(120deg); }
+        .r4 { transform: rotateX(90deg); border-style: dotted; }
+
+        @keyframes rotate { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+
+        /* 酷东西 1：代码雨背景 */
+        #matrix-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -3;
+            opacity: 0.15;
         }
 
-        /* 主体网格 */
-        .grid {
-            display: grid;
-            grid-template-columns: 300px 1fr 340px;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        /* 卡片通用样式 */
-        .card {
-            background: #1e2e1a;
-            border-radius: 12px;
-            padding: 18px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-        }
-        .card-title {
-            font-weight: 600;
-            border-bottom: 2px solid #6a8e4a;
-            padding-bottom: 8px;
-            margin-bottom: 16px;
-            font-size: 14px;
-            color: #e0f0c0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 13px;
-            color: #d0e8b0;
-        }
-        .label {
-            font-weight: 500;
-            color: #aacf8a;
-        }
-        .divider {
-            height: 1px;
-            background: #3a562a;
-            margin: 14px 0;
-        }
-
-        /* 装备列表 */
-        .gear-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .gear-item {
-            background: #2a3e24;
-            border: 1px solid #6a8e4a;
-            border-radius: 20px;
-            padding: 4px 12px;
-            font-size: 11px;
-            font-weight: 500;
-            color: #c0e0a0;
-        }
-
-        /* 日志区域 */
-        .log-area {
-            background: #172a14;
-            border-radius: 8px;
-            padding: 12px;
-            max-height: 420px;
-            overflow-y: auto;
-        }
-        .log-entry {
-            border-left: 3px solid #8ab86a;
-            padding-left: 12px;
-            margin-bottom: 16px;
-        }
-        .log-date {
-            font-size: 11px;
-            color: #b0d090;
-            margin-bottom: 4px;
-        }
-        .log-text {
-            font-size: 12px;
-            color: #e0f0c0;
-        }
-
-        /* 右侧面板特定样式 */
-        .hvt-item {
-            margin-bottom: 14px;
+        /* 酷东西 2：左侧战术 HUD */
+        .hud-left {
+            position: fixed;
+            left: 20px; top: 100px;
+            width: 200px; height: 300px;
+            border-left: 2px solid var(--red);
             padding: 10px;
-            background: #172a14;
-            border-radius: 8px;
-            border-left: 3px solid #ffaa55;
-        }
-        .hvt-title {
-            font-weight: 600;
-            margin-bottom: 6px;
+            font-size: 10px;
+            z-index: 100;
+            background: linear-gradient(90deg, rgba(255,0,0,0.1), transparent);
         }
 
-        /* 底部切换按钮 */
+        .waveform {
+            height: 50px;
+            background: repeating-linear-gradient(90deg, var(--red) 0px, var(--red) 2px, transparent 2px, transparent 10px);
+            animation: wave 1s infinite linear;
+            margin-bottom: 10px;
+        }
+        @keyframes wave { from { background-position: 0 0; } to { background-position: 40px 0; } }
+
+        /* 酷东西 3：随机任务点闪烁 */
+        .target {
+            position: absolute;
+            width: 10px; height: 10px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #fff;
+            animation: blink 1s infinite;
+        }
+        .t1 { top: 30%; left: 40%; }
+        .t2 { top: 70%; left: 20%; animation-delay: 0.5s; }
+
+        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+        /* 内容卡片 */
+        .container { position: relative; z-index: 10; padding-top: 100px; }
+        .section {
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            padding: 40px;
+        }
+        .card {
+            width: 80%; max-width: 800px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--red);
+            padding: 40px;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 95% 100%, 0 100%); /* 切角设计 */
+        }
+        .card:hover { border-color: #fff; box-shadow: 0 0 30px var(--red); transition: 0.3s; }
+
+        h2 { font-size: 3rem; margin: 0; text-transform: uppercase; letter-spacing: 5px; }
+        .bar { width: 100%; height: 5px; background: var(--red); margin: 20px 0; }
+
+        /* 底部巨大宣告 */
         .footer {
-            background: #1a2a16;
-            border-top: 1px solid #4a6a3a;
-            padding: 14px;
-            text-align: center;
-        }
-        .switch-btn {
-            background: #2a4222;
-            border: 1px solid #8ab86a;
-            color: #e0f0c0;
-            padding: 8px 24px;
-            border-radius: 30px;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.2s;
-        }
-        .switch-btn:hover {
-            background: #3a5a2a;
-            transform: scale(1.02);
-        }
-
-        /* 响应式 */
-        @media (max-width: 1000px) {
-            .grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-            body {
-                padding: 16px;
-            }
+            height: 100vh; background: var(--red); color: #000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-weight: 900;
         }
     </style>
 </head>
 <body>
-<div class="terminal">
-    <div class="top-bar">
-        <div>
-            <span class="unit-title">G.R.I.M.</span>
-            <span class="unit-sub">全球侦查与渗透海军陆战队</span>
-        </div>
-        <div class="time" id="clock">--:--:-- UTC</div>
+
+    <canvas id="matrix-bg"></canvas>
+
+    <div class="hud-left">
+        <div class="waveform"></div>
+        <p>> BIOMETRIC: STABLE</p>
+        <p>> SYNC RATE: 98.4%</p>
+        <p>> SIGNAL: ENCRYPTED</p>
+        <div id="cmd-line" style="margin-top: 20px; color: #fff;"></div>
     </div>
 
-    <!-- 新增：新闻滚动条 -->
-    <div class="news-ticker">
-        <span class="ticker-label">实时情报</span>
-        <span class="ticker-content" id="tickerMsg">山谷东侧加密通讯激增，深渊小队进入待命状态</span>
-    </div>
-
-    <div class="grid">
-        <!-- 左侧：单位信息 -->
-        <div>
-            <div class="card">
-                <div class="card-title">📋 单位概要</div>
-                <div class="row"><span class="label">隶属</span><span>科伦国海军 · 独立行动权</span></div>
-                <div class="row"><span class="label">成立</span><span>1994 · 苏梅克委员会监督</span></div>
-                <div class="row"><span class="label">任务类型</span><span>情报优势 / 高危清除 / 超限战</span></div>
-                <div class="divider"></div>
-                <div class="row"><span class="label">口号</span><span>“保持冷静，继续前行！”</span></div>
-                <div class="row"><span class="label">信条</span><span>“众人之上，强者之列”</span></div>
-            </div>
-            <div class="card">
-                <div class="card-title">⚙️ 装备体系</div>
-                <div class="row"><span class="label">官方制式</span><span>100% 配发</span></div>
-                <div class="row"><span class="label">自费装备</span><span>热成像 / 消音器 / 定制防护</span></div>
-                <div class="gear-list">
-                    <span class="gear-item">HK416</span>
-                    <span class="gear-item">M4 SOPMOD</span>
-                    <span class="gear-item">AN/PRC-148</span>
-                    <span class="gear-item">战术背心</span>
-                    <span class="gear-item">热成像瞄具</span>
-                    <span class="gear-item">破片雷</span>
-                </div>
-                <div class="row" style="margin-top:12px"><span class="label">卡莫纳可用装备</span><span>全类别（制式+缴获）</span></div>
-            </div>
-            <div class="card">
-                <div class="card-title">🕵️ 部门结构</div>
-                <div class="row"><span class="label">情报部</span><span>信号情报 / 目标定位</span></div>
-                <div class="row"><span class="label">突袭组</span><span>直接行动 / 快速清除</span></div>
-                <div class="row"><span class="label">后勤部</span><span>装备保障 / 自费渠道</span></div>
-            </div>
-        </div>
-
-        <!-- 中央：行动日志 -->
-        <div>
-            <div class="card" style="height: 100%; display: flex; flex-direction: column;">
-                <div class="card-title">📜 行动日志（OP LOG）</div>
-                <div class="log-area" style="flex:1">
-                    <div class="log-entry">
-                        <div class="log-date">2026.03.31 · 0530Z</div>
-                        <div class="log-text">【农场冲突】空袭支援深渊小队，全控谷物交易站，清除敌连级单位。</div>
-                    </div>
-                    <div class="log-entry">
-                        <div class="log-date">2026.03.29 · 1845Z</div>
-                        <div class="log-text">【山谷行动】协助多斯势力快速获取敌方首级，斩首成功。</div>
-                    </div>
-                    <div class="log-entry">
-                        <div class="log-date">2026.03.27 · 0920Z</div>
-                        <div class="log-text">后勤部前沿弹药补给完成，自费热成像单元已分发。</div>
-                    </div>
-                    <div class="log-entry">
-                        <div class="log-date">2026.03.25 · 2110Z</div>
-                        <div class="log-text">北山据点侦察，摧毁敌方通讯中继，为陆军开辟通道。</div>
-                    </div>
-                    <div class="log-entry">
-                        <div class="log-date">1994 至今</div>
-                        <div class="log-text">高危目标斩首成功率 100% · 两栖渗透作战标杆单位。</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 右侧：HVT追踪 + 通讯状态 -->
-        <div>
-            <div class="card">
-                <div class="card-title">🎯 高危目标追踪</div>
-                <div class="hvt-item">
-                    <div class="hvt-title"><span class="label">代号：豺狼</span> <span style="color:#ffaa55;">威胁·极高</span></div>
-                    <div style="font-size:12px;">位置：山谷B4区洞穴群</div>
-                    <div style="font-size:12px;">关联：多斯残部 / 黑金国际</div>
-                </div>
-                <div class="hvt-item">
-                    <div class="hvt-title"><span class="label">代号：毒蝎</span> <span style="color:#ffaa55;">活跃</span></div>
-                    <div style="font-size:12px;">位置：农场E2仓库</div>
-                </div>
-                <div class="divider"></div>
-                <div class="row"><span class="label">当前情报流</span><span id="intel">山谷东侧加密通讯增加</span></div>
-            </div>
-            <div class="card">
-                <div class="card-title">📡 通讯与协同</div>
-                <div class="row"><span class="label">协同单位</span><span>深渊小队 · 数据链在线</span></div>
-                <div class="row"><span class="label">苏梅克监督</span><span>监视中 · 无干预</span></div>
-                <div class="row"><span class="label">空中支援</span><span>待命（空袭授权）</span></div>
-            </div>
-            <div class="card">
-                <div class="card-title">💪 士气与纪律</div>
-                <div class="row"><span class="label">勇气与纪律指数</span><span>S级</span></div>
-                <div class="row"><span class="label">近期伤亡</span><span>0</span></div>
-                <div class="row"><span class="label">任务成功率</span><span>100%</span></div>
-            </div>
+    <div class="globe-bg">
+        <div class="sphere">
+            <div class="ring r1"></div>
+            <div class="ring r2"></div>
+            <div class="ring r3"></div>
+            <div class="ring r4"></div>
+            <div class="target t1"></div>
+            <div class="target t2"></div>
         </div>
     </div>
 
-    <div class="footer">
-        <a href="chat.html" class="switch-btn">→ 切换至 A.D.A. 执法终端</a>
+    <div class="container">
+        <section class="section">
+            <div style="text-align: center;">
+                <h1 style="font-size: 7rem; margin: 0; letter-spacing: 20px;">G.R.I.M.</h1>
+                <p style="font-size: 1.2rem; background: var(--red); color: #000; display: inline-block; padding: 5px 20px;">ACCESS GRANTED // LEVEL 5</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="card">
+                <h2>01. 情报先行</h2>
+                <div class="bar"></div>
+                <p>我们不仅收集情报，我们定义现实。通过覆盖全球的传感器网络，G.R.I.M. 能够预判敌方每一个意图。在火光亮起之前，结局已经注定。</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="card">
+                <h2>02. 协同作战</h2>
+                <div class="bar"></div>
+                <p>没有孤胆英雄，只有完美的战争机器。每一个作战单元都是 G.R.I.M. 神经网络的一个触点。信息共享，生死共担。</p>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="card" style="border-style: dashed;">
+                <h2>03. 装备进化</h2>
+                <div class="bar"></div>
+                <p>官方标准只是起点，个人进化永无止境。你的武器应该比你的本能更快，比你的呼吸更稳。确保它是你身体延伸的终极形态。</p>
+            </div>
+        </section>
+
+        <section class="footer">
+            <h1 style="font-size: 10vw; margin: 0;">KEEP CALM</h1>
+            <h1 style="font-size: 10vw; margin: 0;">MOVE ON</h1>
+        </section>
     </div>
-</div>
 
-<script>
-    // 时钟
-    function updateClock() {
-        const now = new Date();
-        const utc = now.toISOString().substr(11, 8);
-        document.getElementById('clock').innerText = utc + ' UTC';
-    }
-    updateClock();
-    setInterval(updateClock, 1000);
+    <script>
+        // 矩阵代码雨脚本
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
 
-    // 动态情报（滚动条 + 面板情报）
-    const tickerSpan = document.getElementById('tickerMsg');
-    const intelSpan = document.getElementById('intel');
-    const newsList = [
-        "山谷东侧加密通讯激增，深渊小队进入待命状态",
-        "农场区域无人机侦测到多斯残部载具移动",
-        "敌方指挥频率切换至34.5MHz，情报部持续监听",
-        "深渊小队通报：农场东侧交火，请求空袭支援",
-        "苏梅克委员会完成例行审查，GRIM行动合规",
-        "突袭组已完成斩首前部署，等待指令"
-    ];
-    let idx = 0;
-    setInterval(() => {
-        if (tickerSpan) {
-            idx = (idx + 1) % newsList.length;
-            tickerSpan.innerText = newsList[idx];
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ff0000";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
         }
-        if (intelSpan) {
-            // 与滚动条保持同步，让面板情报也更新
-            intelSpan.innerText = newsList[idx].slice(0, 30) + (newsList[idx].length > 30 ? "…" : "");
-        }
-    }, 8000);
-</script>
+        setInterval(drawMatrix, 50);
+
+        // 左侧 HUD 指令流
+        const cmd = document.getElementById('cmd-line');
+        const logs = ["> INFILTRATING...", "> DATA SYNC...", "> TARGET LOCKED", "> BYPASSING FIREWALL"];
+        setInterval(() => {
+            cmd.innerHTML = logs[Math.floor(Math.random() * logs.length)];
+        }, 2000);
+    </script>
 </body>
 </html>
