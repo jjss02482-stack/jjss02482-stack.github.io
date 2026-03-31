@@ -57,6 +57,32 @@
             color: #c0e0a0;
         }
 
+        /* 新闻滚动条 */
+        .news-ticker {
+            background: #0f1a0c;
+            border-bottom: 1px solid #4a6a3a;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+        }
+        .ticker-label {
+            background: #8ab86a;
+            color: #1e2a1a;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 10px;
+        }
+        .ticker-content {
+            color: #e0f0c0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+
         /* 主体网格 */
         .grid {
             display: grid;
@@ -71,7 +97,11 @@
             border-radius: 12px;
             padding: 18px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            transition: transform 0.1s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
         }
         .card-title {
             font-weight: 600;
@@ -172,10 +202,11 @@
             font-weight: 500;
             text-decoration: none;
             display: inline-block;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
         .switch-btn:hover {
             background: #3a5a2a;
+            transform: scale(1.02);
         }
 
         /* 响应式 */
@@ -198,6 +229,12 @@
             <span class="unit-sub">全球侦查与渗透海军陆战队</span>
         </div>
         <div class="time" id="clock">--:--:-- UTC</div>
+    </div>
+
+    <!-- 新增：新闻滚动条 -->
+    <div class="news-ticker">
+        <span class="ticker-label">实时情报</span>
+        <span class="ticker-content" id="tickerMsg">山谷东侧加密通讯激增，深渊小队进入待命状态</span>
     </div>
 
     <div class="grid">
@@ -300,6 +337,7 @@
 </div>
 
 <script>
+    // 时钟
     function updateClock() {
         const now = new Date();
         const utc = now.toISOString().substr(11, 8);
@@ -308,20 +346,28 @@
     updateClock();
     setInterval(updateClock, 1000);
 
+    // 动态情报（滚动条 + 面板情报）
+    const tickerSpan = document.getElementById('tickerMsg');
     const intelSpan = document.getElementById('intel');
-    const intelList = [
-        "山谷东侧加密通讯增加",
-        "农场区域无人机侦测到载具移动",
-        "敌方指挥频率切换至34.5MHz",
-        "深渊小队：农场东侧交火，请求空袭支援"
+    const newsList = [
+        "山谷东侧加密通讯激增，深渊小队进入待命状态",
+        "农场区域无人机侦测到多斯残部载具移动",
+        "敌方指挥频率切换至34.5MHz，情报部持续监听",
+        "深渊小队通报：农场东侧交火，请求空袭支援",
+        "苏梅克委员会完成例行审查，GRIM行动合规",
+        "突袭组已完成斩首前部署，等待指令"
     ];
     let idx = 0;
     setInterval(() => {
-        if (intelSpan) {
-            idx = (idx + 1) % intelList.length;
-            intelSpan.innerText = intelList[idx];
+        if (tickerSpan) {
+            idx = (idx + 1) % newsList.length;
+            tickerSpan.innerText = newsList[idx];
         }
-    }, 10000);
+        if (intelSpan) {
+            // 与滚动条保持同步，让面板情报也更新
+            intelSpan.innerText = newsList[idx].slice(0, 30) + (newsList[idx].length > 30 ? "…" : "");
+        }
+    }, 8000);
 </script>
 </body>
 </html>
