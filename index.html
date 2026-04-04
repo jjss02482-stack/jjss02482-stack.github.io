@@ -2,372 +2,744 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.D.A. 战术终端 - 任务派发系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ADA战术执法终端 | 任务派发系统</title>
+    <!-- Font Awesome 6 (免费图标库) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: 等宽与科技感字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #ffb000; /* 琥珀色主色调 */
-            --bg-color: #0a0a0a;
-            --dim-color: #8f6b00;
-            --alert-color: #ff3333;
-            --font-main: 'Courier New', Courier, monospace;
-        }
-
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
-            user-select: none; /* 禁止选中文本，像软件一样 */
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-            color: var(--primary-color);
-            font-family: var(--font-main);
+            background: radial-gradient(circle at 20% 30%, #0a0f1a, #03060c);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
             height: 100vh;
-            overflow: hidden;
             display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-        }
-
-        /* CRT 屏幕外框效果 */
-        .crt-container {
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-color);
-            position: relative;
-            overflow: hidden;
-            border: 2px solid #333;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
-        }
-
-        /* 扫描线效果 */
-        .scanlines {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                to bottom,
-                rgba(255,255,255,0),
-                rgba(255,255,255,0) 50%,
-                rgba(0,0,0,0.2) 50%,
-                rgba(0,0,0,0.2)
-            );
-            background-size: 100% 4px;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        /* 屏幕微光 */
-        .glow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            box-shadow: inset 0 0 5rem rgba(255, 176, 0, 0.1);
-            pointer-events: none;
-            z-index: 9;
-        }
-
-        /* 布局结构 */
-        .interface {
-            display: grid;
-            grid-template-rows: 60px 1fr 40px;
-            height: 100%;
             padding: 20px;
-            text-shadow: 0 0 5px var(--primary-color);
-        }
-
-        /* 顶部状态栏 */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 10px;
-            text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 2px;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            border: 2px solid var(--primary-color);
-            padding: 5px 15px;
-        }
-
-        .system-status span {
-            margin-left: 20px;
-        }
-
-        .blink {
-            animation: blinker 1s linear infinite;
-        }
-
-        @keyframes blinker {
-            50% { opacity: 0; }
-        }
-
-        /* 主体内容区 */
-        main {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 20px;
-            padding-top: 20px;
             overflow: hidden;
         }
 
-        /* 侧边栏菜单 */
-        aside {
-            border-right: 1px solid var(--dim-color);
-            padding-right: 20px;
+        /* 主终端容器 — 模拟车载电脑硬朗边框 */
+        .terminal {
+            width: 1400px;
+            max-width: 98vw;
+            height: 90vh;
+            background: #0b1017e6;
+            backdrop-filter: blur(2px);
+            border-radius: 28px;
+            border: 1px solid rgba(0, 255, 255, 0.25);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0, 255, 255, 0.1) inset;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-weight: 500;
         }
 
-        .menu-item {
-            padding: 15px;
-            cursor: pointer;
-            border: 1px solid transparent;
-            margin-bottom: 5px;
-            transition: all 0.2s;
-        }
-
-        .menu-item:hover, .menu-item.active {
-            background-color: var(--primary-color);
-            color: var(--bg-color);
-            text-shadow: none;
-            font-weight: bold;
-        }
-
-        .menu-item::before {
-            content: '> ';
-        }
-
-        /* 任务列表区 */
-        .content-area {
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-
-        .mission-card {
-            border: 1px solid var(--dim-color);
-            margin-bottom: 15px;
-            padding: 15px;
-            position: relative;
-        }
-
-        .mission-card:hover {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 10px var(--dim-color);
-        }
-
-        .mission-header {
+        /* 顶部状态栏 — 警用MDT风格 */
+        .status-bar {
+            background: #050a12cc;
+            backdrop-filter: blur(8px);
+            padding: 12px 24px;
+            border-bottom: 1px solid #1e2a3a;
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px dashed var(--dim-color);
-            padding-bottom: 5px;
-            margin-bottom: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
-        .mission-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .mission-type {
-            font-size: 0.8rem;
-            border: 1px solid var(--primary-color);
-            padding: 2px 5px;
-        }
-
-        .mission-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 0.9rem;
-            color: var(--primary-color);
-        }
-
-        .detail-item strong {
-            color: #fff; /* 关键信息高亮 */
-            text-shadow: 0 0 5px #fff;
-        }
-
-        .action-btn {
-            margin-top: 15px;
-            background: transparent;
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 10px 20px;
-            font-family: var(--font-main);
-            cursor: pointer;
-            text-transform: uppercase;
-            width: 100%;
-        }
-
-        .action-btn:hover {
-            background: var(--primary-color);
-            color: var(--bg-color);
-        }
-
-        /* 底部日志 */
-        footer {
-            border-top: 1px solid var(--dim-color);
-            padding-top: 10px;
-            font-size: 0.8rem;
-            color: var(--dim-color);
+        .badge {
             display: flex;
-            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
         }
 
-        /* 滚动条样式 */
-        ::-webkit-scrollbar {
+        .ada-logo {
+            background: #0f212e;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            border-left: 3px solid #00e0ff;
+            color: #eef4ff;
+        }
+
+        .ada-logo i {
+            color: #00e0ff;
+            margin-right: 8px;
+        }
+
+        .unit-info {
+            background: #00000055;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            border: 1px solid #2a4c6e;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #0a121c;
+            padding: 5px 16px;
+            border-radius: 24px;
+        }
+
+        .led {
             width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #2ecc71;
+            box-shadow: 0 0 6px #2ecc71;
+            animation: pulse 1.5s infinite;
+        }
+
+        .led.busy {
+            background-color: #e67e22;
+            box-shadow: 0 0 8px #e67e22;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(0.9);}
+            100% { opacity: 1; transform: scale(1.2);}
+        }
+
+        .time-date {
+            font-family: 'JetBrains Mono', monospace;
+            color: #9bb7d4;
+            background: #00000040;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.8rem;
+        }
+
+        .girm-tag {
+            background: #2a3b2c;
+            color: #b3ffcf;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* 主体区域 左右结构 */
+        .main-dashboard {
+            flex: 1;
+            display: flex;
+            padding: 18px 22px;
+            gap: 22px;
+            overflow: hidden;
+        }
+
+        /* 左侧任务池 */
+        .tasks-pool {
+            width: 38%;
+            background: rgba(8, 14, 22, 0.65);
+            backdrop-filter: blur(4px);
+            border-radius: 24px;
+            border: 1px solid #1f3348;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            background: #0a111cd9;
+            border-bottom: 1px solid #2a4058;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header i {
+            color: #2d9cdb;
+        }
+
+        .task-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .task-card {
+            background: #0f1825;
+            border-radius: 20px;
+            padding: 14px 16px;
+            border-left: 4px solid;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .task-card:hover {
+            transform: translateX(4px);
+            background: #131f2e;
+            border-left-width: 5px;
+        }
+
+        .priority-high { border-left-color: #e74c3c; }
+        .priority-medium { border-left-color: #f39c12; }
+        .priority-low { border-left-color: #2ecc71; }
+
+        .task-title {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .task-loc {
+            font-size: 0.75rem;
+            color: #88a9c4;
+            font-family: monospace;
+            margin: 6px 0;
+        }
+        .task-desc {
+            font-size: 0.8rem;
+            color: #bdd4e9;
+            margin-bottom: 12px;
+        }
+        .assign-btn {
+            background: #1f6392;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+            width: fit-content;
+        }
+        .assign-btn:hover:not(:disabled) {
+            background: #2a86c0;
+            box-shadow: 0 0 6px #00a6ff;
+        }
+        .assign-btn:disabled {
+            background: #3a4a5a;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .priority-tag {
+            font-size: 0.65rem;
+            background: #00000066;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        /* 右侧任务控制中心 */
+        .active-duty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            overflow-y: auto;
+        }
+
+        .current-mission-card {
+            background: rgba(5, 12, 20, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            border: 1px solid #2e577a;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #6c9ebf;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mission-detail {
+            margin-top: 6px;
+        }
+        .detail-row {
+            display: flex;
+            margin: 12px 0;
+            border-bottom: 1px solid #1e3a4a;
+            padding-bottom: 8px;
+        }
+        .detail-label {
+            width: 100px;
+            font-weight: 600;
+            color: #aad0f5;
+        }
+        .detail-value {
+            flex: 1;
+            font-family: 'JetBrains Mono', monospace;
+            color: #eef4ff;
+        }
+        .mission-status {
+            background: #00000055;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        /* 地图模拟 */
+        .tactical-map {
+            background: #07101c;
+            border-radius: 24px;
+            margin: 16px 0;
+            height: 150px;
+            background-image: radial-gradient(circle at 10% 20%, #1c3a4e 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #2e4f6e;
+            flex-direction: column;
+        }
+        .map-pin {
+            font-size: 2rem;
+            filter: drop-shadow(0 0 6px cyan);
+        }
+        .map-coord {
+            margin-top: 8px;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #7ab3cc;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0 12px;
+        }
+        .tac-btn {
+            background: #132433;
+            border: 1px solid #2d6a8f;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: #d4edff;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.8rem;
+        }
+        .tac-btn.primary {
+            background: #0f5b7a;
+            border-color: #00c3ff;
+            color: white;
+        }
+        .tac-btn.danger {
+            border-color: #b34e4e;
+            color: #ffb7b7;
+        }
+        .tac-btn:active {
+            transform: scale(0.96);
+        }
+        .tac-btn:disabled {
+            opacity: 0.4;
+            cursor: default;
+            transform: none;
+        }
+
+        /* 活动日志 */
+        .activity-log {
+            background: rgba(0, 0, 0, 0.55);
+            border-radius: 24px;
+            border: 1px solid #1a3a4a;
+            padding: 16px;
+            flex-shrink: 0;
+            max-height: 210px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 6px 0;
+            border-bottom: 1px solid #1e3347;
+            color: #b4d0e6;
+        }
+        .log-time {
+            color: #5f9bc2;
+            margin-right: 12px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
         }
         ::-webkit-scrollbar-track {
-            background: var(--bg-color); 
+            background: #0a101c;
         }
         ::-webkit-scrollbar-thumb {
-            background: var(--dim-color); 
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-color); 
+            background: #2c6c8f;
+            border-radius: 10px;
         }
 
+        .empty-mission {
+            text-align: center;
+            padding: 40px;
+            color: #6e8dab;
+        }
+        @media (max-width: 850px) {
+            .main-dashboard { flex-direction: column; }
+            .tasks-pool { width: 100%; max-height: 45%; }
+        }
     </style>
 </head>
 <body>
-
-<div class="crt-container">
-    <div class="scanlines"></div>
-    <div class="glow"></div>
-
-    <div class="interface">
-        <!-- 顶部 -->
-        <header>
-            <div class="logo">A.D.A. // 战术终端</div>
-            <div class="system-status">
-                <span>用户: <span id="operator-id">OFFICER-04</span></span>
-                <span>网络: <span style="color:var(--primary-color)">SECURE [G.R.I.M. LINK]</span></span>
-                <span id="clock">00:00:00</span>
+<div class="terminal">
+    <!-- 顶部状态栏：呼号、ADA标识、GRIM支援 -->
+    <div class="status-bar">
+        <div class="badge">
+            <div class="ada-logo"><i class="fas fa-shield-haltered"></i> A.D.A.</div>
+            <div class="unit-info"><i class="fas fa-car-side"></i> 特遣队 TANGO-7 | 呼号：铁砧</div>
+            <div class="girm-tag"><i class="fas fa-handshake"></i> GRIM 战术支援在线</div>
+        </div>
+        <div class="badge">
+            <div class="status-badge" id="unitStatusWidget">
+                <span class="led" id="statusLed"></span>
+                <span id="statusText">可用</span>
             </div>
-        </header>
+            <div class="time-date" id="liveTime"></div>
+        </div>
+    </div>
 
-        <!-- 主体 -->
-        <main>
-            <!-- 侧边栏 -->
-            <aside>
-                <div class="menu-item active">任务派发 (DISPATCH)</div>
-                <div class="menu-item">干员状态 (ROSTER)</div>
-                <div class="menu-item">装备库 (ARMORY)</div>
-                <div class="menu-item">情报档案 (INTEL)</div>
-                <div class="menu-item">系统设置 (CONFIG)</div>
-            </aside>
+    <div class="main-dashboard">
+        <!-- 左侧：待派发任务池（调度中心推送） -->
+        <div class="tasks-pool">
+            <div class="panel-header">
+                <span><i class="fas fa-bell"></i> 未分配任务 · 待响应</span>
+                <i class="fas fa-database"></i>
+            </div>
+            <div class="task-list" id="taskListContainer">
+                <!-- 动态任务卡片 -->
+            </div>
+        </div>
 
-            <!-- 任务列表 -->
-            <div class="content-area">
-                <!-- 任务 1 -->
-                <div class="mission-card">
-                    <div class="mission-header">
-                        <span class="mission-title">代号：断头台</span>
-                        <span class="mission-type">高危抓捕 / 城市中心</span>
+        <!-- 右侧：当前执勤面板 -->
+        <div class="active-duty">
+            <!-- 当前激活任务详情 -->
+            <div class="current-mission-card" id="currentMissionPanel">
+                <div class="section-title"><i class="fas fa-bullseye"></i> 当前行动任务</div>
+                <div id="missionDetailArea">
+                    <div class="empty-mission">
+                        <i class="fas fa-crosshairs" style="font-size: 2rem; opacity: 0.5;"></i>
+                        <p>无指派任务<br>从左侧任务池「指派」新任务</p>
                     </div>
-                    <div class="mission-details">
-                        <div class="detail-item"><strong>目标:</strong> 维克多·扎卡耶夫 (军火商)</div>
-                        <div class="detail-item"><strong>威胁等级:</strong> <span style="color:var(--alert-color)">极高 (武装)</span></div>
-                        <div class="detail-item"><strong>位置:</strong> 科伦市，废弃工业区 B-12</div>
-                        <div class="detail-item"><strong>支援:</strong> G.R.I.M. 技术顾问 (远程)</div>
-                    </div>
-                    <p style="margin-top:10px; font-size: 0.85rem; opacity: 0.8;">
-                        简报：目标涉嫌非法持有军用级外骨骼。A.D.A. 获准使用致命武力。需回收其持有的 PDA 原型机。
-                    </p>
-                    <button class="action-btn" onclick="acceptMission('断头台')">接受任务</button>
-                </div>
-
-                <!-- 任务 2 -->
-                <div class="mission-card">
-                    <div class="mission-header">
-                        <span class="mission-title">代号：净空</span>
-                        <span class="mission-type">肃清 / 汽车旅馆</span>
-                    </div>
-                    <div class="mission-details">
-                        <div class="detail-item"><strong>目标:</strong> 清除盘踞势力</div>
-                        <div class="detail-item"><strong>威胁等级:</strong> 中等</div>
-                        <div class="detail-item"><strong>位置:</strong> 北部山区，汽车旅馆</div>
-                        <div class="detail-item"><strong>支援:</strong> 无 (独立行动)</div>
-                    </div>
-                    <p style="margin-top:10px; font-size: 0.85rem; opacity: 0.8;">
-                        简报：根据《治安维护条例》，该区域已被判定为非法武装控制区。执行标准肃清程序。
-                    </p>
-                    <button class="action-btn" onclick="acceptMission('净空')">接受任务</button>
                 </div>
             </div>
-        </main>
-
-        <!-- 底部 -->
-        <footer>
-            <div id="log-output">系统就绪... 等待指令...</div>
-            <div>VER 4.0.2 [BUILD 2026]</div>
-        </footer>
+            <!-- 活动记录 -->
+            <div class="activity-log">
+                <div class="section-title"><i class="fas fa-scroll"></i> 战术记录仪</div>
+                <div id="logContainer">
+                    <div class="log-entry"><span class="log-time">系统</span> 终端就绪 · ADA执法协议加载完成</div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    // 时钟功能
-    function updateClock() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('en-US', { hour12: false });
-        const dateString = now.toLocaleDateString('zh-CN');
-        document.getElementById('clock').innerText = `${dateString} ${timeString}`;
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // 模拟系统日志
-    const logs = [
-        "正在同步 G.R.I.M. 数据库...",
-        "加密通道已建立。",
-        "检测到新的战术更新。",
-        "PDA 固件版本检查通过。"
+    // ---------- 模拟任务数据 ----------
+    let pendingTasks = [
+        { id: "TK-101", title: "银行劫案 · 人质危机", priority: "high", location: "卡莫纳中央大街 22号", desc: "多名武装歹徒挟持人质，要求谈判，高危区域", lat: "34.0522°N, 118.2437°W" },
+        { id: "TK-102", title: "毒品实验室突击", priority: "high", location: "工业区废弃仓库 7号", desc: "武装制毒团伙，可能有爆炸物，需要战术突入", lat: "34.0415°N, 118.2621°W" },
+        { id: "TK-103", title: "高危通缉犯逮捕", priority: "medium", location: "汽车旅馆 14单元", desc: "持枪逃犯，极度危险，建议配备破门装置", lat: "34.0589°N, 118.2314°W" },
+        { id: "TK-104", title: "爆炸物威胁处置", priority: "medium", location: "地铁枢纽站B口", desc: "可疑背包疑似IED，排爆组待支援", lat: "34.0456°N, 118.2510°W" },
+        { id: "TK-105", title: "非法军火交易监控", priority: "low", location: "港口集装箱区", desc: "便衣监视，等待GRIM情报确认", lat: "33.9989°N, 118.2154°W" }
     ];
 
-    let logIndex = 0;
-    const logOutput = document.getElementById('log-output');
+    // 当前激活的任务 (null表示无任务)
+    let currentTask = null;
+    // 任务内部状态机: 'assigned'(已指派/待出发), 'responding'(响应中/途中), 'onscene'(已到场), 'completed'(完成)
+    let currentTaskStatus = null;   // 仅当currentTask存在时有效
 
-    function addLog(text) {
-        logOutput.innerText = `> ${text}`;
-        // 简单的闪烁效果
-        logOutput.style.opacity = 0.5;
-        setTimeout(() => logOutput.style.opacity = 1, 200);
+    // 活动日志数组
+    let activityLogs = [
+        { time: getTimestamp(), msg: "终端就绪 · ADA执法协议加载完成" }
+    ];
+
+    // 辅助函数: 获取当前时间 HH:MM:SS
+    function getTimestamp() {
+        const d = new Date();
+        return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
     }
 
-    // 模拟后台随机日志
-    setInterval(() => {
-        if(Math.random() > 0.7) {
-            addLog(logs[Math.floor(Math.random() * logs.length)]);
+    // 添加日志
+    function addLog(message) {
+        const time = getTimestamp();
+        activityLogs.unshift({ time, msg: message }); // 最新在上方
+        if (activityLogs.length > 30) activityLogs.pop();
+        renderLogs();
+    }
+
+    // 渲染日志区域
+    function renderLogs() {
+        const logContainer = document.getElementById('logContainer');
+        logContainer.innerHTML = activityLogs.map(log => `
+            <div class="log-entry"><span class="log-time">[${log.time}]</span> ${log.msg}</div>
+        `).join('');
+    }
+
+    // 更新左侧待派发任务列表UI
+    function renderPendingTasks() {
+        const container = document.getElementById('taskListContainer');
+        if (!container) return;
+        if (pendingTasks.length === 0) {
+            container.innerHTML = `<div style="padding: 20px; text-align: center; color: #6c8eaa;">✅ 无待处理任务</div>`;
+            return;
         }
-    }, 3000);
+        container.innerHTML = pendingTasks.map(task => {
+            let priorityClass = '';
+            let priorityLabel = '';
+            if (task.priority === 'high') { priorityClass = 'priority-high'; priorityLabel = '危急'; }
+            else if (task.priority === 'medium') { priorityClass = 'priority-medium'; priorityLabel = '紧急'; }
+            else { priorityClass = 'priority-low'; priorityLabel = '常规'; }
+            return `
+                <div class="task-card ${priorityClass}" data-task-id="${task.id}">
+                    <div class="task-title">
+                        <span><i class="fas fa-skull-crosswalk"></i> ${task.title}</span>
+                        <span class="priority-tag">${priorityLabel}</span>
+                    </div>
+                    <div class="task-loc"><i class="fas fa-map-marker-alt"></i> ${task.location}</div>
+                    <div class="task-desc">${task.desc}</div>
+                    <button class="assign-btn" data-id="${task.id}" ${currentTask !== null ? 'disabled' : ''}>
+                        <i class="fas fa-bolt"></i> 指派给我
+                    </button>
+                </div>
+            `;
+        }).join('');
 
-    // 接受任务功能
-    function acceptMission(missionName) {
-        addLog(`任务 [${missionName}] 已接受。正在加载地图数据...`);
-        alert(`[A.D.A. 终端]\n\n任务已确认：${missionName}\n请前往军械库领取装备。\n\n祝好运，干员。`);
+        // 绑定指派按钮事件
+        document.querySelectorAll('.assign-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const taskId = btn.getAttribute('data-id');
+                if (currentTask !== null) {
+                    addLog("⚠️ 无法指派：已有激活任务，请先完成或放弃当前任务");
+                    return;
+                }
+                const foundTask = pendingTasks.find(t => t.id === taskId);
+                if (foundTask) {
+                    // 指派任务
+                    currentTask = { ...foundTask };
+                    currentTaskStatus = 'assigned';   // 初始已指派状态
+                    // 从待处理列表中移除该任务
+                    pendingTasks = pendingTasks.filter(t => t.id !== taskId);
+                    renderPendingTasks();
+                    renderCurrentMission();
+                    addLog(`📢 任务指派 | ${currentTask.title} (${currentTask.location}) 已接收，状态: 待响应`);
+                    updateUnitStatusUI();
+                }
+            });
+        });
     }
 
-    // 菜单点击效果
-    const menuItems = document.querySelectorAll('.menu-item');
-    menuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            menuItems.forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
-            addLog(`导航至：${this.innerText}`);
+    // 更新右侧当前任务面板 (根据currentTask和status)
+    function renderCurrentMission() {
+        const missionArea = document.getElementById('missionDetailArea');
+        if (!currentTask) {
+            missionArea.innerHTML = `
+                <div class="empty-mission">
+                    <i class="fas fa-crosshairs" style="font-size: 2rem; opacity: 0.5;"></i>
+                    <p>无指派任务<br>从左侧任务池「指派」新任务</p>
+                </div>
+            `;
+            updateUnitStatusUI();
+            return;
+        }
+
+        let statusTextMap = {
+            'assigned': '🚔 已指派 / 待出动',
+            'responding': '🚨 响应中 · 前往现场',
+            'onscene': '⚡ 已到场 · 战术处置',
+            'completed': '✅ 任务完成'
+        };
+        let currentStatusLabel = statusTextMap[currentTaskStatus] || '未知';
+
+        // 地图区域动态显示当前任务坐标
+        const coordDisplay = currentTask.lat || "GPS 锁定中";
+
+        const html = `
+            <div class="mission-detail">
+                <div class="detail-row">
+                    <div class="detail-label">任务代号</div>
+                    <div class="detail-value">${currentTask.id} · ${currentTask.title}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">危险等级</div>
+                    <div class="detail-value">${currentTask.priority === 'high' ? '🔴 CRITICAL' : (currentTask.priority === 'medium' ? '🟠 HIGH' : '🟢 NORMAL')}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">位置</div>
+                    <div class="detail-value"><i class="fas fa-location-dot"></i> ${currentTask.location}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">情报摘要</div>
+                    <div class="detail-value">${currentTask.desc}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">当前状态</div>
+                    <div class="detail-value"><span class="mission-status">${currentStatusLabel}</span></div>
+                </div>
+            </div>
+            <div class="tactical-map">
+                <div class="map-pin"><i class="fas fa-map-pin"></i> <i class="fas fa-location-arrow"></i></div>
+                <div class="map-coord">战术网格: ${coordDisplay}</div>
+                <div style="font-size:0.65rem; margin-top:6px;">GRIM 实时影像支援</div>
+            </div>
+            <div class="action-buttons" id="actionButtons">
+                <button class="tac-btn primary" id="btnRespond" ${currentTaskStatus !== 'assigned' ? 'disabled' : ''}><i class="fas fa-truck-fast"></i> 响应出动</button>
+                <button class="tac-btn" id="btnOnScene" ${currentTaskStatus !== 'responding' ? 'disabled' : ''}><i class="fas fa-flag-checkered"></i> 抵达现场</button>
+                <button class="tac-btn" id="btnComplete" ${currentTaskStatus !== 'onscene' ? 'disabled' : ''}><i class="fas fa-check-double"></i> 任务完成</button>
+                <button class="tac-btn danger" id="btnAbandon" ${currentTaskStatus === 'completed' ? 'disabled' : ''}><i class="fas fa-ban"></i> 放弃任务</button>
+            </div>
+        `;
+        missionArea.innerHTML = html;
+
+        // 绑定操作按钮事件
+        const respondBtn = document.getElementById('btnRespond');
+        const sceneBtn = document.getElementById('btnOnScene');
+        const completeBtn = document.getElementById('btnComplete');
+        const abandonBtn = document.getElementById('btnAbandon');
+
+        if (respondBtn) respondBtn.onclick = () => updateTaskStatus('responding');
+        if (sceneBtn) sceneBtn.onclick = () => updateTaskStatus('onscene');
+        if (completeBtn) completeBtn.onclick = () => updateTaskStatus('completed');
+        if (abandonBtn) abandonBtn.onclick = () => abandonCurrentTask();
+    }
+
+    // 更新任务状态
+    function updateTaskStatus(newStatus) {
+        if (!currentTask) return;
+        // 合法流转检查
+        if (newStatus === 'responding' && currentTaskStatus !== 'assigned') {
+            addLog("操作无效: 只有已指派的任务才能响应出动");
+            return;
+        }
+        if (newStatus === 'onscene' && currentTaskStatus !== 'responding') {
+            addLog("操作无效: 需要先响应出动才能抵达现场");
+            return;
+        }
+        if (newStatus === 'completed' && currentTaskStatus !== 'onscene') {
+            addLog("操作无效: 需要先抵达现场才能完成任务");
+            return;
+        }
+
+        let logMsg = "";
+        if (newStatus === 'responding') logMsg = `🚔 响应出动 | 正在前往 ${currentTask.location}，ETA 3分钟`;
+        else if (newStatus === 'onscene') logMsg = `⚡ 抵达现场 | ${currentTask.title} 战术小组已就位，准备处置`;
+        else if (newStatus === 'completed') logMsg = `🏆 任务完成 | ${currentTask.title} 已结案，现场移交后续单位`;
+
+        currentTaskStatus = newStatus;
+        
+        if (newStatus === 'completed') {
+            // 完成任务：清除当前任务，归档
+            addLog(logMsg);
+            addLog(`📋 归档任务: ${currentTask.id} | 行动报告已上传ADA服务器`);
+            currentTask = null;
+            currentTaskStatus = null;
+            renderCurrentMission();
+            renderPendingTasks();   // 刷新左侧（可能启用指派按钮）
+            updateUnitStatusUI();
+            return;
+        }
+        
+        addLog(logMsg);
+        renderCurrentMission();   // 刷新按钮状态
+        updateUnitStatusUI();
+    }
+
+    // 放弃任务：将当前任务放回待处理池，清空当前任务
+    function abandonCurrentTask() {
+        if (!currentTask) return;
+        // 不能放弃已经完成的任务
+        if (currentTaskStatus === 'completed') {
+            addLog("已完成的任务无法放弃");
+            return;
+        }
+        // 将当前任务重新添加到pendingTasks (保留原有属性)
+        const restoredTask = { ...currentTask };
+        pendingTasks.push(restoredTask);
+        // 简单的按优先级排序展示：高优先级在前
+        pendingTasks.sort((a,b) => {
+            const order = { high: 0, medium: 1, low: 2 };
+            return order[a.priority] - order[b.priority];
         });
-    });
+        addLog(`⛔ 放弃任务 | ${currentTask.title} 已退回任务池，等待其他单位响应`);
+        // 清空当前任务
+        currentTask = null;
+        currentTaskStatus = null;
+        renderPendingTasks();
+        renderCurrentMission();
+        updateUnitStatusUI();
+    }
 
+    // 更新顶部单位状态指示灯（基于当前任务和状态）
+    function updateUnitStatusUI() {
+        const led = document.getElementById('statusLed');
+        const statusSpan = document.getElementById('statusText');
+        if (!currentTask || currentTaskStatus === 'completed') {
+            led.className = 'led';
+            statusSpan.innerText = '可用 · 待命';
+        } else {
+            if (currentTaskStatus === 'assigned') {
+                led.className = 'led busy';
+                statusSpan.innerText = '忙碌 · 待出动';
+            } else if (currentTaskStatus === 'responding') {
+                led.className = 'led busy';
+                statusSpan.innerText = '响应中 · 途中';
+            } else if (currentTaskStatus === 'onscene') {
+                led.className = 'led busy';
+                statusSpan.innerText = '战术处置中';
+            } else {
+                led.className = 'led';
+                statusSpan.innerText = '待命';
+            }
+        }
+    }
+
+    // 实时时钟更新
+    function updateClock() {
+        const timeDiv = document.getElementById('liveTime');
+        if (timeDiv) {
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`;
+            const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+            timeDiv.innerText = `${dateStr} ${timeStr} UTC-8`;
+        }
+    }
+
+    // 初始渲染
+    function init() {
+        renderPendingTasks();
+        renderCurrentMission();
+        updateUnitStatusUI();
+        setInterval(updateClock, 1000);
+        updateClock();
+        addLog("ADA终端同步 | GRIM 战术数据链已加密");
+    }
+
+    init();
 </script>
-
 </body>
 </html>
