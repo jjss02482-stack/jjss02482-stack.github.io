@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>L.S.P.D. 战术终端 | 复刻版交互系统</title>
-    <!-- 使用免费图标库 Font Awesome 6 (免费/开源，作为高质量图标资源库，增强界面视觉) -->
+    <title>L.S.P.D. 战术终端 | 完整交互系统</title>
+    <!-- Font Awesome 6 (免费图标库) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* --- 核心变量与复位 (保留原有风格并微调) --- */
+        /* ========== 原有核心样式 + 新增视图切换 ========== */
         :root {
             --bg-body: #0a0e14;
             --bg-panel: #11161d;
@@ -42,7 +42,7 @@
             overflow: hidden;
         }
 
-        /* --- 通用组件 --- */
+        /* 通用面板 */
         .panel {
             background-color: var(--bg-panel);
             border: 1px solid var(--border-color);
@@ -50,7 +50,6 @@
             padding: 15px;
             margin-bottom: 15px;
         }
-
         .panel-header {
             font-size: 12px;
             color: var(--text-dim);
@@ -59,15 +58,15 @@
             margin-bottom: 10px;
             display: flex;
             align-items: center;
+            gap: 8px;
         }
-
         .stat-value {
             font-size: 28px;
             color: var(--text-bright);
             font-weight: 600;
         }
 
-        /* --- 左侧边栏 (Sidebar) --- */
+        /* 侧边栏 */
         .sidebar {
             width: 200px;
             background-color: var(--bg-panel);
@@ -77,14 +76,12 @@
             padding: 20px 0;
             flex-shrink: 0;
         }
-
         .brand {
             padding: 0 20px;
             margin-bottom: 30px;
             display: flex;
             align-items: center;
         }
-        /* 警徽图片样式 (免费图片资源库: 来自Flaticon免费警察徽章，仅用于二创展示) */
         .badge-img {
             width: 34px;
             height: 34px;
@@ -92,7 +89,6 @@
             object-fit: contain;
             filter: drop-shadow(0 0 2px rgba(31,111,235,0.4));
         }
-
         .brand-text-main {
             font-size: 16px;
             font-weight: bold;
@@ -103,7 +99,6 @@
             color: var(--text-dim);
             text-transform: uppercase;
         }
-
         .nav-section-title {
             padding: 0 20px;
             font-size: 11px;
@@ -115,7 +110,6 @@
         .nav-item {
             padding: 10px 20px;
             color: var(--text-main);
-            text-decoration: none;
             display: flex;
             align-items: center;
             cursor: pointer;
@@ -154,7 +148,7 @@
             background-color: rgba(218, 51, 51, 0.1);
         }
 
-        /* --- 主内容区 --- */
+        /* 主内容区 */
         .main-content {
             flex-grow: 1;
             display: flex;
@@ -206,7 +200,6 @@
             color: var(--text-bright);
             font-size: 16px;
             font-family: monospace;
-            letter-spacing: 1px;
         }
         .panic-btn {
             background-color: var(--panic-red-bg);
@@ -226,12 +219,26 @@
             background-color: #631e26;
             transform: scale(0.98);
         }
-        /* 仪表板视图 */
-        .dashboard-view {
+
+        /* 视图容器 */
+        .view-container {
             flex-grow: 1;
             padding: 20px;
             overflow-y: auto;
         }
+        .view {
+            display: none;
+            animation: fadeIn 0.2s ease;
+        }
+        .view.active-view {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        /* 原有仪表板样式复用 */
         .stats-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -247,7 +254,6 @@
             margin-left: auto;
             color: var(--info-cyan);
             font-family: monospace;
-            font-size: 12px;
         }
         .content-grid {
             display: grid;
@@ -255,54 +261,17 @@
             gap: 15px;
             align-items: start;
         }
-        /* 调度面板 */
         .dispatch-panel {
             padding: 0;
             border-left: 4px solid var(--danger-red);
-            overflow: hidden;
         }
         .dispatch-header {
             background-color: var(--danger-red);
             color: white;
             padding: 10px 15px;
             font-weight: bold;
-            font-size: 16px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-        }
-        .incident-id {
-            background-color: rgba(0,0,0,0.2);
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        .dispatch-body {
-            padding: 15px;
-        }
-        .dispatch-info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .info-block-title {
-            color: var(--text-dim);
-            font-size: 12px;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .info-block-value {
-            color: var(--text-bright);
-            font-size: 15px;
-            font-weight: 500;
-        }
-        .priority-code {
-            color: #ff9e9e;
-            font-weight: bold;
         }
         .updates-log {
             margin-top: 20px;
@@ -322,10 +291,6 @@
         }
         .log-time {
             color: var(--status-orange);
-            flex-shrink: 0;
-        }
-        .log-text {
-            color: var(--text-main);
         }
         .dispatch-actions {
             margin-top: 20px;
@@ -340,18 +305,9 @@
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
-            font-size: 12px;
-            transition: 0.2s;
         }
-        .btn-enroute {
-            background-color: var(--primary-blue);
-            color: white;
-        }
-        .btn-backup {
-            background-color: #30363d;
-            color: var(--text-bright);
-        }
-        /* 警员状态面板 */
+        .btn-enroute { background-color: var(--primary-blue); color: white; }
+        .btn-backup { background-color: #30363d; color: var(--text-bright); }
         .status-panel {
             display: flex;
             flex-direction: column;
@@ -360,19 +316,15 @@
         .status-btn {
             background-color: var(--bg-panel-light);
             border: 1px solid var(--border-color);
-            color: var(--text-main);
             padding: 12px 15px;
             border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            font-weight: 500;
-            transition: all 0.2s;
         }
         .status-btn.active {
             border-color: var(--primary-blue);
             background-color: rgba(31, 111, 235, 0.1);
-            color: var(--text-bright);
             box-shadow: inset 3px 0 0 var(--primary-blue);
         }
         .status-dot {
@@ -382,14 +334,9 @@
             margin-right: 12px;
             background-color: #6e7681;
         }
-        .status-btn.active .status-dot { background-color: var(--status-green); }
         .status-code {
             margin-left: auto;
             font-family: monospace;
-            font-size: 12px;
-        }
-        .bolo-panel {
-            margin-top: 15px;
         }
         .bolo-item {
             border-bottom: 1px solid var(--border-color);
@@ -399,17 +346,113 @@
             margin-top: 15px;
             height: 140px;
             background: #0c1016;
-            border: 1px solid var(--border-color);
             border-radius: 4px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            color: var(--text-dim);
-            font-size: 12px;
             background-image: radial-gradient(circle at 10% 20%, rgba(31,111,235,0.08) 1px, transparent 1px);
             background-size: 18px 18px;
+        }
+
+        /* 新视图组件样式 */
+        .search-box {
+            background: var(--bg-panel-light);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            flex: 1;
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-bright);
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .search-box button {
+            background: var(--primary-blue);
+            border: none;
+            color: white;
+            padding: 0 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .result-card {
+            background: var(--bg-panel-light);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .comm-message {
+            background: var(--bg-panel-light);
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+        .comm-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .comm-input input {
+            flex: 1;
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .toggle-switch {
+            width: 36px;
+            height: 20px;
+            background: #30363d;
+            border-radius: 20px;
+            cursor: pointer;
+            position: relative;
+            transition: 0.2s;
+        }
+        .toggle-switch.active {
+            background: var(--primary-blue);
+        }
+        .toggle-switch::after {
+            content: "";
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: 0.2s;
+        }
+        .toggle-switch.active::after {
+            left: 18px;
+        }
+        canvas.map-canvas {
+            width: 100%;
+            height: 280px;
+            background: #0c1016;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        button {
+            cursor: pointer;
         }
         .panic-flash {
             animation: redFlash 0.4s ease-out;
@@ -418,388 +461,399 @@
             0% { background-color: rgba(218, 51, 51, 0.3); }
             100% { background-color: transparent; }
         }
-        i.fa, i.fas, i.far {
-            font-size: 14px;
-        }
-        button:active { transform: scale(0.97); }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: var(--bg-panel); }
-        ::-webkit-scrollbar-thumb { background: #3a434e; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <aside class="sidebar">
-        <div class="brand">
-            <!-- 免费图片资源库：警徽图标 (来自Flaticon免费可商用警察徽章，仅用于非商业二创) -->
-            <img class="badge-img" src="https://cdn-icons-png.flaticon.com/512/2990/2990118.png" alt="LSPD Badge" onerror="this.src='https://placehold.co/34x34?text=LS'">
-            <div class="brand-text">
-                <div class="brand-text-main">L.S.P.D.</div>
-                <div class="brand-text-sub">Tactical Terminal</div>
-            </div>
+<aside class="sidebar">
+    <div class="brand">
+        <img class="badge-img" src="https://cdn-icons-png.flaticon.com/512/2990/2990118.png" alt="LSPD Badge" onerror="this.src='https://placehold.co/34x34?text=LS'">
+        <div class="brand-text">
+            <div class="brand-text-main">L.S.P.D.</div>
+            <div class="brand-text-sub">Tactical Terminal</div>
         </div>
-        <div class="nav-section-title">Main Systems</div>
-        <div class="nav-item active" data-nav="dashboard">
-            <span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span> MDT Dashboard
+    </div>
+    <div class="nav-section-title">Main Systems</div>
+    <div class="nav-item active" data-view="dashboard">
+        <span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span> MDT Dashboard
+    </div>
+    <div class="nav-item" data-view="ncic">
+        <span class="nav-icon"><i class="fas fa-search"></i></span> NCIC / DMV
+    </div>
+    <div class="nav-item" data-view="dispatchComms">
+        <span class="nav-icon"><i class="fas fa-radio"></i></span> Dispatch Comms
+    </div>
+    <div class="nav-item" data-view="tacticalMap">
+        <span class="nav-icon"><i class="fas fa-map-marked-alt"></i></span> Tactical Map
+    </div>
+    <div class="sidebar-footer">
+        <div class="nav-item" data-view="settings">
+            <span class="nav-icon"><i class="fas fa-cog"></i></span> Terminal Settings
         </div>
-        <div class="nav-item" data-nav="ncic">
-            <span class="nav-icon"><i class="fas fa-search"></i></span> NCIC / DMV
+        <div class="end-shift-btn" id="endShiftBtn">
+            <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> End Shift (10-42)
         </div>
-        <div class="nav-item" data-nav="dispatch">
-            <span class="nav-icon"><i class="fas fa-radio"></i></span> Dispatch Comms
-        </div>
-        <div class="nav-item" data-nav="map">
-            <span class="nav-icon"><i class="fas fa-map-marked-alt"></i></span> Tactical Map
-        </div>
-        <div class="sidebar-footer">
-            <div class="nav-item" data-nav="settings">
-                <span class="nav-icon"><i class="fas fa-cog"></i></span> Terminal Settings
-            </div>
-            <div class="end-shift-btn" id="endShiftBtn">
-                <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> End Shift (10-42)
-            </div>
-        </div>
-    </aside>
+    </div>
+</aside>
 
-    <main class="main-content">
-        <header class="top-header">
-            <div class="unit-tag"><i class="fas fa-microphone-alt"></i> 1L</div>
-            <div class="officer-info">
-                <div class="officer-callsign">1-LINCOLN-18</div>
-                <div class="officer-name">Ofc. J. Cooper #4592</div>
-                <div class="officer-status-badge" id="officerStatusLabel"><i class="fas fa-circle" style="font-size: 8px; margin-right: 5px; color:#3fb950;"></i> 10-8 在岗巡逻</div>
-            </div>
-            <div class="header-right">
-                <i class="fas fa-satellite-dish" style="color: var(--info-cyan);"></i>
-                <div class="system-time" id="liveClock">00:07:08</div>
-                <button class="panic-btn" id="panicButton">
-                    <i class="fas fa-exclamation-triangle"></i> 10-33 PANIC
-                </button>
-            </div>
-        </header>
+<main class="main-content">
+    <header class="top-header">
+        <div class="unit-tag"><i class="fas fa-microphone-alt"></i> 1L</div>
+        <div class="officer-info">
+            <div class="officer-callsign">1-LINCOLN-18</div>
+            <div class="officer-name">Ofc. J. Cooper #4592</div>
+            <div class="officer-status-badge" id="officerStatusLabel"><i class="fas fa-circle" style="font-size: 8px; margin-right: 5px; color:#3fb950;"></i> 10-8 在岗巡逻</div>
+        </div>
+        <div class="header-right">
+            <i class="fas fa-satellite-dish" style="color: var(--info-cyan);"></i>
+            <div class="system-time" id="liveClock">00:00:00</div>
+            <button class="panic-btn" id="panicButton"><i class="fas fa-exclamation-triangle"></i> 10-33 PANIC</button>
+        </div>
+    </header>
 
-        <div class="dashboard-view" id="dashboardView">
+    <div class="view-container">
+        <!-- 视图1: 仪表板 (原完整界面) -->
+        <div id="dashboardView" class="view active-view">
             <section class="stats-row">
-                <div class="panel">
-                    <div class="panel-header"><i class="fas fa-bell"></i> Active Incidents</div>
-                    <div class="stat-value" id="activeIncidentsCount">12</div>
-                </div>
-                <div class="panel">
-                    <div class="panel-header"><i class="fas fa-users"></i> Units Available</div>
-                    <div class="stat-value" id="unitsAvailableCount" style="color: var(--status-green);">8</div>
-                </div>
+                <div class="panel"><div class="panel-header"><i class="fas fa-bell"></i> Active Incidents</div><div class="stat-value" id="activeIncidentsCount">12</div></div>
+                <div class="panel"><div class="panel-header"><i class="fas fa-users"></i> Units Available</div><div class="stat-value" id="unitsAvailableCount" style="color: var(--status-green);">8</div></div>
                 <div class="panel sector-info">
                     <i class="fas fa-location-dot" style="font-size: 28px; margin-right: 15px; color: var(--primary-blue);"></i>
-                    <div>
-                        <div class="panel-header" style="margin-bottom: 0;">Current Sector</div>
-                        <div class="info-block-value">SECTOR 4 - DOWNTOWN</div>
-                    </div>
-                    <div class="coords-info">
-                        Z: 44.1, X: -12.9
-                    </div>
+                    <div><div class="panel-header" style="margin-bottom:0;">Current Sector</div><div class="info-block-value">SECTOR 4 - DOWNTOWN</div></div>
+                    <div class="coords-info">Z: 44.1, X: -12.9</div>
                 </div>
             </section>
-
             <div class="content-grid">
-                <section class="panel dispatch-panel" id="dispatchPanel">
-                    <div class="dispatch-header">
-                        <div>
-                            <i class="fas fa-gun"></i> ACTIVE DISPATCH: 10-71 / SHOOTING
-                        </div>
-                        <div class="incident-id">INC-2023-08921</div>
-                    </div>
+                <section class="panel dispatch-panel">
+                    <div class="dispatch-header"><div><i class="fas fa-gun"></i> ACTIVE DISPATCH: 10-71 / SHOOTING</div><div class="incident-id">INC-2023-08921</div></div>
                     <div class="dispatch-body">
-                        <div class="dispatch-info-grid">
-                            <div class="info-block">
-                                <div class="info-block-title"><i class="fas fa-map-pin"></i> Location</div>
-                                <div class="info-block-value">415 Davis Ave, Southside, Sector 4</div>
-                            </div>
-                            <div class="info-block">
-                                <div class="info-block-title"><i class="fas fa-exclamation-triangle"></i> Priority</div>
-                                <div class="info-block-value priority-code">CODE 1 RESPONSE</div>
-                            </div>
-                            <div class="info-block">
-                                <div class="info-block-title"><i class="fas fa-phone-alt"></i> Caller</div>
-                                <div class="info-block-value">Anonymous</div>
-                            </div>
-                            <div class="info-block">
-                                <div class="info-block-title"><i class="fas fa-clock"></i> Time Received</div>
-                                <div class="info-block-value">14:22:05</div>
-                            </div>
+                        <div class="dispatch-info-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px;">
+                            <div><div class="info-block-title"><i class="fas fa-map-pin"></i> Location</div><div class="info-block-value">415 Davis Ave, Southside, Sector 4</div></div>
+                            <div><div class="info-block-title"><i class="fas fa-exclamation-triangle"></i> Priority</div><div class="info-block-value priority-code">CODE 1 RESPONSE</div></div>
+                            <div><div class="info-block-title"><i class="fas fa-phone-alt"></i> Caller</div><div class="info-block-value">Anonymous</div></div>
+                            <div><div class="info-block-title"><i class="fas fa-clock"></i> Time Received</div><div class="info-block-value">14:22:05</div></div>
                         </div>
-
                         <div class="panel-header"><i class="fas fa-history"></i> Dispatcher Updates</div>
-                        <div class="updates-log" id="updatesLog">
-                            <div class="log-entry"><span class="log-time">[14:22:10]</span><span class="log-text">CALLER REPORTS MULTIPLE SHOTS FIRED INSIDE WAREHOUSE</span></div>
-                            <div class="log-entry"><span class="log-time">[14:22:45]</span><span class="log-text">SUSPECT DESCRIBED AS MALE/WHITE, DARK HOODIE</span></div>
-                            <div class="log-entry"><span class="log-time">[14:23:12]</span><span class="log-text">AMBULANCE EN ROUTE (CODE 3)</span></div>
-                        </div>
-
+                        <div class="updates-log" id="updatesLog"></div>
                         <div class="dispatch-actions">
                             <button class="action-btn btn-enroute" id="enrouteBtn"><i class="fas fa-car-side"></i> En Route (10-76)</button>
                             <button class="action-btn btn-backup" id="backupBtn"><i class="fas fa-handcuffs"></i> Request Backup</button>
                         </div>
                     </div>
                 </section>
-
                 <aside>
-                    <section class="panel">
-                        <div class="panel-header"><i class="fas fa-user-shield"></i> Unit Status (10-Codes)</div>
+                    <section class="panel"><div class="panel-header"><i class="fas fa-user-shield"></i> Unit Status (10-Codes)</div>
                         <div class="status-panel" id="statusPanel">
-                            <div class="status-btn" data-status="10-8" data-label="在岗巡逻">
-                                <div class="status-dot"></div> In Service <span class="status-code">10-8</span>
-                            </div>
-                            <div class="status-btn" data-status="10-7" data-label="离岗休息">
-                                <div class="status-dot"></div> Out of Service <span class="status-code">10-7</span>
-                            </div>
-                            <div class="status-btn busy active" data-status="10-6" data-label="忙碌中">
-                                <div class="status-dot"></div> Busy <span class="status-code">10-6</span>
-                            </div>
-                            <div class="status-btn" data-status="10-97" data-label="现场处理">
-                                <div class="status-dot"></div> On Scene <span class="status-code">10-97</span>
-                            </div>
+                            <div class="status-btn" data-status="10-8" data-label="在岗巡逻"><div class="status-dot"></div> In Service <span class="status-code">10-8</span></div>
+                            <div class="status-btn" data-status="10-7" data-label="离岗休息"><div class="status-dot"></div> Out of Service <span class="status-code">10-7</span></div>
+                            <div class="status-btn busy active" data-status="10-6" data-label="忙碌中"><div class="status-dot"></div> Busy <span class="status-code">10-6</span></div>
+                            <div class="status-btn" data-status="10-97" data-label="现场处理"><div class="status-dot"></div> On Scene <span class="status-code">10-97</span></div>
                         </div>
                     </section>
-
-                    <section class="panel bolo-panel">
-                        <div class="panel-header"><i class="fas fa-eye"></i> ⚠️ B.O.L.O. (Be On The Look Out)</div>
-                        <div class="bolo-item">
-                            <div class="bolo-title"><i class="fas fa-car"></i> Black Dodge Charger</div>
-                            <div class="bolo-desc">Plate: 4XYZ299. Wanted for felony evasion.</div>
-                        </div>
-                        <div class="bolo-item">
-                            <div class="bolo-title"><i class="fas fa-user-secret"></i> John Doe</div>
-                            <div class="bolo-desc">W/M, 6'2". Armed and dangerous. Last seen Sector 4.</div>
-                        </div>
+                    <section class="panel bolo-panel"><div class="panel-header"><i class="fas fa-eye"></i> ⚠️ B.O.L.O.</div>
+                        <div class="bolo-item"><div class="bolo-title"><i class="fas fa-car"></i> Black Dodge Charger</div><div class="bolo-desc">Plate: 4XYZ299. Wanted for felony evasion.</div></div>
+                        <div class="bolo-item"><div class="bolo-title"><i class="fas fa-user-secret"></i> John Doe</div><div class="bolo-desc">W/M, 6'2". Armed and dangerous. Last seen Sector 4.</div></div>
                     </section>
-
-                    <div class="map-placeholder">
-                        <i class="fas fa-map-marked-alt fa-2x" style="color: #2d7a8b;"></i>
-                        <span>Tactical Map Grid - LIVE FEED</span>
-                        <small style="font-size:10px">Sector 4 Heatmap Active</small>
-                    </div>
+                    <div class="map-placeholder"><i class="fas fa-map-marked-alt fa-2x" style="color:#2d7a8b;"></i><span>Tactical Map Grid - LIVE FEED</span><small>Sector 4 Heatmap Active</small></div>
                 </aside>
             </div>
         </div>
-    </main>
 
-    <script>
-        // ---------- 交互核心 ----------
-        (function() {
-            // DOM 元素
-            const clockEl = document.getElementById('liveClock');
-            const activeIncidentsEl = document.getElementById('activeIncidentsCount');
-            const unitsAvailableEl = document.getElementById('unitsAvailableCount');
-            const updatesLogDiv = document.getElementById('updatesLog');
-            const panicBtn = document.getElementById('panicButton');
-            const enrouteBtn = document.getElementById('enrouteBtn');
-            const backupBtn = document.getElementById('backupBtn');
-            const endShiftBtn = document.getElementById('endShiftBtn');
-            const officerStatusSpan = document.getElementById('officerStatusLabel');
-            const statusBtns = document.querySelectorAll('.status-btn');
-            
-            // 状态变量
-            let activeIncidents = 12;
-            let unitsAvailable = 8;
-            let currentStatusCode = "10-6";   // 默认 busy
-            let currentStatusLabel = "忙碌中";
-            let logEntries = [
-                { time: "14:22:10", text: "CALLER REPORTS MULTIPLE SHOTS FIRED INSIDE WAREHOUSE" },
-                { time: "14:22:45", text: "SUSPECT DESCRIBED AS MALE/WHITE, DARK HOODIE" },
-                { time: "14:23:12", text: "AMBULANCE EN ROUTE (CODE 3)" }
-            ];
-            
-            // 辅助: 获取当前时间 HH:MM:SS
-            function getFormattedTime() {
-                const now = new Date();
-                return now.toLocaleTimeString('en-GB', { hour12: false });
-            }
-            
-            // 实时时钟更新
-            function updateClock() {
-                clockEl.textContent = getFormattedTime();
-            }
-            setInterval(updateClock, 1000);
-            updateClock();
-            
-            // 刷新日志UI
-            function renderLogs() {
-                updatesLogDiv.innerHTML = '';
-                logEntries.slice().reverse().forEach(entry => {
-                    const logDiv = document.createElement('div');
-                    logDiv.className = 'log-entry';
-                    logDiv.innerHTML = `<span class="log-time">[${entry.time}]</span><span class="log-text">${entry.text}</span>`;
-                    updatesLogDiv.prepend(logDiv);
-                });
-                // 保持滚动条到底部 (新日志在上方，但滚动到底部展示最新)
-                if(updatesLogDiv.children.length > 0) {
-                    updatesLogDiv.scrollTop = updatesLogDiv.scrollHeight;
-                }
-            }
-            
-            // 添加一条调度日志
-            function addLog(text, isEmergency = false) {
-                const now = getFormattedTime();
-                logEntries.push({ time: now, text: text });
-                if (logEntries.length > 20) logEntries.shift();
-                renderLogs();
-                if (isEmergency) {
-                    const dispatchSection = document.querySelector('.dispatch-panel');
-                    dispatchSection.classList.add('panic-flash');
-                    setTimeout(() => dispatchSection.classList.remove('panic-flash'), 500);
-                }
-            }
-            
-            // 更新界面数字
-            function updateStatsUI() {
-                activeIncidentsEl.innerText = activeIncidents;
-                unitsAvailableEl.innerText = unitsAvailable;
-            }
-            
-            // 更新警员状态显示 (顶部)
-            function updateOfficerStatusUI() {
-                let dotColor = "#6e7681";
-                if (currentStatusCode === "10-8") dotColor = "#3fb950";
-                else if (currentStatusCode === "10-6") dotColor = "#d29922";
-                else if (currentStatusCode === "10-97") dotColor = "#1f6feb";
-                else if (currentStatusCode === "10-7") dotColor = "#8b949e";
-                officerStatusSpan.innerHTML = `<i class="fas fa-circle" style="font-size: 8px; margin-right: 5px; color:${dotColor};"></i> ${currentStatusCode} ${currentStatusLabel}`;
-            }
-            
-            // 切换状态按钮 active
-            function setActiveStatus(statusCode, labelText) {
-                statusBtns.forEach(btn => {
-                    if(btn.getAttribute('data-status') === statusCode) {
-                        btn.classList.add('active');
-                    } else {
-                        btn.classList.remove('active');
-                    }
-                });
-                currentStatusCode = statusCode;
-                currentStatusLabel = labelText;
-                updateOfficerStatusUI();
-                // 添加日志: 状态变更
-                addLog(`Officer 1-LINCOLN-18 状态更新: ${statusCode} - ${labelText}`);
-            }
-            
-            // 状态按钮点击事件绑定
-            statusBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const statusCode = btn.getAttribute('data-status');
-                    let label = "";
-                    if(statusCode === "10-8") label = "在岗巡逻";
-                    else if(statusCode === "10-7") label = "离岗休息";
-                    else if(statusCode === "10-6") label = "忙碌中";
-                    else if(statusCode === "10-97") label = "现场处理";
-                    setActiveStatus(statusCode, label);
-                });
+        <!-- 视图2: NCIC/DMV 查询系统 -->
+        <div id="ncicView" class="view">
+            <div class="panel">
+                <div class="panel-header"><i class="fas fa-database"></i> NCIC / DMV 实时查询 (模拟)</div>
+                <div class="search-box">
+                    <input type="text" id="ncicQuery" placeholder="输入车牌号 / 姓名 / 案件号... 例如: 4XYZ299">
+                    <button id="ncicSearchBtn"><i class="fas fa-search"></i> 查询</button>
+                </div>
+                <div id="ncicResultArea">
+                    <div class="result-card"><i class="fas fa-car"></i> <strong>示例: 黑道奇战马</strong><br>牌照: 4XYZ299 · 状态: 被盗车辆 · 最后出现: Sector 4, Davis Ave</div>
+                    <div class="result-card"><i class="fas fa-id-card"></i> <strong>John Doe</strong><br>通缉令 #W-3341 · 罪名: 持械抢劫 · 危险等级: 极高</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 视图3: Dispatch Comms 通讯面板 -->
+        <div id="dispatchCommsView" class="view">
+            <div class="panel">
+                <div class="panel-header"><i class="fas fa-broadcast-tower"></i> 区域通讯 (10-代码 / 调度直连)</div>
+                <div id="commMessages" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;">
+                    <div class="comm-message"><i class="fas fa-microphone-alt" style="color:var(--primary-blue);"></i> <span><strong>调度中心:</strong> 所有单位注意，10-71 正在处理中，支援待命</span></div>
+                    <div class="comm-message"><i class="fas fa-radio"></i> <span><strong>1-LINCOLN-18:</strong> 收到，正在前往 Davis Ave</span></div>
+                </div>
+                <div class="comm-input">
+                    <input type="text" id="commInput" placeholder="输入通讯内容...">
+                    <button id="sendCommBtn" class="action-btn btn-enroute" style="padding:8px 16px;">发送 <i class="fas fa-paper-plane"></i></button>
+                </div>
+                <div class="panel-header" style="margin-top: 12px;"><i class="fas fa-list"></i> 频道活动</div>
+                <div id="commLog" style="font-size:12px; color:var(--text-dim);">就绪 | 加密通道: 安全</div>
+            </div>
+        </div>
+
+        <!-- 视图4: 战术地图 (Canvas 绘制 + 免费地图样式) -->
+        <div id="tacticalMapView" class="view">
+            <div class="panel">
+                <div class="panel-header"><i class="fas fa-draw-polygon"></i> 实时战术地图 (Sector 4 网格)</div>
+                <canvas id="tacticalCanvas" width="500" height="300" style="width:100%; height:auto; background:#0a0e14; border-radius:8px; border:1px solid var(--border-color);"></canvas>
+                <div style="display: flex; gap: 10px; margin-top: 12px;">
+                    <button id="mapZoomIn" class="action-btn btn-backup"><i class="fas fa-search-plus"></i> 放大</button>
+                    <button id="mapZoomOut" class="action-btn btn-backup"><i class="fas fa-search-minus"></i> 缩小</button>
+                    <button id="mapRefresh" class="action-btn btn-enroute"><i class="fas fa-sync-alt"></i> 刷新热区</button>
+                </div>
+                <div class="panel-header" style="margin-top: 12px;">📍 标记说明: 🔴 警情位置 | 🔵 警员坐标</div>
+            </div>
+        </div>
+
+        <!-- 视图5: 终端设置 -->
+        <div id="settingsView" class="view">
+            <div class="panel">
+                <div class="panel-header"><i class="fas fa-sliders-h"></i> 终端偏好设置</div>
+                <div class="settings-item"><span><i class="fas fa-volume-up"></i> 警报音效</span><div class="toggle-switch active" id="soundToggle"></div></div>
+                <div class="settings-item"><span><i class="fas fa-chart-line"></i> 实时统计刷新</span><div class="toggle-switch active" id="statsToggle"></div></div>
+                <div class="settings-item"><span><i class="fas fa-palette"></i> 夜间主题 (默认)</span><div class="toggle-switch" id="themeToggle"></div></div>
+                <div class="settings-item"><span><i class="fas fa-database"></i> 加密通讯模块</span><div class="toggle-switch active" id="encryptToggle"></div></div>
+                <div class="panel-header" style="margin-top: 20px;">关于系统</div>
+                <div style="padding:10px 0; color: var(--text-dim);">L.S.P.D. 战术终端复刻版 | 非商业二创作品 | 致敬执法部门<br>所有数据均为模拟，仅供爱好者交流。</div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    (function(){
+        // ---------- 全局数据 ----------
+        let activeIncidents = 12, unitsAvailable = 8;
+        let currentStatusCode = "10-6", currentStatusLabel = "忙碌中";
+        let logEntries = [
+            { time: "14:22:10", text: "CALLER REPORTS MULTIPLE SHOTS FIRED INSIDE WAREHOUSE" },
+            { time: "14:22:45", text: "SUSPECT DESCRIBED AS MALE/WHITE, DARK HOODIE" },
+            { time: "14:23:12", text: "AMBULANCE EN ROUTE (CODE 3)" }
+        ];
+        
+        // DOM 元素
+        const clockEl = document.getElementById('liveClock');
+        const activeIncidentsEl = document.getElementById('activeIncidentsCount');
+        const unitsAvailableEl = document.getElementById('unitsAvailableCount');
+        const updatesLogDiv = document.getElementById('updatesLog');
+        const panicBtn = document.getElementById('panicButton');
+        const enrouteBtn = document.getElementById('enrouteBtn');
+        const backupBtn = document.getElementById('backupBtn');
+        const endShiftBtn = document.getElementById('endShiftBtn');
+        const officerStatusSpan = document.getElementById('officerStatusLabel');
+        const statusBtns = document.querySelectorAll('#statusPanel .status-btn');
+        
+        // 视图切换
+        const navItems = document.querySelectorAll('.nav-item[data-view]');
+        const views = {
+            dashboard: document.getElementById('dashboardView'),
+            ncic: document.getElementById('ncicView'),
+            dispatchComms: document.getElementById('dispatchCommsView'),
+            tacticalMap: document.getElementById('tacticalMapView'),
+            settings: document.getElementById('settingsView')
+        };
+        
+        // 辅助函数
+        function getFormattedTime() {
+            const now = new Date();
+            return now.toLocaleTimeString('en-GB', { hour12: false });
+        }
+        function updateClock() { clockEl.textContent = getFormattedTime(); }
+        setInterval(updateClock, 1000);
+        updateClock();
+        
+        function renderLogs() {
+            if(!updatesLogDiv) return;
+            updatesLogDiv.innerHTML = '';
+            [...logEntries].reverse().forEach(entry => {
+                const div = document.createElement('div');
+                div.className = 'log-entry';
+                div.innerHTML = `<span class="log-time">[${entry.time}]</span><span class="log-text">${entry.text}</span>`;
+                updatesLogDiv.prepend(div);
             });
-            
-            // ----- 调度按钮逻辑 -----
-            // En Route
-            enrouteBtn.addEventListener('click', () => {
-                addLog(`🚔 1-LINCOLN-18 正在响应 10-71 警情，前往 415 Davis Ave (CODE 3)`);
-                // 模拟状态自动切换为 busy 或者 OnScene? 但不强制，保持交互友好，只是提示
-                if(currentStatusCode !== "10-6" && currentStatusCode !== "10-97") {
-                    // 建议自动改为忙碌状态 (响应中)
-                    setActiveStatus("10-6", "忙碌中");
-                    addLog(`调度: 自动更新状态为 10-6 (响应中)`);
-                }
-            });
-            
-            // Request Backup (请求支援)
-            backupBtn.addEventListener('click', () => {
-                if(unitsAvailable > 0) {
-                    unitsAvailable--;
-                    updateStatsUI();
-                    addLog(`🔴 支援请求已发出! 1个后备单位已分配 (剩余可用单位: ${unitsAvailable})`);
-                    if(unitsAvailable === 2) {
-                        addLog(`⚠️ 注意: 可用单位不足, 建议请求外部辖区援助`);
-                    }
-                } else {
-                    addLog(`❌ 无法请求支援: 当前辖区内无可用单位! 已通报调度中心增援`, true);
-                }
-            });
-            
-            // Panic 10-33 紧急按钮
-            panicBtn.addEventListener('click', () => {
-                addLog(`🚨🚨 10-33 EMERGENCY - OFFICER NEEDS IMMEDIATE ASSISTANCE! 坐标 Z:44.1 X:-12.9 🚨🚨`, true);
-                addLog(`所有可用单位: CODE 3 响应 415 Davis Ave 区域, 支援紧急派遣中`);
-                // 闪烁效果body背景
-                document.body.style.transition = '0.1s';
-                document.body.style.backgroundColor = '#3a1217';
-                setTimeout(() => document.body.style.backgroundColor = '', 500);
-                // 模拟紧急情况下自动将当前状态置为 10-33 专属状态
-                if(currentStatusCode !== "10-33") {
-                    // 临时视觉提示但不破坏选项，但为了效果在日志显示
-                    addLog(`⚠️ 状态自动提升为 10-33 (警员遇险)`, true);
-                }
-                // 减少一个可用单位? 模拟支援正在路上 (可选)
-                if(unitsAvailable > 0) {
-                    unitsAvailable = Math.max(0, unitsAvailable - 1);
-                    updateStatsUI();
-                }
-            });
-            
-            // End Shift 重置班次 (还原所有状态)
-            function resetShift() {
-                if(confirm("结束执勤 (10-42) ? 确认后将重置当前班次所有状态和日志。")) {
-                    // 重置全局变量
-                    activeIncidents = 12;
-                    unitsAvailable = 8;
-                    logEntries = [
-                        { time: getFormattedTime(), text: "=== 新班次开始 (10-42 交接完毕) ===" },
-                        { time: getFormattedTime(), text: "调度中心: 欢迎回到执勤, 当前Sector 4 治安状态一般" },
-                        { time: getFormattedTime(), text: "ACTIVE DISPATCH: 10-71 正在等待响应" }
-                    ];
-                    // 重置警员状态为 10-8 在岗
-                    setActiveStatus("10-8", "在岗巡逻");
-                    updateStatsUI();
-                    renderLogs();
-                    // 重置 dispatch 面板内部细节描述不变(可保留)
-                    addLog("👮 警官 Cooper 开始新的执勤轮班，所有系统在线");
-                    // 额外重置可用单位确保显示8
-                    unitsAvailable = 8;
-                    activeIncidents = 12;
-                    updateStatsUI();
-                    // 增加一条重置完成日志
-                    addLog("终端已同步 MDT 数据，当前覆盖区域 SECTOR 4");
-                }
-            }
-            endShiftBtn.addEventListener('click', resetShift);
-            
-            // 导航栏模拟交互（开发中提示）
-            const navItems = document.querySelectorAll('.nav-item[data-nav]');
-            navItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    if(item.getAttribute('data-nav') !== 'dashboard') {
-                        alert("[LSPD Terminal] 该模块正在加密通讯开发中，请保持MDT主界面。");
-                    } else {
-                        // 高亮激活样式
-                        navItems.forEach(nav => nav.classList.remove('active'));
-                        item.classList.add('active');
-                    }
-                });
-            });
-            
-            // 额外: 地图占位添加交互提示
-            const mapPlace = document.querySelector('.map-placeholder');
-            if(mapPlace) {
-                mapPlace.style.cursor = 'pointer';
-                mapPlace.addEventListener('click', () => {
-                    addLog("地图坐标已更新: 定位到 Davis Ave & 5th St, 嫌疑人最后目击点附近");
-                });
-            }
-            
-            // 初始化刷新UI
+            if(updatesLogDiv.children.length) updatesLogDiv.scrollTop = updatesLogDiv.scrollHeight;
+        }
+        function addLog(text, isEmergency = false) {
+            const now = getFormattedTime();
+            logEntries.push({ time: now, text });
+            if(logEntries.length > 30) logEntries.shift();
             renderLogs();
-            updateStatsUI();
-            setActiveStatus("10-6", "忙碌中");   // 按照原默认界面活跃为 busy
-            // 给默认 dispatch 日志增加一点生动提示
-            setTimeout(() => {
-                addLog("终端交互已加载: 可使用状态切换, 支援请求, 10-33 紧急按钮");
-            }, 800);
-        })();
-    </script>
+            if(isEmergency) {
+                const dispatchPanel = document.querySelector('.dispatch-panel');
+                if(dispatchPanel) dispatchPanel.classList.add('panic-flash');
+                setTimeout(() => dispatchPanel?.classList.remove('panic-flash'), 500);
+            }
+            // 同步到通讯视图作为系统广播 (可选)
+            const commMsgDiv = document.getElementById('commMessages');
+            if(commMsgDiv && views.dispatchComms.style.display !== 'block') {} // 不干扰，但保留
+        }
+        function updateStatsUI() {
+            if(activeIncidentsEl) activeIncidentsEl.innerText = activeIncidents;
+            if(unitsAvailableEl) unitsAvailableEl.innerText = unitsAvailable;
+        }
+        function updateOfficerStatusUI() {
+            let dotColor = "#6e7681";
+            if (currentStatusCode === "10-8") dotColor = "#3fb950";
+            else if (currentStatusCode === "10-6") dotColor = "#d29922";
+            else if (currentStatusCode === "10-97") dotColor = "#1f6feb";
+            else if (currentStatusCode === "10-7") dotColor = "#8b949e";
+            officerStatusSpan.innerHTML = `<i class="fas fa-circle" style="font-size: 8px; margin-right: 5px; color:${dotColor};"></i> ${currentStatusCode} ${currentStatusLabel}`;
+        }
+        function setActiveStatus(statusCode, labelText) {
+            statusBtns.forEach(btn => {
+                if(btn.getAttribute('data-status') === statusCode) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            currentStatusCode = statusCode;
+            currentStatusLabel = labelText;
+            updateOfficerStatusUI();
+            addLog(`Officer 1-LINCOLN-18 状态更新: ${statusCode} - ${labelText}`);
+        }
+        
+        // 事件绑定
+        statusBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const code = btn.getAttribute('data-status');
+                let label = "";
+                if(code === "10-8") label = "在岗巡逻";
+                else if(code === "10-7") label = "离岗休息";
+                else if(code === "10-6") label = "忙碌中";
+                else if(code === "10-97") label = "现场处理";
+                setActiveStatus(code, label);
+            });
+        });
+        if(enrouteBtn) enrouteBtn.addEventListener('click', () => {
+            addLog(`🚔 1-LINCOLN-18 正在响应 10-71 警情，前往 415 Davis Ave (CODE 3)`);
+            if(currentStatusCode !== "10-6" && currentStatusCode !== "10-97") setActiveStatus("10-6", "忙碌中");
+        });
+        if(backupBtn) backupBtn.addEventListener('click', () => {
+            if(unitsAvailable > 0) { unitsAvailable--; updateStatsUI(); addLog(`🔴 支援请求已发出! 剩余可用单位: ${unitsAvailable}`); }
+            else addLog(`❌ 无可用单位支援，已上报调度中心`, true);
+        });
+        panicBtn.addEventListener('click', () => {
+            addLog(`🚨🚨 10-33 EMERGENCY - OFFICER NEEDS IMMEDIATE ASSISTANCE! 坐标 Z:44.1 X:-12.9`, true);
+            addLog(`所有可用单位: CODE 3 响应 415 Davis Ave 区域, 支援紧急派遣中`);
+            document.body.style.backgroundColor = '#3a1217';
+            setTimeout(() => document.body.style.backgroundColor = '', 400);
+            if(unitsAvailable > 0) { unitsAvailable = Math.max(0, unitsAvailable - 1); updateStatsUI(); }
+        });
+        endShiftBtn.addEventListener('click', () => {
+            if(confirm("结束执勤 (10-42) ? 重置所有状态")) {
+                activeIncidents = 12; unitsAvailable = 8;
+                logEntries = [{ time: getFormattedTime(), text: "=== 新班次开始 (10-42 交接完毕) ===" },
+                              { time: getFormattedTime(), text: "调度中心: 欢迎回到执勤, 当前Sector 4 治安状态一般" }];
+                setActiveStatus("10-8", "在岗巡逻");
+                updateStatsUI(); renderLogs(); addLog("👮 警官 Cooper 开始新的执勤轮班");
+            }
+        });
+        
+        // 视图切换 (移除 alert，实现真正交互)
+        function switchView(viewId) {
+            Object.keys(views).forEach(key => { views[key].classList.remove('active-view'); });
+            views[viewId].classList.add('active-view');
+            navItems.forEach(item => {
+                if(item.getAttribute('data-view') === viewId) item.classList.add('active');
+                else item.classList.remove('active');
+            });
+            // 每次切换地图视图时重绘地图
+            if(viewId === 'tacticalMap') drawMap();
+        }
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const view = item.getAttribute('data-view');
+                if(view && views[view]) switchView(view);
+            });
+        });
+        
+        // NCIC 交互
+        const ncicSearchBtn = document.getElementById('ncicSearchBtn');
+        const ncicQuery = document.getElementById('ncicQuery');
+        const ncicResultArea = document.getElementById('ncicResultArea');
+        if(ncicSearchBtn) {
+            ncicSearchBtn.addEventListener('click', () => {
+                const query = ncicQuery.value.trim();
+                if(!query) { addLog("NCIC: 查询内容为空"); return; }
+                addLog(`NCIC查询: ${query}`);
+                ncicResultArea.innerHTML = `<div class="result-card"><i class="fas fa-spinner fa-pulse"></i> 正在检索 NCIC 数据库...</div>`;
+                setTimeout(() => {
+                    if(query.toUpperCase().includes("XYZ") || query.includes("4XYZ")) {
+                        ncicResultArea.innerHTML = `<div class="result-card"><i class="fas fa-car"></i> <strong>结果: 2019 道奇战马</strong><br>牌照: 4XYZ299 · 状态: 被盗/通缉 · 最后定位: Sector 4</div>`;
+                    } else if(query.toLowerCase().includes("john") || query.includes("doe")) {
+                        ncicResultArea.innerHTML = `<div class="result-card"><i class="fas fa-id-card"></i> <strong>通缉人员: John Doe</strong><br>DOB: 1985-03-22 · 重罪逮捕令 · 危险武器</div>`;
+                    } else {
+                        ncicResultArea.innerHTML = `<div class="result-card"><i class="fas fa-check-circle"></i> 未发现匹配记录, 但已标记为关注对象</div>`;
+                    }
+                    addLog(`NCIC 返回结果: ${query} 查询完成`);
+                }, 600);
+            });
+        }
+        
+        // 通讯模块
+        const sendCommBtn = document.getElementById('sendCommBtn');
+        const commInput = document.getElementById('commInput');
+        const commMessagesDiv = document.getElementById('commMessages');
+        if(sendCommBtn) {
+            sendCommBtn.addEventListener('click', () => {
+                const msg = commInput.value.trim();
+                if(!msg) return;
+                addLog(`[通讯] 1-LINCOLN-18: ${msg}`);
+                const newMsg = document.createElement('div');
+                newMsg.className = 'comm-message';
+                newMsg.innerHTML = `<i class="fas fa-radio"></i> <span><strong>1-LINCOLN-18:</strong> ${msg}</span>`;
+                commMessagesDiv.appendChild(newMsg);
+                commMessagesDiv.scrollTop = commMessagesDiv.scrollHeight;
+                commInput.value = '';
+                // 模拟调度自动回复
+                setTimeout(() => {
+                    const reply = document.createElement('div');
+                    reply.className = 'comm-message';
+                    reply.innerHTML = `<i class="fas fa-microphone-alt" style="color:var(--primary-blue);"></i> <span><strong>调度中心:</strong> 已收到，支援协调中。</span>`;
+                    commMessagesDiv.appendChild(reply);
+                    commMessagesDiv.scrollTop = commMessagesDiv.scrollHeight;
+                }, 1000);
+            });
+        }
+        
+        // 战术地图 Canvas 绘制 (简单网格，免费)
+        const canvas = document.getElementById('tacticalCanvas');
+        let mapScale = 1;
+        function drawMap() {
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.clientWidth, h = 250;
+            canvas.width = w; canvas.height = h;
+            ctx.fillStyle = '#0a0e14';
+            ctx.fillRect(0,0,w,h);
+            ctx.strokeStyle = '#2a3340';
+            ctx.lineWidth = 0.5;
+            for(let i=0;i<10;i++){ ctx.beginPath(); ctx.moveTo(i*(w/10),0); ctx.lineTo(i*(w/10),h); ctx.stroke(); ctx.moveTo(0,i*(h/10)); ctx.lineTo(w,i*(h/10)); ctx.stroke(); }
+            ctx.fillStyle = '#da3633';
+            ctx.fillRect(w*0.7-8, h*0.4-8, 16,16); // 警情位置
+            ctx.fillStyle = '#1f6feb';
+            ctx.beginPath(); ctx.arc(w*0.3, h*0.6, 8, 0, 2*Math.PI); ctx.fill();
+            ctx.fillStyle = 'white';
+            ctx.font = "12px monospace";
+            ctx.fillText("415 Davis Ave", w*0.7-40, h*0.4-10);
+            ctx.fillText("1-LINCOLN-18", w*0.3-30, h*0.6-10);
+        }
+        window.addEventListener('resize', () => { if(views.tacticalMap.classList.contains('active-view')) drawMap(); });
+        document.getElementById('mapZoomIn')?.addEventListener('click', () => { mapScale = Math.min(mapScale+0.2,2); drawMap(); addLog("战术地图: 放大视图"); });
+        document.getElementById('mapZoomOut')?.addEventListener('click', () => { mapScale = Math.max(mapScale-0.2,0.6); drawMap(); addLog("战术地图: 缩小视图"); });
+        document.getElementById('mapRefresh')?.addEventListener('click', () => { drawMap(); addLog("地图热区已刷新，标记嫌疑人最新位置"); });
+        
+        // 设置开关模拟
+        function initToggles() {
+            const toggles = document.querySelectorAll('.toggle-switch');
+            toggles.forEach(t => t.addEventListener('click', function(e){ this.classList.toggle('active'); addLog(`设置项已更改: ${this.parentElement.innerText.split('\n')[0]}`); }));
+        }
+        
+        // 初始化
+        renderLogs();
+        updateStatsUI();
+        setActiveStatus("10-6", "忙碌中");
+        initToggles();
+        drawMap();
+        addLog("终端全功能已加载 - 所有菜单均可交互");
+    })();
+</script>
 </body>
 </html>
