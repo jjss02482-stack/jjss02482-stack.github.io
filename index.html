@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>L.S.P.D. 战术终端 | 完整交互系统</title>
+    <title>L.S.P.D. 战术终端 | 完整交互系统 + 案件详情</title>
     <!-- Font Awesome 6 (免费图标库) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -272,6 +272,24 @@
             font-weight: bold;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+        }
+        .dispatch-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .detail-icon {
+            cursor: pointer;
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+        .detail-icon:hover {
+            background: rgba(0,0,0,0.6);
+            transform: scale(1.02);
         }
         .updates-log {
             margin-top: 20px;
@@ -356,7 +374,71 @@
             background-size: 18px 18px;
         }
 
-        /* 新视图组件样式 */
+        /* 模态框 (案件详情) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-container {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .modal-header {
+            background: var(--danger-red);
+            color: white;
+            padding: 12px 18px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .modal-body h4 {
+            color: var(--text-bright);
+            margin: 12px 0 6px 0;
+            border-left: 3px solid var(--primary-blue);
+            padding-left: 8px;
+        }
+        .modal-body p, .modal-body li {
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+        .modal-body ul {
+            margin-left: 20px;
+        }
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* 其他组件 */
         .search-box {
             background: var(--bg-panel-light);
             border: 1px solid var(--border-color);
@@ -444,13 +526,6 @@
         .toggle-switch.active::after {
             left: 18px;
         }
-        canvas.map-canvas {
-            width: 100%;
-            height: 280px;
-            background: #0c1016;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
         button {
             cursor: pointer;
         }
@@ -524,7 +599,13 @@
             </section>
             <div class="content-grid">
                 <section class="panel dispatch-panel">
-                    <div class="dispatch-header"><div><i class="fas fa-gun"></i> ACTIVE DISPATCH: 10-71 / SHOOTING</div><div class="incident-id">INC-2023-08921</div></div>
+                    <div class="dispatch-header">
+                        <div class="dispatch-header-left">
+                            <i class="fas fa-gun"></i> ACTIVE DISPATCH: 10-71 / SHOOTING
+                            <div class="detail-icon" id="caseDetailBtn"><i class="fas fa-folder-open"></i> 案件详情</div>
+                        </div>
+                        <div class="incident-id">INC-2023-08921</div>
+                    </div>
                     <div class="dispatch-body">
                         <div class="dispatch-info-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px;">
                             <div><div class="info-block-title"><i class="fas fa-map-pin"></i> Location</div><div class="info-block-value">415 Davis Ave, Southside, Sector 4</div></div>
@@ -619,6 +700,42 @@
     </div>
 </main>
 
+<!-- 案件详情模态框 -->
+<div id="caseModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <span><i class="fas fa-file-alt"></i> 案件卷宗: INC-2023-08921</span>
+            <button class="close-modal" id="closeModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h4>📋 概要</h4>
+            <p><strong>类型:</strong> 10-71 (枪击事件) · 优先级: CODE 1 (紧急)</p>
+            <p><strong>地点:</strong> 415 Davis Ave, 南侧仓库区, Sector 4</p>
+            <p><strong>接警时间:</strong> 2023-11-21 14:22:05 · 最后更新: 14:45:12</p>
+            <h4>👥 涉案人员</h4>
+            <ul>
+                <li><strong>嫌疑人(在逃):</strong> 男性, 白人, 深色连帽衫, 手持半自动手枪 · 姓名未知(代号"影子")</li>
+                <li><strong>受害者:</strong> 两名男性, 已送医, 情况危重</li>
+                <li><strong>目击者:</strong> 仓库员工, 正接受询问</li>
+            </ul>
+            <h4>🔍 证据/物证</h4>
+            <ul>
+                <li>9mm弹壳 x 8 (现场提取)</li>
+                <li>监控捕捉到黑色道奇战马逃离 (车牌4XYZ299)</li>
+                <li>嫌疑人遗留手机一部 (技术科正在解锁)</li>
+            </ul>
+            <h4>📡 行动进展</h4>
+            <ul>
+                <li>14:28 - 1-LINCOLN-18 被调度响应</li>
+                <li>14:35 - 设置路障于 Davis & 5th 路口</li>
+                <li>14:40 - 请求K9单位支援</li>
+            </ul>
+            <h4>⚠️ 备注</h4>
+            <p>嫌疑人极有可能持有重型武器，接近时请求支援。建议启用空中支援。</p>
+        </div>
+    </div>
+</div>
+
 <script>
     (function(){
         // ---------- 全局数据 ----------
@@ -641,6 +758,21 @@
         const endShiftBtn = document.getElementById('endShiftBtn');
         const officerStatusSpan = document.getElementById('officerStatusLabel');
         const statusBtns = document.querySelectorAll('#statusPanel .status-btn');
+        const caseDetailBtn = document.getElementById('caseDetailBtn');
+        const caseModal = document.getElementById('caseModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        
+        // 模态框控制
+        function openCaseModal() {
+            caseModal.classList.add('active');
+            addLog("警员 1-LINCOLN-18 查阅案件卷宗 INC-2023-08921");
+        }
+        function closeCaseModal() {
+            caseModal.classList.remove('active');
+        }
+        if(caseDetailBtn) caseDetailBtn.addEventListener('click', openCaseModal);
+        if(closeModalBtn) closeModalBtn.addEventListener('click', closeCaseModal);
+        caseModal.addEventListener('click', (e) => { if(e.target === caseModal) closeCaseModal(); });
         
         // 视图切换
         const navItems = document.querySelectorAll('.nav-item[data-view]');
@@ -682,9 +814,6 @@
                 if(dispatchPanel) dispatchPanel.classList.add('panic-flash');
                 setTimeout(() => dispatchPanel?.classList.remove('panic-flash'), 500);
             }
-            // 同步到通讯视图作为系统广播 (可选)
-            const commMsgDiv = document.getElementById('commMessages');
-            if(commMsgDiv && views.dispatchComms.style.display !== 'block') {} // 不干扰，但保留
         }
         function updateStatsUI() {
             if(activeIncidentsEl) activeIncidentsEl.innerText = activeIncidents;
@@ -746,7 +875,7 @@
             }
         });
         
-        // 视图切换 (移除 alert，实现真正交互)
+        // 视图切换
         function switchView(viewId) {
             Object.keys(views).forEach(key => { views[key].classList.remove('active-view'); });
             views[viewId].classList.add('active-view');
@@ -754,7 +883,6 @@
                 if(item.getAttribute('data-view') === viewId) item.classList.add('active');
                 else item.classList.remove('active');
             });
-            // 每次切换地图视图时重绘地图
             if(viewId === 'tacticalMap') drawMap();
         }
         navItems.forEach(item => {
@@ -802,7 +930,6 @@
                 commMessagesDiv.appendChild(newMsg);
                 commMessagesDiv.scrollTop = commMessagesDiv.scrollHeight;
                 commInput.value = '';
-                // 模拟调度自动回复
                 setTimeout(() => {
                     const reply = document.createElement('div');
                     reply.className = 'comm-message';
@@ -813,7 +940,7 @@
             });
         }
         
-        // 战术地图 Canvas 绘制 (简单网格，免费)
+        // 战术地图 Canvas 绘制
         const canvas = document.getElementById('tacticalCanvas');
         let mapScale = 1;
         function drawMap() {
@@ -827,7 +954,7 @@
             ctx.lineWidth = 0.5;
             for(let i=0;i<10;i++){ ctx.beginPath(); ctx.moveTo(i*(w/10),0); ctx.lineTo(i*(w/10),h); ctx.stroke(); ctx.moveTo(0,i*(h/10)); ctx.lineTo(w,i*(h/10)); ctx.stroke(); }
             ctx.fillStyle = '#da3633';
-            ctx.fillRect(w*0.7-8, h*0.4-8, 16,16); // 警情位置
+            ctx.fillRect(w*0.7-8, h*0.4-8, 16,16);
             ctx.fillStyle = '#1f6feb';
             ctx.beginPath(); ctx.arc(w*0.3, h*0.6, 8, 0, 2*Math.PI); ctx.fill();
             ctx.fillStyle = 'white';
@@ -852,7 +979,7 @@
         setActiveStatus("10-6", "忙碌中");
         initToggles();
         drawMap();
-        addLog("终端全功能已加载 - 所有菜单均可交互");
+        addLog("终端全功能已加载 - 所有菜单均可交互 | 点击「案件详情」查看完整卷宗");
     })();
 </script>
 </body>
