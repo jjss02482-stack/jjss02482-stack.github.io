@@ -1,748 +1,1005 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>A.D.A. 战术终端 | 武装防卫局 执法系统</title>
-    <!-- Font Awesome 6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        /* ========== 核心变量与老旧电视纹理 ========== */
-        :root {
-            --bg-body: #0a0e14;
-            --bg-panel: #11161d;
-            --bg-panel-light: #161b22;
-            --border-color: #21262d;
-            --text-main: #c9d1d9;
-            --text-bright: #ffffff;
-            --text-dim: #8b949e;
-            --primary-blue: #1f6feb;
-            --danger-red: #da3633;
-            --panic-red-bg: #4a151b;
-            --panic-red-text: #f85149;
-            --status-green: #3fb950;
-            --status-orange: #d29922;
-            --info-cyan: #38d3e0;
-            --font-family: 'Segoe UI', Roboto, 'Courier New', monospace;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+<title>СЕКРЕТНО — ТАКТИЧЕСКИЙ ТЕРМИНАЛ</title>
 
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            font-family: var(--font-family);
-            font-size: 14px;
-            height: 100vh;
-            display: flex;
-            overflow: hidden;
-            position: relative;
-        }
+<style>
 
-        /* 老旧电视扫描线纹理 (横纹) */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9999;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.15) 0px,
-                rgba(0, 0, 0, 0.15) 2px,
-                transparent 2px,
-                transparent 6px
-            );
-            opacity: 0.6;
-            mix-blend-mode: overlay;
-        }
+:root {
+    --red-main: #b51616;
+    --red-dark: #420707;
+    --red-deep: #170303;
+    --red-bright: #e52b2b;
+    --red-glow: rgba(229, 43, 43, 0.45);
 
-        /* 可选微显扫描光晕 */
-        body::after {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            background: radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.3) 100%);
-            z-index: 9998;
-        }
+    --black: #070707;
+    --black-soft: #0d0d0d;
 
-        /* 通用面板 */
-        .panel {
-            background-color: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        .panel-header {
-            font-size: 12px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .stat-value {
-            font-size: 28px;
-            color: var(--text-bright);
-            font-weight: 600;
-        }
+    --gray: #777;
+    --gray-light: #b5b5b5;
 
-        /* 侧边栏 */
-        .sidebar {
-            width: 220px;
-            background-color: var(--bg-panel);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-            flex-shrink: 0;
-        }
-        .brand {
-            padding: 0 20px;
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-        }
-        .badge-img {
-            width: 38px;
-            height: 38px;
-            margin-right: 12px;
-            object-fit: contain;
-            filter: drop-shadow(0 0 3px rgba(31,111,235,0.6));
-        }
-        .brand-text-main {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--text-bright);
-        }
-        .brand-text-sub {
-            font-size: 10px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-        }
-        .nav-section-title {
-            padding: 0 20px;
-            font-size: 11px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            margin-top: 20px;
-        }
-        .nav-item {
-            padding: 10px 20px;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            border-left: 3px solid transparent;
-            transition: background 0.2s;
-        }
-        .nav-item:hover {
-            background-color: rgba(255, 255, 255, 0.03);
-            color: var(--text-bright);
-        }
-        .nav-item.active {
-            background-color: rgba(31, 111, 235, 0.15);
-            color: var(--text-bright);
-            border-left-color: var(--primary-blue);
-        }
-        .nav-icon {
-            width: 24px;
-            margin-right: 10px;
-            text-align: center;
-        }
-        .sidebar-footer {
-            margin-top: auto;
-            padding: 0 10px;
-        }
-        .end-shift-btn {
-            color: var(--danger-red);
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-        .end-shift-btn:hover {
-            background-color: rgba(218, 51, 51, 0.1);
-        }
+    --green-old: #b7d19b;
 
-        /* 主内容区 */
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .top-header {
-            height: 60px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            flex-shrink: 0;
-            background-color: var(--bg-panel);
-        }
-        .unit-tag {
-            background-color: #1f2937;
-            color: var(--primary-blue);
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-weight: bold;
-            margin-right: 15px;
-        }
-        .officer-info {
-            display: flex;
-            flex-direction: column;
-        }
-        .officer-callsign {
-            color: var(--text-bright);
-            font-weight: 500;
-        }
-        .officer-status-badge {
-            font-size: 11px;
-            color: var(--status-green);
-            background: rgba(63, 185, 80, 0.15);
-            padding: 2px 6px;
-            border-radius: 12px;
-            display: inline-block;
-            margin-top: 4px;
-            width: fit-content;
-        }
-        .header-right {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .system-time {
-            color: var(--text-bright);
-            font-size: 16px;
-            font-family: monospace;
-        }
-        .panic-btn {
-            background-color: var(--panic-red-bg);
-            color: var(--panic-red-text);
-            border: 1px solid rgba(248, 81, 73, 0.5);
-            padding: 8px 18px;
-            border-radius: 4px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
+    --font: "Courier New", monospace;
+}
 
-        /* 视图容器 */
-        .view-container {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        .view {
-            display: none;
-            animation: fadeIn 0.2s ease;
-        }
-        .view.active-view {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-        /* 仪表板样式 */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        .sector-info {
-            grid-column: span 2;
-            display: flex;
-            align-items: center;
-        }
-        .coords-info {
-            margin-left: auto;
-            color: var(--info-cyan);
-            font-family: monospace;
-        }
-        .content-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 15px;
-            align-items: start;
-        }
-        .dispatch-panel {
-            padding: 0;
-            border-left: 4px solid var(--danger-red);
-        }
-        .dispatch-header {
-            background-color: var(--danger-red);
-            color: white;
-            padding: 10px 15px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .dispatch-header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .detail-icon {
-            cursor: pointer;
-            background: rgba(0,0,0,0.3);
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 12px;
-            transition: 0.2s;
-        }
-        .updates-log {
-            margin-top: 20px;
-            max-height: 220px;
-            overflow-y: auto;
-        }
-        .log-entry {
-            background-color: var(--bg-panel-light);
-            border-radius: 4px;
-            padding: 8px 10px;
-            margin-bottom: 8px;
-            font-family: monospace;
-            font-size: 12px;
-            display: flex;
-            gap: 10px;
-            border-left: 2px solid var(--primary-blue);
-        }
-        .log-time {
-            color: var(--status-orange);
-        }
-        .dispatch-actions {
-            margin-top: 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .action-btn {
-            border: none;
-            padding: 10px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-        .btn-enroute { background-color: var(--primary-blue); color: white; }
-        .btn-backup { background-color: #30363d; color: var(--text-bright); }
-        .status-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .status-btn {
-            background-color: var(--bg-panel-light);
-            border: 1px solid var(--border-color);
-            padding: 12px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-        }
-        .status-btn.active {
-            border-color: var(--primary-blue);
-            background-color: rgba(31, 111, 235, 0.1);
-            box-shadow: inset 3px 0 0 var(--primary-blue);
-        }
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 12px;
-            background-color: #6e7681;
-        }
-        .status-code {
-            margin-left: auto;
-            font-family: monospace;
-        }
-        .bolo-item {
-            border-bottom: 1px solid var(--border-color);
-            padding: 10px 0;
-        }
-        .map-placeholder {
-            margin-top: 15px;
-            height: 140px;
-            background: #0c1016;
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            background-image: radial-gradient(circle at 10% 20%, rgba(31,111,235,0.08) 1px, transparent 1px);
-            background-size: 18px 18px;
-        }
-        .agency-card {
-            background: var(--bg-panel-light);
-            border-left: 3px solid var(--primary-blue);
-            padding: 12px;
-            margin-top: 10px;
-            font-size: 13px;
-        }
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
 
-        /* 模态框 */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            visibility: hidden;
-            opacity: 0;
-            transition: 0.2s;
-        }
-        .modal-overlay.active {
-            visibility: visible;
-            opacity: 1;
-        }
-        .modal-container {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            width: 550px;
-            max-width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .modal-header {
-            background: var(--danger-red);
-            color: white;
-            padding: 12px 18px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-        }
-        .modal-body {
-            padding: 20px;
-        }
-        .modal-body h4 {
-            color: var(--text-bright);
-            margin: 12px 0 6px;
-            border-left: 3px solid var(--primary-blue);
-            padding-left: 8px;
-        }
-        .close-modal {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
+    background:
+        radial-gradient(
+            ellipse at center,
+            #250505 0%,
+            #0d0202 55%,
+            #030303 100%
+        );
 
-        /* 其他组件 (通讯, NCIC, 地图等) */
-        .search-box { background: var(--bg-panel-light); border: 1px solid var(--border-color); border-radius: 4px; padding: 10px; display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-box input { flex:1; background: var(--bg-body); border:1px solid var(--border-color); color: var(--text-bright); padding: 8px; border-radius: 4px; }
-        .search-box button { background: var(--primary-blue); border: none; color: white; padding: 0 16px; border-radius: 4px; cursor: pointer; }
-        .result-card { background: var(--bg-panel-light); border:1px solid var(--border-color); border-radius:4px; padding:12px; margin-bottom:12px; }
-        .comm-message { background: var(--bg-panel-light); border-radius:4px; padding:10px; margin-bottom:10px; display:flex; gap:10px; }
-        .comm-input { display: flex; gap: 8px; margin-top: 15px; }
-        .comm-input input { flex:1; background: var(--bg-body); border:1px solid var(--border-color); color:white; padding:8px; border-radius:4px; }
-        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
-        .toggle-switch { width:36px; height:20px; background:#30363d; border-radius:20px; cursor:pointer; position:relative; transition:0.2s; }
-        .toggle-switch.active { background: var(--primary-blue); }
-        .toggle-switch::after { content:""; width:16px; height:16px; background:white; border-radius:50%; position:absolute; top:2px; left:2px; transition:0.2s; }
-        .toggle-switch.active::after { left:18px; }
-        .panic-flash { animation: redFlash 0.4s ease-out; }
-        @keyframes redFlash { 0% { background-color: rgba(218, 51, 51, 0.3); } 100% { background-color: transparent; } }
-    </style>
+    color: var(--red-bright);
+    font-family: var(--font);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+}
+
+/* CRT scanlines */
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,0.025) 0px,
+            rgba(255,255,255,0.025) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+
+    pointer-events: none;
+    z-index: 100;
+}
+
+/* CRT vignette */
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            ellipse,
+            transparent 45%,
+            rgba(0,0,0,0.75) 100%
+        );
+
+    pointer-events: none;
+    z-index: 101;
+}
+
+/* Main terminal */
+
+.terminal {
+    width: 94vw;
+    height: 92vh;
+
+    max-width: 1450px;
+
+    border: 1px solid var(--red-main);
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(181,22,22,0.025) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            rgba(181,22,22,0.025) 1px,
+            transparent 1px
+        ),
+        #080808;
+
+    background-size: 30px 30px;
+
+    box-shadow:
+        0 0 25px rgba(181,22,22,0.15),
+        inset 0 0 40px rgba(181,22,22,0.06);
+
+    display: flex;
+    flex-direction: column;
+
+    position: relative;
+}
+
+/* Top classified bar */
+
+.topbar {
+    height: 52px;
+
+    border-bottom: 1px solid var(--red-main);
+
+    background:
+        linear-gradient(
+            90deg,
+            #260303,
+            #110101 60%,
+            #250303
+        );
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 22px;
+
+    letter-spacing: 2px;
+
+    font-size: 13px;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.security-mark {
+    width: 11px;
+    height: 11px;
+
+    background: var(--red-bright);
+
+    box-shadow:
+        0 0 8px var(--red-glow);
+
+    animation: pulse 2s infinite;
+}
+
+.classified {
+    color: var(--red-bright);
+    font-weight: bold;
+}
+
+.classified-sub {
+    color: #783333;
+}
+
+.topbar-right {
+    color: #9b3d3d;
+}
+
+/* Main content */
+
+.content {
+    flex: 1;
+
+    display: grid;
+
+    grid-template-columns: 1fr 420px;
+
+    gap: 30px;
+
+    padding: 30px;
+
+    min-height: 0;
+}
+
+/* Left information section */
+
+.identity {
+    display: flex;
+    flex-direction: column;
+
+    border-right: 1px solid #391010;
+
+    padding-right: 30px;
+}
+
+/* Header */
+
+.identity-header {
+    border-bottom: 1px solid var(--red-main);
+
+    padding-bottom: 15px;
+
+    margin-bottom: 25px;
+}
+
+.system-title {
+    font-size: 12px;
+
+    color: #7c3535;
+
+    letter-spacing: 3px;
+
+    margin-bottom: 8px;
+}
+
+.identity-title {
+    font-size: 25px;
+
+    letter-spacing: 4px;
+
+    color: #d92828;
+
+    text-shadow:
+        0 0 8px rgba(229,43,43,0.25);
+}
+
+.identity-code {
+    margin-top: 8px;
+
+    color: #653131;
+
+    font-size: 11px;
+
+    letter-spacing: 2px;
+}
+
+/* Information grid */
+
+.info-grid {
+    display: grid;
+
+    grid-template-columns: 150px 1fr;
+
+    border-top: 1px solid #351010;
+
+    border-left: 1px solid #351010;
+}
+
+.info-row {
+    min-height: 65px;
+
+    border-right: 1px solid #351010;
+    border-bottom: 1px solid #351010;
+
+    display: flex;
+    align-items: center;
+
+    padding: 12px 15px;
+}
+
+.info-label {
+    color: #743333;
+
+    font-size: 11px;
+
+    letter-spacing: 2px;
+}
+
+.info-value {
+    color: #d52b2b;
+
+    font-size: 16px;
+
+    letter-spacing: 1px;
+
+    text-shadow:
+        0 0 5px rgba(181,22,22,0.25);
+}
+
+.info-value.secret {
+    color: #8d4444;
+
+    letter-spacing: 5px;
+}
+
+/* Affiliation */
+
+.affiliation {
+    margin-top: 25px;
+
+    border: 1px solid #4b1111;
+
+    background: rgba(120,0,0,0.05);
+
+    padding: 18px;
+}
+
+.affiliation-title {
+    font-size: 10px;
+
+    color: #713131;
+
+    letter-spacing: 3px;
+
+    margin-bottom: 12px;
+}
+
+.affiliation-main {
+    font-size: 17px;
+
+    color: #ce2525;
+
+    line-height: 1.7;
+}
+
+.affiliation-sub {
+    color: #783737;
+
+    font-size: 12px;
+
+    margin-top: 5px;
+}
+
+/* Status */
+
+.status-panel {
+    margin-top: auto;
+
+    border-top: 1px solid #4b1111;
+
+    padding-top: 18px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+.status-left {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.status-light {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: var(--red-bright);
+
+    box-shadow:
+        0 0 10px var(--red-bright);
+}
+
+.status-text {
+    font-size: 11px;
+
+    color: #9c4545;
+
+    letter-spacing: 2px;
+}
+
+.status-code {
+    color: #d92727;
+
+    font-size: 12px;
+}
+
+/* Portrait section */
+
+.portrait-section {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: flex-start;
+}
+
+/* Portrait title */
+
+.portrait-title {
+    width: 100%;
+
+    border-bottom: 1px solid var(--red-main);
+
+    padding-bottom: 12px;
+
+    margin-bottom: 18px;
+
+    color: #8c3a3a;
+
+    font-size: 11px;
+
+    letter-spacing: 3px;
+}
+
+/* Big portrait frame */
+
+.portrait-frame {
+
+    width: min(100%, 370px);
+    aspect-ratio: 1 / 1;
+
+    border: 2px solid var(--red-main);
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(181,22,22,0.04) 0px,
+            rgba(181,22,22,0.04) 2px,
+            transparent 2px,
+            transparent 7px
+        ),
+        #090909;
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+
+    box-shadow:
+        inset 0 0 35px rgba(181,22,22,0.1),
+        0 0 15px rgba(181,22,22,0.1);
+}
+
+/* Portrait frame corners */
+
+.portrait-frame::before,
+.portrait-frame::after {
+    content: "";
+
+    position: absolute;
+
+    width: 35px;
+    height: 35px;
+
+    border-color: var(--red-bright);
+
+    border-style: solid;
+}
+
+.portrait-frame::before {
+    top: -1px;
+    left: -1px;
+
+    border-width: 3px 0 0 3px;
+}
+
+.portrait-frame::after {
+    bottom: -1px;
+    right: -1px;
+
+    border-width: 0 3px 3px 0;
+}
+
+/* Empty portrait placeholder */
+
+.portrait-placeholder {
+
+    text-align: center;
+
+    color: #602626;
+
+    font-size: 12px;
+
+    letter-spacing: 3px;
+
+    line-height: 2;
+}
+
+.portrait-placeholder .crosshair {
+
+    width: 120px;
+    height: 120px;
+
+    border: 1px solid #541b1b;
+
+    border-radius: 50%;
+
+    margin: 0 auto 20px;
+
+    position: relative;
+}
+
+.crosshair::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    top: -15px;
+
+    width: 1px;
+    height: 150px;
+
+    background: #541b1b;
+}
+
+.crosshair::after {
+
+    content: "";
+
+    position: absolute;
+
+    top: 50%;
+    left: -15px;
+
+    width: 150px;
+    height: 1px;
+
+    background: #541b1b;
+}
+
+/* Corner marks */
+
+.corner {
+    position: absolute;
+
+    width: 14px;
+    height: 14px;
+
+    border-color: #9e2424;
+
+    border-style: solid;
+}
+
+.corner.tl {
+    top: 12px;
+    left: 12px;
+
+    border-width: 1px 0 0 1px;
+}
+
+.corner.tr {
+    top: 12px;
+    right: 12px;
+
+    border-width: 1px 1px 0 0;
+}
+
+.corner.bl {
+    bottom: 12px;
+    left: 12px;
+
+    border-width: 0 0 1px 1px;
+}
+
+.corner.br {
+    bottom: 12px;
+    right: 12px;
+
+    border-width: 0 1px 1px 0;
+}
+
+/* Portrait metadata */
+
+.portrait-meta {
+
+    width: min(100%, 370px);
+
+    margin-top: 15px;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 1px;
+
+    background: #421111;
+
+    border: 1px solid #421111;
+}
+
+.meta-box {
+
+    background: #0b0808;
+
+    padding: 10px;
+
+    min-height: 55px;
+}
+
+.meta-label {
+
+    color: #693131;
+
+    font-size: 9px;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 6px;
+}
+
+.meta-value {
+
+    color: #c82424;
+
+    font-size: 12px;
+}
+
+/* Bottom bar */
+
+.footer {
+
+    height: 40px;
+
+    border-top: 1px solid var(--red-main);
+
+    background: #100202;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 20px;
+
+    color: #672929;
+
+    font-size: 9px;
+
+    letter-spacing: 2px;
+}
+
+.footer-warning {
+
+    color: #a72b2b;
+}
+
+/* Flicker */
+
+@keyframes pulse {
+
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.45;
+    }
+}
+
+@keyframes flicker {
+
+    0% {
+        opacity: 0.98;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    52% {
+        opacity: 0.94;
+    }
+
+    54% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.98;
+    }
+}
+
+.terminal {
+    animation: flicker 5s infinite;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+
+    body {
+        overflow: auto;
+    }
+
+    .terminal {
+        width: 96vw;
+        height: auto;
+        min-height: 95vh;
+    }
+
+    .content {
+        grid-template-columns: 1fr;
+    }
+
+    .identity {
+        border-right: none;
+        border-bottom: 1px solid #391010;
+        padding-right: 0;
+        padding-bottom: 30px;
+    }
+
+    .portrait-section {
+        padding-top: 10px;
+    }
+}
+
+</style>
 </head>
-<body>
-<aside class="sidebar">
-    <div class="brand">
-        <img class="badge-img" src="https://cdn-icons-png.flaticon.com/512/2990/2990118.png" alt="ADA Badge" onerror="this.src='https://placehold.co/38x38?text=ADA'">
-        <div class="brand-text">
-            <div class="brand-text-main">A.D.A.</div>
-            <div class="brand-text-sub">Armed Defense Authority</div>
-        </div>
-    </div>
-    <div class="nav-section-title">战术系统</div>
-    <div class="nav-item active" data-view="dashboard"><span class="nav-icon"><i class="fas fa-tachometer-alt"></i></span> 任务仪表板</div>
-    <div class="nav-item" data-view="ncic"><span class="nav-icon"><i class="fas fa-search"></i></span> NCIC / 情报库</div>
-    <div class="nav-item" data-view="dispatchComms"><span class="nav-icon"><i class="fas fa-radio"></i></span> 加密通讯</div>
-    <div class="nav-item" data-view="tacticalMap"><span class="nav-icon"><i class="fas fa-map-marked-alt"></i></span> 战术地图</div>
-    <div class="sidebar-footer">
-        <div class="nav-item" data-view="settings"><span class="nav-icon"><i class="fas fa-cog"></i></span> 终端配置</div>
-        <div class="end-shift-btn" id="endShiftBtn"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span> 结束执勤 (10-42)</div>
-    </div>
-</aside>
 
-<main class="main-content">
-    <header class="top-header">
-        <div class="unit-tag"><i class="fas fa-skull-crossbones"></i> ADA-7</div>
-        <div class="officer-info">
-            <div class="officer-callsign">战术分队 7-ALPHA</div>
-            <div class="officer-name">指挥官 V. Kane #A-119</div>
-            <div class="officer-status-badge" id="officerStatusLabel"><i class="fas fa-circle" style="font-size: 8px; margin-right: 5px; color:#3fb950;"></i> 10-8 待命</div>
+<body>
+
+<div class="terminal">
+
+    <!-- CLASSIFIED HEADER -->
+
+    <header class="topbar">
+
+        <div class="topbar-left">
+
+            <div class="security-mark"></div>
+
+            <div class="classified">
+                СОВЕРШЕННО СЕКРЕТНО
+            </div>
+
+            <div class="classified-sub">
+                / ДОСТУП ОГРАНИЧЕН /
+            </div>
+
         </div>
-        <div class="header-right">
-            <i class="fas fa-shield-haltered" style="color: var(--info-cyan);"></i>
-            <div class="system-time" id="liveClock">00:00:00</div>
-            <button class="panic-btn" id="panicButton"><i class="fas fa-exclamation-triangle"></i> 10-33 紧急呼救</button>
+
+        <div class="topbar-right">
+            НТ-8 / АРХИВ ЛИЧНОГО СОСТАВА
         </div>
+
     </header>
 
-    <div class="view-container">
-        <!-- 仪表板视图 - 核心任务界面 -->
-        <div id="dashboardView" class="view active-view">
-            <section class="stats-row">
-                <div class="panel"><div class="panel-header"><i class="fas fa-bell"></i> 活跃行动</div><div class="stat-value" id="activeIncidentsCount">14</div></div>
-                <div class="panel"><div class="panel-header"><i class="fas fa-users"></i> 可用战术单位</div><div class="stat-value" id="unitsAvailableCount" style="color: var(--status-green);">6</div></div>
-                <div class="panel sector-info">
-                    <i class="fas fa-location-dot" style="font-size: 28px; margin-right: 15px; color: var(--primary-blue);"></i>
-                    <div><div class="panel-header" style="margin-bottom:0;">执法辖区</div><div class="info-block-value">北农业区 - 麦田走廊</div></div>
-                    <div class="coords-info">GRID: F-7, X: 82.4</div>
+
+    <main class="content">
+
+        <!-- IDENTITY -->
+
+        <section class="identity">
+
+            <div class="identity-header">
+
+                <div class="system-title">
+                    ТАКТИЧЕСКИЙ ТЕРМИНАЛ ИДЕНТИФИКАЦИИ ПЕРСОНАЛА
                 </div>
-            </section>
-            <!-- 机构档案简介 -->
-            <div class="panel agency-card">
-                <div class="panel-header"><i class="fas fa-landmark"></i> 武装防卫局 · 行动指令</div>
-                <div><strong>起源：</strong> 科伦政府为应对警力崩溃设立的国家级战术执法机构，秩序钢钉。<br>
-                <strong>职能：</strong> 全境高危抓捕/跨区清算/银行劫案/腐败清除。依据《治安维护条例》拥有无限执法权。<br>
-                <strong>当前任务：</strong> 北农业区“南方麦田”毒枭网络清剿。</div>
+
+                <div class="identity-title">
+                    ЛИЧНОЕ ДЕЛО
+                </div>
+
+                <div class="identity-code">
+                    ДОСЬЕ № НТ8-СГ-017 / ТЕРМИНАЛ 04
+                </div>
+
             </div>
-            <div class="content-grid">
-                <section class="panel dispatch-panel">
-                    <div class="dispatch-header">
-                        <div class="dispatch-header-left">
-                            <i class="fas fa-skull"></i> 红色通缉令：毒贩头目抓捕
-                            <div class="detail-icon" id="caseDetailBtn"><i class="fas fa-folder-open"></i> 行动卷宗</div>
-                        </div>
-                        <div class="incident-id">OP-412-麦田清剿</div>
+
+
+            <div class="info-grid">
+
+                <div class="info-row">
+                    <div class="info-label">ИМЯ</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-value">
+                        ДАВИД · ГРОЙСМАН
                     </div>
-                    <div class="dispatch-body">
-                        <div class="dispatch-info-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px;">
-                            <div><div class="info-block-title"><i class="fas fa-map-pin"></i> 目标地点</div><div class="info-block-value">农场南·麦田小屋 (坐标 N39°14'，W96°35')</div></div>
-                            <div><div class="info-block-title"><i class="fas fa-exclamation-triangle"></i> 威胁等级</div><div class="info-block-value priority-code">CODE 1 · 极度危险</div></div>
-                            <div><div class="info-block-title"><i class="fas fa-user-secret"></i> 目标人物</div><div class="info-block-value">“白鼬” 埃米尔·科斯塔 (毒枭)</div></div>
-                            <div><div class="info-block-title"><i class="fas fa-clock"></i> 情报时效</div><div class="info-block-value">22:47 线人确认藏匿</div></div>
-                        </div>
-                        <div class="panel-header"><i class="fas fa-history"></i> 行动更新日志</div>
-                        <div class="updates-log" id="updatesLog"></div>
-                        <div class="dispatch-actions">
-                            <button class="action-btn btn-enroute" id="enrouteBtn"><i class="fas fa-car-side"></i> 战术响应 (10-76)</button>
-                            <button class="action-btn btn-backup" id="backupBtn"><i class="fas fa-handcuffs"></i> 请求支援单位</button>
-                        </div>
+                </div>
+
+
+                <div class="info-row">
+                    <div class="info-label">ВОЗРАСТ</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-value secret">
+                        -----
                     </div>
-                </section>
-                <aside>
-                    <section class="panel"><div class="panel-header"><i class="fas fa-user-shield"></i> 战斗状态 (10-代码)</div>
-                        <div class="status-panel" id="statusPanel">
-                            <div class="status-btn" data-status="10-8" data-label="待命巡逻"><div class="status-dot"></div> 待命 <span class="status-code">10-8</span></div>
-                            <div class="status-btn" data-status="10-7" data-label="休整"><div class="status-dot"></div> 休整 <span class="status-code">10-7</span></div>
-                            <div class="status-btn busy active" data-status="10-6" data-label="执行任务"><div class="status-dot"></div> 执行任务 <span class="status-code">10-6</span></div>
-                            <div class="status-btn" data-status="10-97" data-label="已就位"><div class="status-dot"></div> 现场就位 <span class="status-code">10-97</span></div>
-                        </div>
-                    </section>
-                    <section class="panel bolo-panel"><div class="panel-header"><i class="fas fa-eye"></i> ⚠️ B.O.L.O. 首要通缉</div>
-                        <div class="bolo-item"><div class="bolo-title"><i class="fas fa-cannabis"></i> 埃米尔·科斯塔 (毒枭头目)</div><div class="bolo-desc">白人男性，45岁，武装护卫，藏匿于麦田小屋，大量毒品及现金。</div></div>
-                        <div class="bolo-item"><div class="bolo-title"><i class="fas fa-truck"></i> 运毒车辆: 改装福特猛禽</div><div class="bolo-desc">车牌: C-2749K，可能携有重火力。</div></div>
-                    </section>
-                    <div class="map-placeholder"><i class="fas fa-map-marked-alt fa-2x" style="color:#2d7a8b;"></i><span>麦田区域战术网格</span><small>嫌疑人最后定位: 南侧谷仓</small></div>
-                </aside>
+                </div>
+
+
+                <div class="info-row">
+                    <div class="info-label">ПОЛ</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-value">
+                        МУЖСКОЙ
+                    </div>
+                </div>
+
+
+                <div class="info-row">
+                    <div class="info-label">ЗВАНИЕ</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-value">
+                        МЛАДШИЙ ЛЕЙТЕНАНТ
+                    </div>
+                </div>
+
+
+                <div class="info-row">
+                    <div class="info-label">КАТЕГОРИЯ</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-value">
+                        ОПЕРАТИВНЫЙ ПЕРСОНАЛ
+                    </div>
+                </div>
+
             </div>
+
+
+            <div class="affiliation">
+
+                <div class="affiliation-title">
+                    ВЕДОМСТВЕННАЯ ПРИНАДЛЕЖНОСТЬ
+                </div>
+
+                <div class="affiliation-main">
+                    ГЛАВНОЕ УПРАВЛЕНИЕ №8
+                    «НОВАЯ ЗВЕЗДА»
+                </div>
+
+                <div class="affiliation-sub">
+                    СПАСАТЕЛЬНАЯ ГРУППА
+                </div>
+
+            </div>
+
+
+            <div class="status-panel">
+
+                <div class="status-left">
+
+                    <div class="status-light"></div>
+
+                    <div class="status-text">
+                        ДОПУСК ПОДТВЕРЖДЁН
+                    </div>
+
+                </div>
+
+                <div class="status-code">
+                    СТАТУС: АКТИВЕН
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PORTRAIT -->
+
+        <section class="portrait-section">
+
+            <div class="portrait-title">
+                ВИЗУАЛЬНАЯ ИДЕНТИФИКАЦИЯ
+            </div>
+
+
+            <div class="portrait-frame">
+
+                <div class="corner tl"></div>
+                <div class="corner tr"></div>
+                <div class="corner bl"></div>
+                <div class="corner br"></div>
+
+
+                <!--
+                    В ЭТО МЕСТО МОЖНО ПОМЕСТИТЬ ФОТОГРАФИЮ
+                    ПЕРСОНАЛА
+                -->
+
+                <div class="portrait-placeholder">
+
+                    <div class="crosshair"></div>
+
+                    <div>
+                        ФОТОГРАФИЯ<br>
+                        ОТСУТСТВУЕТ
+                    </div>
+
+                    <div style="font-size:9px; color:#431818;">
+                        IMAGE SLOT / НТ8-СГ-017
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="portrait-meta">
+
+                <div class="meta-box">
+
+                    <div class="meta-label">
+                        ПОДРАЗДЕЛЕНИЕ
+                    </div>
+
+                    <div class="meta-value">
+                        СГ / 08
+                    </div>
+
+                </div>
+
+
+                <div class="meta-box">
+
+                    <div class="meta-label">
+                        ДОПУСК
+                    </div>
+
+                    <div class="meta-value">
+                        УРОВЕНЬ IV
+                    </div>
+
+                </div>
+
+
+                <div class="meta-box">
+
+                    <div class="meta-label">
+                        ПРОФИЛЬ
+                    </div>
+
+                    <div class="meta-value">
+                        СПАСАТЕЛЬ
+                    </div>
+
+                </div>
+
+
+                <div class="meta-box">
+
+                    <div class="meta-label">
+                        СОСТОЯНИЕ
+                    </div>
+
+                    <div class="meta-value">
+                        АКТИВЕН
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="footer">
+
+        <div>
+            ГЛАВНОЕ УПРАВЛЕНИЕ №8 «НОВАЯ ЗВЕЗДА»
         </div>
 
-        <!-- NCIC 视图 (适配新背景) -->
-        <div id="ncicView" class="view"><div class="panel"><div class="panel-header"><i class="fas fa-database"></i> 国家犯罪情报中心</div><div class="search-box"><input type="text" id="ncicQuery" placeholder="查询: 姓名/车牌/代号 (例如: 科斯塔)"><button id="ncicSearchBtn"><i class="fas fa-search"></i> 检索</button></div><div id="ncicResultArea"><div class="result-card"><i class="fas fa-skull"></i> <strong>埃米尔·科斯塔 (Emil Costa)</strong><br>通缉令 #DR-771 · 贩毒/谋杀/武装拒捕 · 赏金: 高额</div><div class="result-card"><i class="fas fa-truck"></i> <strong>福特猛禽 黑色</strong><br>车牌C-2749K · 涉嫌运输甲基苯丙胺</div></div></div></div>
+        <div class="footer-warning">
+            НЕСАНКЦИОНИРОВАННЫЙ ДОСТУП ЗАПРЕЩЁН
+        </div>
 
-        <!-- 加密通讯视图 -->
-        <div id="dispatchCommsView" class="view"><div class="panel"><div class="panel-header"><i class="fas fa-broadcast-tower"></i> 战术加密频道 (ADA-COM)</div><div id="commMessages" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"><div class="comm-message"><i class="fas fa-microphone-alt" style="color:var(--primary-blue);"></i> <span><strong>中央调度:</strong> 所有单位注意，麦田小屋目标确认，立即逮捕科斯塔。</span></div><div class="comm-message"><i class="fas fa-radio"></i> <span><strong>7-ALPHA:</strong> 收到，正在接近南侧外围。</span></div></div><div class="comm-input"><input type="text" id="commInput" placeholder="加密通讯内容..."><button id="sendCommBtn" class="action-btn btn-enroute">发送 <i class="fas fa-paper-plane"></i></button></div><div class="panel-header" style="margin-top:12px;">频道状态: 量子加密 | 活跃中</div></div></div>
+        <div>
+            СИСТЕМА 8ГУ / 1987
+        </div>
 
-        <!-- 战术地图视图 (保留Canvas) -->
-        <div id="tacticalMapView" class="view"><div class="panel"><div class="panel-header"><i class="fas fa-draw-polygon"></i> 实时战术地图 (麦田农场区域)</div><canvas id="tacticalCanvas" width="500" height="300" style="width:100%; height:auto; background:#0a0e14; border-radius:8px; border:1px solid var(--border-color);"></canvas><div style="display:flex; gap:10px; margin-top:12px;"><button id="mapZoomIn" class="action-btn btn-backup"><i class="fas fa-search-plus"></i> 放大</button><button id="mapZoomOut" class="action-btn btn-backup"><i class="fas fa-search-minus"></i> 缩小</button><button id="mapRefresh" class="action-btn btn-enroute"><i class="fas fa-sync-alt"></i> 刷新热区</button></div><div class="panel-header" style="margin-top:12px;">🔴 目标藏匿点 | 🔵 战术小队位置</div></div></div>
+    </footer>
 
-        <!-- 终端设置 -->
-        <div id="settingsView" class="view"><div class="panel"><div class="panel-header"><i class="fas fa-sliders-h"></i> 终端配置</div><div class="settings-item"><span><i class="fas fa-volume-up"></i> 战术警报音</span><div class="toggle-switch active" id="soundToggle"></div></div><div class="settings-item"><span><i class="fas fa-chart-line"></i> 实时情报流</span><div class="toggle-switch active" id="statsToggle"></div></div><div class="settings-item"><span><i class="fas fa-palette"></i> 暗网主题</span><div class="toggle-switch" id="themeToggle"></div></div><div class="settings-item"><span><i class="fas fa-database"></i> ADA 加密模块</span><div class="toggle-switch active" id="encryptToggle"></div></div><div class="panel-header" style="margin-top:20px;">关于武装防卫局</div><div style="padding:10px 0; color: var(--text-dim);">武装防卫局 (ADA) · 科伦地区最高战术执法机构<br>“秩序即正义” — 非商业二创，致敬执法模拟</div></div></div>
-    </div>
-</main>
+</div>
 
-<!-- 行动卷宗模态框 (毒贩头目案件) -->
-<div id="caseModal" class="modal-overlay"><div class="modal-container"><div class="modal-header"><span><i class="fas fa-file-alt"></i> 行动卷宗: 麦田小屋清剿 (OP-412)</span><button class="close-modal" id="closeModalBtn">&times;</button></div><div class="modal-body"><h4>📋 任务概要</h4><p><strong>目标:</strong> 逮捕毒贩头目埃米尔·科斯塔，缴获毒品及武器。</p><p><strong>地点:</strong> 农场南侧麦田独立小屋，周围开阔地带。</p><p><strong>情报:</strong> 线人提供确切位置，嫌疑人随身携带武装保镖3-4人，可能有自动武器。</p><h4>👥 目标详情</h4><ul><li>埃米尔·科斯塔，男，45岁，卡莫纳地区最大贩毒网络首脑。</li><li>曾策划多起谋杀，极度危险，A级通缉令。</li><li>现场预计藏有大量现金及制毒工具。</li></ul><h4>🔍 战术指令</h4><ul><li>立即包围小屋，实施闪电突袭。</li><li>优先确保非战斗人员疏散。</li><li>授权使用非致命装备，如遇抵抗可升级武力。</li></ul><h4>📡 支援配置</h4><ul><li>地面单位: 2台装甲战术车，K9小队待命。</li><li>空中: 无人机侦察支援。</li><li>医疗后送: 现场待命。</li></ul><h4>⚠️ 警告</h4><p>嫌疑人可能持有爆炸物，接近时保持战术距离，立即请求增援。</p></div></div></div>
-
-<script>
-    (function(){
-        // 全局数据 (适配新任务)
-        let activeIncidents = 14, unitsAvailable = 6;
-        let currentStatusCode = "10-6", currentStatusLabel = "执行任务";
-        let logEntries = [
-            { time: "22:15:30", text: "情报更新: 目标埃米尔·科斯塔确认在麦田小屋内部" },
-            { time: "22:22:10", text: "无人机红外扫描: 3名武装人员外围警戒" },
-            { time: "22:35:44", text: "中央命令: 立即实施抓捕, 允许使用致命武力" }
-        ];
-        
-        // DOM 元素
-        const clockEl = document.getElementById('liveClock');
-        const activeIncidentsEl = document.getElementById('activeIncidentsCount');
-        const unitsAvailableEl = document.getElementById('unitsAvailableCount');
-        const updatesLogDiv = document.getElementById('updatesLog');
-        const panicBtn = document.getElementById('panicButton');
-        const enrouteBtn = document.getElementById('enrouteBtn');
-        const backupBtn = document.getElementById('backupBtn');
-        const endShiftBtn = document.getElementById('endShiftBtn');
-        const officerStatusSpan = document.getElementById('officerStatusLabel');
-        const statusBtns = document.querySelectorAll('#statusPanel .status-btn');
-        const caseDetailBtn = document.getElementById('caseDetailBtn');
-        const caseModal = document.getElementById('caseModal');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        
-        function openCaseModal() { caseModal.classList.add('active'); addLog("指挥官查阅行动卷宗: OP-412 麦田小屋突袭计划"); }
-        function closeCaseModal() { caseModal.classList.remove('active'); }
-        if(caseDetailBtn) caseDetailBtn.addEventListener('click', openCaseModal);
-        if(closeModalBtn) closeModalBtn.addEventListener('click', closeCaseModal);
-        caseModal.addEventListener('click', (e) => { if(e.target === caseModal) closeCaseModal(); });
-        
-        function getFormattedTime() { return new Date().toLocaleTimeString('en-GB', { hour12: false }); }
-        function updateClock() { clockEl.textContent = getFormattedTime(); }
-        setInterval(updateClock, 1000); updateClock();
-        
-        function renderLogs() {
-            if(!updatesLogDiv) return;
-            updatesLogDiv.innerHTML = '';
-            [...logEntries].reverse().forEach(entry => {
-                const div = document.createElement('div');
-                div.className = 'log-entry';
-                div.innerHTML = `<span class="log-time">[${entry.time}]</span><span class="log-text">${entry.text}</span>`;
-                updatesLogDiv.prepend(div);
-            });
-            if(updatesLogDiv.children.length) updatesLogDiv.scrollTop = updatesLogDiv.scrollHeight;
-        }
-        function addLog(text, isEmergency = false) {
-            const now = getFormattedTime();
-            logEntries.push({ time: now, text });
-            if(logEntries.length > 30) logEntries.shift();
-            renderLogs();
-            if(isEmergency) document.querySelector('.dispatch-panel')?.classList.add('panic-flash');
-            setTimeout(() => document.querySelector('.dispatch-panel')?.classList.remove('panic-flash'), 500);
-        }
-        function updateStatsUI() { if(activeIncidentsEl) activeIncidentsEl.innerText = activeIncidents; if(unitsAvailableEl) unitsAvailableEl.innerText = unitsAvailable; }
-        function updateOfficerStatusUI() {
-            let dotColor = currentStatusCode === "10-8" ? "#3fb950" : (currentStatusCode === "10-6" ? "#d29922" : (currentStatusCode === "10-97" ? "#1f6feb" : "#8b949e"));
-            officerStatusSpan.innerHTML = `<i class="fas fa-circle" style="font-size:8px;margin-right:5px;color:${dotColor};"></i> ${currentStatusCode} ${currentStatusLabel}`;
-        }
-        function setActiveStatus(statusCode, labelText) {
-            statusBtns.forEach(btn => { if(btn.getAttribute('data-status') === statusCode) btn.classList.add('active'); else btn.classList.remove('active'); });
-            currentStatusCode = statusCode; currentStatusLabel = labelText;
-            updateOfficerStatusUI();
-            addLog(`战术分队 7-ALPHA 状态更新: ${statusCode} - ${labelText}`);
-        }
-        statusBtns.forEach(btn => btn.addEventListener('click', () => {
-            const code = btn.getAttribute('data-status');
-            let label = code === "10-8" ? "待命巡逻" : (code === "10-7" ? "休整" : (code === "10-6" ? "执行任务" : "现场就位"));
-            setActiveStatus(code, label);
-        }));
-        if(enrouteBtn) enrouteBtn.addEventListener('click', () => {
-            addLog(`🚔 战术分队 7-ALPHA 正在响应麦田小屋行动，执行包围 (CODE 3)`);
-            if(currentStatusCode !== "10-6" && currentStatusCode !== "10-97") setActiveStatus("10-6", "执行任务");
-        });
-        if(backupBtn) backupBtn.addEventListener('click', () => {
-            if(unitsAvailable > 0) { unitsAvailable--; updateStatsUI(); addLog(`🔴 支援单位已调遣! 剩余可用战术小队: ${unitsAvailable}`); }
-            else addLog(`❌ 无额外单位可用，已请求总局紧急增援`, true);
-        });
-        panicBtn.addEventListener('click', () => {
-            addLog(`🚨🚨 10-33 武装呼救 - 指挥官 Kane 需要立即支援！麦田小屋交火中 🚨🚨`, true);
-            document.body.style.backgroundColor = '#3a1217'; setTimeout(() => document.body.style.backgroundColor = '', 400);
-            if(unitsAvailable > 0) { unitsAvailable = Math.max(0, unitsAvailable - 1); updateStatsUI(); }
-        });
-        endShiftBtn.addEventListener('click', () => {
-            if(confirm("结束执勤 (10-42)？将重置所有战术状态")) {
-                activeIncidents = 14; unitsAvailable = 6;
-                logEntries = [{ time: getFormattedTime(), text: "=== 新轮班交接 (10-42) 武装防卫局待命 ===" }, { time: getFormattedTime(), text: "调度中心: 麦田区域安全等级提升，密切关注毒枭动向" }];
-                setActiveStatus("10-8", "待命巡逻");
-                updateStatsUI(); renderLogs(); addLog("👮 指挥官 Kane 开始新战术轮班");
-            }
-        });
-        
-        // 视图切换
-        const navItems = document.querySelectorAll('.nav-item[data-view]');
-        const views = { dashboard: document.getElementById('dashboardView'), ncic: document.getElementById('ncicView'), dispatchComms: document.getElementById('dispatchCommsView'), tacticalMap: document.getElementById('tacticalMapView'), settings: document.getElementById('settingsView') };
-        function switchView(viewId) { Object.keys(views).forEach(key => views[key].classList.remove('active-view')); views[viewId].classList.add('active-view'); navItems.forEach(item => { if(item.getAttribute('data-view') === viewId) item.classList.add('active'); else item.classList.remove('active'); }); if(viewId === 'tacticalMap') drawMap(); }
-        navItems.forEach(item => { item.addEventListener('click', () => { const view = item.getAttribute('data-view'); if(view && views[view]) switchView(view); }); });
-        
-        // NCIC 查询适配
-        const ncicSearchBtn = document.getElementById('ncicSearchBtn'), ncicQuery = document.getElementById('ncicQuery'), ncicResultArea = document.getElementById('ncicResultArea');
-        if(ncicSearchBtn) ncicSearchBtn.addEventListener('click', () => {
-            const query = ncicQuery.value.trim();
-            if(!query) { addLog("情报库查询为空"); return; }
-            addLog(`NCIC检索: ${query}`);
-            ncicResultArea.innerHTML = `<div class="result-card"><i class="fas fa-spinner fa-pulse"></i> 正在交叉比对ADA数据库...</div>`;
-            setTimeout(() => {
-                if(query.toLowerCase().includes("科斯塔") || query.toLowerCase().includes("costa")) ncicResultArea.innerHTML = `<div class="result-card"><i class="fas fa-skull"></i> <strong>埃米尔·科斯塔</strong><br>A级通缉 · 最后定位: 农场南麦田小屋 · 武装危险</div>`;
-                else if(query.includes("2749") || query.includes("猛禽")) ncicResultArea.innerHTML = `<div class="result-card"><i class="fas fa-truck"></i> <strong>黑色福特猛禽</strong><br>车牌C-2749K · 涉嫌毒品运输 · 与毒枭案关联</div>`;
-                else ncicResultArea.innerHTML = `<div class="result-card"><i class="fas fa-check-circle"></i> 未发现直接匹配，但已记录关注对象</div>`;
-                addLog(`情报库返回结果: ${query}`);
-            }, 600);
-        });
-        
-        // 通讯模块
-        const sendCommBtn = document.getElementById('sendCommBtn'), commInput = document.getElementById('commInput'), commMessagesDiv = document.getElementById('commMessages');
-        if(sendCommBtn) sendCommBtn.addEventListener('click', () => {
-            const msg = commInput.value.trim();
-            if(!msg) return;
-            addLog(`[加密通讯] 7-ALPHA: ${msg}`);
-            const newMsg = document.createElement('div'); newMsg.className = 'comm-message'; newMsg.innerHTML = `<i class="fas fa-radio"></i> <span><strong>7-ALPHA:</strong> ${msg}</span>`;
-            commMessagesDiv.appendChild(newMsg); commMessagesDiv.scrollTop = commMessagesDiv.scrollHeight; commInput.value = '';
-            setTimeout(() => { const reply = document.createElement('div'); reply.className = 'comm-message'; reply.innerHTML = `<i class="fas fa-microphone-alt" style="color:var(--primary-blue);"></i> <span><strong>中央调度:</strong> 已收到，支援在途。</span>`; commMessagesDiv.appendChild(reply); commMessagesDiv.scrollTop = commMessagesDiv.scrollHeight; }, 1000);
-        });
-        
-        // 战术地图 (修改标记点为麦田小屋)
-        const canvas = document.getElementById('tacticalCanvas');
-        function drawMap() {
-            if(!canvas) return;
-            const ctx = canvas.getContext('2d'); const w = canvas.clientWidth, h = 250;
-            canvas.width = w; canvas.height = h;
-            ctx.fillStyle = '#0a0e14'; ctx.fillRect(0,0,w,h);
-            ctx.strokeStyle = '#2a3340'; ctx.lineWidth = 0.5;
-            for(let i=0;i<10;i++){ ctx.beginPath(); ctx.moveTo(i*(w/10),0); ctx.lineTo(i*(w/10),h); ctx.stroke(); ctx.moveTo(0,i*(h/10)); ctx.lineTo(w,i*(h/10)); ctx.stroke(); }
-            ctx.fillStyle = '#da3633'; ctx.fillRect(w*0.65-10, h*0.45-10, 20,20);
-            ctx.fillStyle = '#1f6feb'; ctx.beginPath(); ctx.arc(w*0.25, h*0.6, 8, 0, 2*Math.PI); ctx.fill();
-            ctx.fillStyle = 'white'; ctx.font = "12px monospace";
-            ctx.fillText("麦田小屋(目标)", w*0.65-50, h*0.45-12);
-            ctx.fillText("7-ALPHA 位置", w*0.25-30, h*0.6-10);
-        }
-        window.addEventListener('resize', () => { if(views.tacticalMap.classList.contains('active-view')) drawMap(); });
-        document.getElementById('mapZoomIn')?.addEventListener('click', () => { drawMap(); addLog("战术地图: 放大区域"); });
-        document.getElementById('mapZoomOut')?.addEventListener('click', () => { drawMap(); addLog("战术地图: 缩小视野"); });
-        document.getElementById('mapRefresh')?.addEventListener('click', () => { drawMap(); addLog("地图刷新: 更新嫌疑人热区"); });
-        
-        function initToggles() { document.querySelectorAll('.toggle-switch').forEach(t => t.addEventListener('click', function(){ this.classList.toggle('active'); addLog(`配置项更改: ${this.parentElement.innerText.split('\n')[0]}`); })); }
-        
-        renderLogs(); updateStatsUI(); setActiveStatus("10-6", "执行任务"); initToggles(); drawMap();
-        addLog("武装防卫局战术终端已上线 | 当前目标: 麦田小屋毒贩头目逮捕");
-    })();
-</script>
 </body>
+</html>
 </html>
